@@ -57,6 +57,19 @@ struct cvk_Instance {
 
 
 //______________________________________
+// @section Instance: Helper Tools
+//____________________________
+
+/// @description
+/// Checks that all layers in the given {@arg required} list are supported by the system
+/// @param required
+///  List of layers that the function will check support for.
+///  Must be a `cvk_Slice[cvk_String]` type
+///  Will always return true when the required list is empty.
+cvk_bool cvk_instance_layers_checkSupport (cvk_Slice const required, cvk_Allocator* const allocator);
+
+
+//______________________________________
 // @section Single Header Support
 //____________________________
 #ifdef cvk_Implementation

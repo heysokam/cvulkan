@@ -7,7 +7,6 @@
 #define H_cvulkan
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
-// #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
 #include "./cvulkan/core.h"
 #pragma GCC diagnostic pop
 #endif  // H_cvulkan
