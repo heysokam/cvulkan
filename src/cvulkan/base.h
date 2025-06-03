@@ -29,6 +29,11 @@ typedef void*       cvk_pointer;
 typedef char const* cvk_String;
 typedef cvk_String* cvk_StringList;
 
+#ifndef cvk_String_equal
+#include <string.h>
+#define cvk_String_equal(A, B) (strcmp((A),(B)) == 0)
+#endif  // cvk_String_equal
+
 
 //______________________________________
 // @section Primitives
@@ -44,6 +49,17 @@ struct cvk_Slice {
 // clang-format off
 #define cvk_Slice_empty() (cvk_Slice){ .len = 0, .ptr = NULL }
 // clang-format on
+
+
+//______________________________________
+// @section stdlib Helpers
+//____________________________
+
+#ifndef cvk_print
+#include <stdio.h>
+#define cvk_print printf
+#endif // cvk_print
+
 
 
 //______________________________________
