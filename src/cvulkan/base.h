@@ -47,8 +47,15 @@ struct cvk_Slice {
 
 
 //______________________________________
-// @section Pragmas
+// @section Pragmas (compiler helpers)
 //____________________________
+
+#ifndef cvk_discard
+/// @description
+/// Marks the given value as explicitly unused
+#define cvk_discard(val) (void)(val)
+#endif  // cvk_discard
+
 
 #ifndef cvk_Nullable
 /// @description
