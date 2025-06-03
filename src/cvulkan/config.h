@@ -5,13 +5,14 @@
 #define H_cvk_config
 #include "./base.h"
 
+
 #ifndef cvk_config_vulkan_version
 #define cvk_config_vulkan_version VK_API_VERSION_1_4
 #endif  // cvk_config_vulkan_version
 
 
 #ifndef cvk_config_validation_active
-#define cvk_config_validation_active true
+#define cvk_config_validation_active cvk_true
 #endif  // cvk_config_validation_active
 
 
@@ -37,4 +38,15 @@
 #endif  // cvk_config_validation_debug_flags
 
 
+#ifndef cvk_config_debug_callback
+#define cvk_config_debug_callback cvk_validation_debug_callback
+#endif  // cvk_config_debug_callback
+
+
+#ifndef cvk_config_debug_userdata
+#define cvk_config_debug_userdata NULL
+#endif  // cvk_config_debug_userdata
+
+
 #endif  // H_cvk_config
+
