@@ -10,6 +10,7 @@
 #include "./memory.h"
 #include "./config.h"
 #include "./application.h"
+#include "./extensions.h"
 #include "./validation.h"
 #include "./instance.h"
 #endif  // H_cvulkan_public
