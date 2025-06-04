@@ -31,7 +31,7 @@ typedef cvk_String* cvk_StringList;
 
 #ifndef cvk_String_equal
 #include <string.h>
-#define cvk_String_equal(A, B) (strcmp((A),(B)) == 0)
+#define cvk_String_equal(A, B) (strcmp((A), (B)) == 0)
 #endif  // cvk_String_equal
 
 
@@ -41,14 +41,23 @@ typedef cvk_String* cvk_StringList;
 
 typedef uint32_t cvk_Version;
 
-typedef struct cvk_Slice cvk_Slice;
-struct cvk_Slice {
+typedef struct cvk_Slice_s {
   cvk_size    len;
   cvk_pointer ptr;
-};
-// clang-format off
+} cvk_Slice_t;
+#ifndef cvk_Slice  // clang-format off
+#define cvk_Slice cvk_Slice_t
 #define cvk_Slice_empty() (cvk_Slice){ .len = 0, .ptr = NULL }
+#define cvk_Slice_isEmpty(slice) ((slice).ptr == NULL || (slice).len == 0)
 // clang-format on
+#endif  // cvk_Slice
+
+#ifndef cvk_Optional_u32
+#define cvk_Optional_u32               uint32_t
+#define cvk_Optional_u32_none          UINT32_MAX
+#define cvk_Optional_u32_isNone(val)   ((val) == cvk_Optional_u32_none)
+#define cvk_Optional_u32_hasValue(val) (!cvk_Optional_u32_isNone((val)))
+#endif  // cvk_Optional
 
 
 //______________________________________
@@ -58,8 +67,7 @@ struct cvk_Slice {
 #ifndef cvk_print
 #include <stdio.h>
 #define cvk_print printf
-#endif // cvk_print
-
+#endif  // cvk_print
 
 
 //______________________________________
