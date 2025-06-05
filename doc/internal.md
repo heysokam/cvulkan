@@ -8,6 +8,9 @@ This project treats namespaces as categories for code organization.
 Global State is strictly forbidden.  
 Functions must be pure, unless unavoidable _(eg: IO operations, etc)_.  
 Function arguments must be immutable.  
+Pointers usage:
+- Pointers to many must be a `Slice` type, or have a typedef that names them as such
+- Pointers without a Slice are always assumed to point to only one item
 Must be avoided:
 - Encapsulation  
 - Hidden/Private object members  
@@ -48,4 +51,6 @@ Must be avoided:
 ### Vulkan Renames
 - `CreateInfo`          -> `Options`
 - `DebugUtilsMessenger` -> `Debug`
+- `Device`              -> `Device.Logical`
+- `PhysicalDevice`      -> `Device.Physical`
 
