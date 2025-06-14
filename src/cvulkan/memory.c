@@ -29,6 +29,7 @@ void cvk_allocator_free_stdlib (
   cvk_Allocator_CPU* const A,
   cvk_Slice                data
 ) {
+  if (data.ptr == NULL) return;
   cvk_discard(A);
   free(data.ptr);
 }
