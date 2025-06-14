@@ -1,6 +1,8 @@
 //:____________________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:____________________________________________________________________
+//! @fileoverview Vulkan Device: Types & Tools
+//_____________________________________________|
 #ifndef H_cvk_device
 #define H_cvk_device
 #include "./base.h"

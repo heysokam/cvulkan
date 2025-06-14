@@ -1,6 +1,8 @@
 //:____________________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:____________________________________________________________________
+//! @fileoverview Vulkan Debug & Validation Layers: Types & Tools
+//________________________________________________________________|
 #ifndef H_cvulkan_validation
 #define H_cvulkan_validation
 #include "./base.h"

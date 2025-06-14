@@ -1,6 +1,8 @@
 //:________________________________________________________________
 //  cvk  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:________________________________________________________________
+//! @fileoverview Vulkan Extensions: Types & Tools
+//_________________________________________________|
 #ifndef H_cvk_extensions
 #define H_cvk_extensions
 #include "./base.h"

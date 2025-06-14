@@ -1,6 +1,8 @@
 //:________________________________________________________________
 //  cvk  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:________________________________________________________________
+//! @fileoverview Vulkan Result: Helpers
+//_______________________________________|
 #ifndef H_cvk_result
 #define H_cvk_result
 

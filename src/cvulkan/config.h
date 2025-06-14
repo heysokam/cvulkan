@@ -1,6 +1,8 @@
 //:________________________________________________________________
 //  cvk  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:________________________________________________________________
+//! @fileoverview cvulkan configuration options
+//______________________________________________|
 #ifndef H_cvk_config
 #define H_cvk_config
 #include "./base.h"

@@ -1,6 +1,8 @@
 //:____________________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:____________________________________________________________________
+//! @fileoverview Base cvulkan tools used by all other modules
+//_____________________________________________________________|
 #ifndef H_cvulkan_base
 #define H_cvulkan_base
 

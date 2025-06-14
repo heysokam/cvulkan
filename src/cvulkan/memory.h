@@ -7,6 +7,7 @@
 #define H_cvulkan_memory
 #include "./base.h"
 
+
 //______________________________________
 // @section Allocator.CPU: Overridable Type
 //____________________________
@@ -14,6 +15,7 @@
 typedef struct cvk_Allocator_CPU_s cvk_Allocator_CPU_t;
 #define cvk_Allocator_CPU cvk_Allocator_CPU_t
 #endif  // cvk_Allocator_CPU
+
 
 //______________________________________
 // @section Allocator.CPU: Function Types Declarations
@@ -64,6 +66,7 @@ cvk_Pure cvk_Allocator_CPU cvk_allocator_cpu_stdlib ();
 #define cvk_allocator_cpu_defaults() cvk_allocator_cpu_stdlib()
 #endif  // cvk_allocator_cpu_defaults
 
+
 //______________________________________
 // @section Allocator.GPU: NULL
 //____________________________
@@ -73,6 +76,7 @@ cvk_Pure cvk_Allocator_CPU cvk_allocator_cpu_stdlib ();
 /// @overridable Add `#define cvk_allocator_gpu_defaults yourAllocatorGeneratorFunction` to your code to change this default behavior
 #define cvk_allocator_gpu_defaults() (VkAllocationCallbacks*)(NULL)
 #endif  // cvk_allocator_gpu_defaults
+
 
 //______________________________________
 // @section Allocator: Default (cpu:stdlib, gpu:NULL)

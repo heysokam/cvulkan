@@ -118,6 +118,7 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
   return result;
 }  //:: cvk_device_physical_create
 
+
 void cvk_device_physical_destroy (
   cvk_device_Physical* const device,
   cvk_Allocator* const       allocator
