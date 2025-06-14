@@ -83,3 +83,4 @@ cvk_bool cvk_instance_layers_checkSupport (cvk_Slice const required, cvk_Allocat
 
 
 #endif  // H_cvk_instance
+

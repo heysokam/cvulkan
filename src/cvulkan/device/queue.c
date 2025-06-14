@@ -1,9 +1,8 @@
 //:____________________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:____________________________________________________________________
-#include "./result.h"
-#include "./device.h"
-
+#include "../result.h"
+#include "../device.h"
 
 cvk_Pure cvk_QueueFamilies cvk_queue_families_create (
   cvk_device_Physical const* const device,
@@ -63,68 +62,54 @@ void cvk_queue_families_destroy (
 }  //:: cvk_queue_families_destroy
 
 
-cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create (
+  cvk_QueueID  family,
+  uint32_t     count,
+  float const* priorities,
+  cvk_bool     Protected
 ) {
-  cvk_bool result = cvk_false;
-  // Allocate the list of QueueFamilies of this device
-  cvk_QueueFamilies queueFamilies = cvk_queue_families_create(device, surface, allocator);
-  // Find if the device is suitable
-  if (cvk_Optional_u32_hasValue(queueFamilies.graphics)) result = cvk_true;
-  // Cleanup the QueueFamilies list we just allocated
-  cvk_queue_families_destroy(&queueFamilies, allocator);
+  return (VkDeviceQueueCreateInfo){
+    .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+    .pNext            = NULL,
+    .flags            = (Protected) ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : (VkDeviceQueueCreateFlags)0,
+    .queueFamilyIndex = family,
+    .queueCount       = count,
+    .pQueuePriorities = priorities,
+
+  };
+}
+
+
+static cvk_Pure cvk_QueuePriority cvk_QueuePriority_clamp (
+  cvk_QueuePriority const priority
+) {  // clang-format off
+  return (priority < 0.0f) ? 0.0f
+  : (priority > 1.0f) ? 1.0f
+  : priority;
+}  // clang-format on
+
+
+cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (
+  cvk_device_queue_create_args* const arg
+) {
+  cvk_device_Queue result = (cvk_device_Queue){
+    .ct       = NULL,
+    .priority = cvk_QueuePriority_clamp(arg->priority),
+  };
+  result.cfg = cvk_device_queue_options_create(
+    /* family     */ arg->id,
+    /* count      */ 1,
+    /* priorities */ &result.priority,
+    /* Protected  */ arg->Protected
+  );
   return result;
-}  //:: cvk_device_physical_isSuitable_default
+}
 
 
-cvk_Pure cvk_Slice /* VkPhysicalDevice[] */ cvk_device_physical_getAvailable (
-  cvk_Instance* const instance
+void cvk_device_queue_create_context (
+  cvk_device_Queue* const         queue,
+  cvk_device_Logical const* const device
 ) {
-  cvk_Slice result = cvk_Slice_empty();
-  cvk_result_check(vkEnumeratePhysicalDevices(instance->ct, (uint32_t*)&result.len, NULL), "Failed when searching for GPUs with Vulkan support.");
-  cvk_assert(result.len, "Failed to find any GPUs with Vulkan support.");
-  result = /* VkPhysicalDevice[] */ instance->allocator.cpu.allocZ(&instance->allocator.cpu, result.len, sizeof(VkPhysicalDevice));
-  cvk_result_check(vkEnumeratePhysicalDevices(instance->ct, (uint32_t*)&result.len, result.ptr), "Failed to retrieve the list of GPUs.");
-  return result;
-}  //:: cvk_device_physical_getAvailable
-
-
-cvk_Pure cvk_device_Physical cvk_device_physical_create (
-  cvk_device_physical_create_args* const arg
-) {
-  // Get the list of available devices
-  cvk_Slice available = cvk_device_physical_getAvailable(&arg->instance);
-  // Get the isSuitable function (user or default)
-  cvk_Fn_device_physical_isSuitable const isSuitable = (!arg->isSuitable) ? arg->isSuitable : cvk_device_physical_isSuitable;
-  // For each available device, call isSuitable and stop when the condition matches
-  cvk_device_Physical result = (cvk_device_Physical){ .ct = NULL, .id = cvk_Optional_u32_none };
-  for (cvk_Optional_u32 id = 0; id < available.len; ++id) {  // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-    result = (cvk_device_Physical){ .ct = ((VkPhysicalDevice*)available.ptr)[id], .id = id };
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-    if (arg->forceFirst) break;  // clang-format on
-    // Continue/stop based on suitability
-    if (isSuitable(&result, arg->surface, &arg->instance.allocator)) {
-      result.queueFamilies = cvk_queue_families_create(&result, arg->surface, &arg->instance.allocator);
-      break;
-    }
-  }
-  // Validate and Return the result
-  cvk_assert(cvk_Optional_u32_hasValue(result.id), "Failed to find a Physical Device (GPU) suitable for Vulkan.");
-  cvk_assert(result.ct != VK_NULL_HANDLE, "Failed to find a Physical Device (GPU) suitable for Vulkan.");
-  return result;
-}  //:: cvk_device_physical_create
-
-
-void cvk_device_physical_destroy (
-  cvk_device_Physical* const device,
-  cvk_Allocator* const       allocator
-) {
-  cvk_queue_families_destroy(&device->queueFamilies, allocator);
-  device->ct = NULL;
-  device->id = cvk_Optional_u32_none;
+  vkGetDeviceQueue(device->ct, queue->cfg.queueFamilyIndex, 0, &queue->ct);
 }
 

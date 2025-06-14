@@ -96,3 +96,4 @@ void cvk_validation_debug_context_destroy (VkInstance const instance, VkDebugUti
 
 
 #endif  // H_cvulkan_validation
+

@@ -21,5 +21,6 @@ cvk_Pure cvk_Application cvk_Application_defaults ();
 #include "./application.c"
 #endif
 
+
 #endif  // H_cvulkan_application
 
