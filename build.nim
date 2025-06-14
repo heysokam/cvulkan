@@ -13,7 +13,7 @@ const dir_cvk      = dir_root/"src"
 const dir_examples = dir_root/"examples"
 
 # For csys connector to glfw
-const cdk = Dependency.new("cdk", "https://github.com/heysokam/cdk", ".")
+const cdk = Dependency.new("cdk", "https://github.com/heysokam/cdk")
 
 #_______________________________________
 # @section Build the Examples

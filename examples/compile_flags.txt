@@ -1,5 +1,5 @@
 -std=c2x
--I../bin/.lib/cdk
--I./bin/.lib/cdk
+-I../bin/.lib/cdk/src
+-I./bin/.lib/cdk/src
 -I../src
 -I./src
