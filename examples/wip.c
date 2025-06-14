@@ -16,7 +16,7 @@ typedef struct Example {
   cvk_device_Physical device_physical;
   cvk_device_Queue    device_queue;
   cvk_device_Logical  device_logical;
-} Example;
+} Bootstrap;
 
 
 /// @important
@@ -27,7 +27,7 @@ typedef struct Example {
 /// @description
 /// Example of how to create a valid Vulkan Surface for the given GLFW {@arg window}
 ///
-static cvk_Surface example_surface_create (
+static cvk_Surface bootstrap_surface_create (
   VkInstance const       instance,
   GLFWwindow* const      window,
   VkAllocationCallbacks* allocator
@@ -37,14 +37,14 @@ static cvk_Surface example_surface_create (
     "Failed to create the Vulkan Surface for the given GLFW window.");  // clang-format on
   return result;
 }
-#define example_surface_destroy vkDestroySurfaceKHR
+#define bootstrap_surface_destroy vkDestroySurfaceKHR
 
-static Example example_create (
-  GLFWwindow* const window  // Only used for surface creation. @see example_surface_create for more info
+static Bootstrap bootstrap_create (
+  GLFWwindow* const window  ///< Only for surface creation. @see bootstrap_surface_create for more info
 ) {
-  Example result         = (Example){ 0 };
-  result.instance        = cvk_instance_create(&(cvk_instance_create_args){ 0 }); // Create with all defaults
-  result.surface         = example_surface_create(result.instance.ct, window, result.instance.allocator.gpu);
+  Bootstrap result       = (Bootstrap){ 0 };
+  result.instance        = cvk_instance_create(&(cvk_instance_create_args){ 0 });  // Create with all defaults
+  result.surface         = bootstrap_surface_create(result.instance.ct, window, result.instance.allocator.gpu);
   result.device_physical = cvk_device_physical_create(&(cvk_device_physical_create_args){
     .instance   = &result.instance,
     .surface    = result.surface,
@@ -65,24 +65,24 @@ static Example example_create (
   return result;
 }
 
-static void example_destroy (
-  Example* gpu
+static void bootstrap_destroy (
+  Bootstrap* gpu
 ) {
   cvk_device_logical_destroy(&gpu->device_logical, &gpu->instance.allocator);
   cvk_device_queue_destroy(&gpu->device_queue, &gpu->instance.allocator);
   cvk_device_physical_destroy(&gpu->device_physical, &gpu->instance.allocator);
-  example_surface_destroy(gpu->instance.ct, gpu->surface, gpu->instance.allocator.gpu);
+  bootstrap_surface_destroy(gpu->instance.ct, gpu->surface, gpu->instance.allocator.gpu);
   cvk_instance_destroy(&gpu->instance);
 }
 
 int main () {
   // Initialize
   csys_System sys = csys_init(csys_init_Options_defaults());
-  Example     gpu = example_create(sys.window.ct);
+  Bootstrap   gpu = bootstrap_create(sys.window.ct);
   // Update Loop
   while (!csys_close(&sys)) { csys_update(&sys); }
   // Terminate
-  example_destroy(&gpu);
+  bootstrap_destroy(&gpu);
   csys_term(&sys);
   return 0;
 }
