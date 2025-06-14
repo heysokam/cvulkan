@@ -3,8 +3,8 @@
 //:____________________________________________________________________
 //! @fileoverview Cable connector to the public modules of the library.
 //_____________________________________________________________________|
-#ifndef H_cvulkan_public
-#define H_cvulkan_public
+#ifndef H_cvulkan_core
+#define H_cvulkan_core
 #include "./base.h"
 #include "./result.h"
 #include "./memory.h"
@@ -13,4 +13,6 @@
 #include "./extensions.h"
 #include "./validation.h"
 #include "./instance.h"
-#endif  // H_cvulkan_public
+#include "./surface.h"
+#include "./device.h"
+#endif  // H_cvulkan_core

@@ -11,19 +11,30 @@
 #include <cvulkan.h>
 
 typedef struct Example {
-  cvk_Instance instance;
+  cvk_Instance        instance;
+  cvk_Surface         surface;
+  cvk_device_Physical device_physical;
+  cvk_device_Logical  device_logical;
 } Example;
 
+static cvk_Surface example_Surface_create () { return NULL; }
+
 static Example example_create () {
-  Example result = (Example){
-    .instance = cvk_instance_create(&(cvk_instance_create_args){ 0 }),
-  };
+  Example result         = (Example){ 0 };
+  result.instance        = cvk_instance_create(&(cvk_instance_create_args){ 0 });
+  result.surface         = example_Surface_create();
+  result.device_physical = cvk_device_physical_create(&(cvk_device_physical_create_args){
+    .instance   = result.instance,
+    .surface    = result.surface,
+    .forceFirst = cvk_true,
+  });
   return result;
 }
 
 static void example_destroy (
   Example* gpu
 ) {
+  cvk_device_physical_destroy(&gpu->device_physical, &gpu->instance.allocator);
   cvk_instance_destroy(&gpu->instance);
 }
 
