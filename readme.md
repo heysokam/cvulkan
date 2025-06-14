@@ -1,10 +1,54 @@
-# cvulkan | Comfy Vulkan Helpers
+# cvulkan | Comfy Vulkan API
 `cvulkan` is a library of helpers to reduce redundant boilerplate when using Vulkan.
 
 ## How to
 > TODO: Write a simple howto intro.  
 > Reference the @[examples](./examples/) folder in the meantime.  
 
+## TODO
+```md
+# VkResult
+- [x] toString
+- [x] check
+- [x] assert
+```
+```md
+# VkInstance
+- [x] Application Info
+- [x] Validation Layers
+- [x] Debug Messenger
+- [ ] Extensions
+  - [x] Minimal
+  - [ ] Custom
+```
+```md
+# VkSurfaceKHR
+- [x] Accept a Surface handle from the user
+- [x] Destroy helper for naming consistency
+```
+```md
+# Device
+## Physical
+...
+## Queue
+...
+## Logical
+...
+```
+```md
+# Memory Allocators
+## CPU
+- [x] Custom Allocator Support
+- [x] stdlib: malloc -> alloc
+- [x] stdlib: calloc -> allocZ
+- [x] stdlib: free   -> free
+- [ ] stdlib: memcpy -> copy
+- [ ] stdlib: memset -> set
+## GPU
+- [x] Custom Allocator Support
+- [x] NULL Allocator
+- [ ] Pure C Replacement for VMA
+```
 
 ## Buildsystem
 > @note  
