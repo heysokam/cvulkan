@@ -8,6 +8,11 @@
 #include "./base.h"
 
 
+#ifndef cvk_config_Name
+#define cvk_config_Name "cvulkan"
+#endif// cvk_config_Name
+
+
 #ifndef cvk_config_vulkan_version
 #define cvk_config_vulkan_version VK_API_VERSION_1_4
 #endif  // cvk_config_vulkan_version
