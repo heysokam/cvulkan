@@ -3,6 +3,7 @@
 //:____________________________________________________________________
 #include "./result.h"
 #include "./validation.h"
+#include <vulkan/vulkan_core.h>
 #include "./instance.h"
 
 
@@ -115,10 +116,16 @@ cvk_Pure cvk_Instance cvk_instance_create (
   //
   // TODO:  Extensions
   //
-  cvk_String extension_list[1] = { [0] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME };
+  cvk_String extension_list[3] = {
+    [0] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+    // FIX: Should come from the user-provided extensions_getRequired function (eg: glfw)
+    [1] = VK_KHR_SURFACE_EXTENSION_NAME,
+    [2] = "VK_KHR_xcb_surface", // VK_KHR_XCB_SURFACE_EXTENSION_NAME
+    // TODO: Portability for mac
+  };
   cvk_Slice  extensions        = cvk_Slice_empty();
   extensions.ptr               = &extension_list;
-  extensions.len               = 1;
+  extensions.len               = 3;
 
   // Create instance.cfg
   //  : with layers

@@ -1,9 +1,8 @@
 //:____________________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
 //:____________________________________________________________________
-// @deps std
-#include <stdio.h>
 // @deps cdk
+#define GLFW_INCLUDE_VULKAN
 #define csys_Implementation
 #include <csys.h>
 // @deps cvulkan
@@ -17,12 +16,34 @@ typedef struct Example {
   cvk_device_Logical  device_logical;
 } Example;
 
-static cvk_Surface example_Surface_create () { return NULL; }
 
-static Example example_create () {
+/// @important
+/// Surface requesting would force this library to depend on a specific windowing library.
+/// As such, cvulkan expects you to send the VkSurfaceKHR handle as input.
+/// How you request that handle is up to you. cvulkan doesn't need to know about it.
+///
+/// @description
+/// Example of how to create a valid Vulkan Surface for the given GLFW {@arg window}
+///
+static cvk_Surface example_surface_create (
+  VkInstance const  instance,
+  GLFWwindow* const window,
+  VkAllocationCallbacks* allocator
+) {
+  VkSurfaceKHR result = NULL;
+  cvk_result_check(glfwCreateWindowSurface(instance, window, allocator, &result),
+    "Failed to create the Vulkan Surface for the given GLFW window.");
+  return result;
+}
+#define example_surface_destroy vkDestroySurfaceKHR
+
+
+static Example example_create (
+  GLFWwindow* const window  // Only used for surface creation. @see example_surface_create for more info
+) {
   Example result         = (Example){ 0 };
   result.instance        = cvk_instance_create(&(cvk_instance_create_args){ 0 });
-  result.surface         = example_Surface_create();
+  result.surface         = example_surface_create(result.instance.ct, window, result.instance.allocator.gpu);
   result.device_physical = cvk_device_physical_create(&(cvk_device_physical_create_args){
     .instance   = result.instance,
     .surface    = result.surface,
@@ -35,18 +56,17 @@ static void example_destroy (
   Example* gpu
 ) {
   cvk_device_physical_destroy(&gpu->device_physical, &gpu->instance.allocator);
+  example_surface_destroy(gpu->instance.ct, gpu->surface, gpu->instance.allocator.gpu);
   cvk_instance_destroy(&gpu->instance);
 }
 
 int main () {
-  printf("hello cvk_wip_example\n");
-
   // Initialize
   csys_System sys = csys_init(csys_init_Options_defaults());
-  Example     gpu = example_create();
+  Example     gpu = example_create(sys.window.ct);
   // Update Loop
   while (!csys_close(&sys)) { csys_update(&sys); }
-
+  // Terminate
   example_destroy(&gpu);
   csys_term(&sys);
   return 0;
