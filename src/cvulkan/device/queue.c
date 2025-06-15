@@ -10,21 +10,25 @@ cvk_Pure cvk_QueueFamilies cvk_queue_families_create (
   cvk_Allocator* const             allocator
 ) {
   cvk_QueueFamilies result = (cvk_QueueFamilies){
-    .properties = cvk_Slice_empty(),
+    .properties = (cvk_queueFamilies_properties_List){ 0 },
     .graphics   = cvk_Optional_u32_none,
     .present    = cvk_Optional_u32_none,
     .transfer   = cvk_Optional_u32_none,
   };
   // Allocate the properties of all families available for the device
   vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&result.properties.len, NULL);
-  result.properties = allocator->cpu.allocZ(&allocator->cpu, result.properties.len, sizeof(VkQueueFamilyProperties));
-  vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&result.properties.len, result.properties.ptr);
+  if (result.properties.len) {
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.properties.len, sizeof(VkQueueFamilyProperties));
+    vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&data.len, data.ptr);
+    result.properties.len = data.len;
+    result.properties.ptr = (VkQueueFamilyProperties*)data.ptr;
+  }
   // Populate the Queue IDs
   for (cvk_Optional_u32 id = 0; id < result.properties.len; ++id) {
     // clang-format off
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-    VkQueueFamilyProperties const prop = ((VkQueueFamilyProperties*)result.properties.ptr)[id];
+    VkQueueFamilyProperties const prop = result.properties.ptr[id];
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
     // clang-format on
     if (result.graphics == cvk_Optional_u32_none && prop.queueFlags & VK_QUEUE_GRAPHICS_BIT) result.graphics = id;
@@ -54,7 +58,7 @@ void cvk_queue_families_destroy (
   cvk_QueueFamilies* const queueFamilies,
   cvk_Allocator* const     allocator
 ) {
-  allocator->cpu.free(&allocator->cpu, queueFamilies->properties);
+  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&queueFamilies->properties);
   queueFamilies->graphics = cvk_Optional_u32_none;
   queueFamilies->present  = cvk_Optional_u32_none;
   queueFamilies->transfer = cvk_Optional_u32_none;
