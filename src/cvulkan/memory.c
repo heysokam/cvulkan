@@ -27,11 +27,12 @@ cvk_Pure cvk_Slice cvk_allocator_allocZ_stdlib (
 
 void cvk_allocator_free_stdlib (
   cvk_Allocator_CPU* const A,
-  cvk_Slice                data
+  cvk_Slice* const         data
 ) {
-  if (data.ptr == NULL) return;
+  if (data->ptr == NULL) return;
   cvk_discard(A);
-  free(data.ptr);
+  data->len = 0;
+  free(data->ptr);
 }
 
 
