@@ -14,6 +14,7 @@
 ```
 ```md
 # VkInstance
+- [x] Minimal creation
 - [x] Application Info
 - [x] Validation Layers
 - [x] Debug Messenger
@@ -29,14 +30,24 @@
 ```md
 # Device
 ## Physical
-...
+- [x] Minimal creation
+      Using `isSuitable` and surface support
+- [ ] Suitability
+  - [x] Boolean: Overridable `device_physical_isSuitable` function
+        Returns true/false for whether the device is valid or not
+  - [ ] Ranked : Overridable `device_physical_rank` function
+        Track scores and pick the best
 ## Queue
-...
+- [x] Minimal creation (1 graphics+present Q)
+- [ ] Arbitrary Queue creation (multi-queue)
+      Needs support on the device.logical function
 ## Logical
-...
+- [x] Minimal creation
+- [ ] Support Multi-Queue creation
 ```
 ```md
 # Memory Allocators
+- [x] Minimal creation (cpu:stdlib, gpu:null)
 ## CPU
 - [x] Custom Allocator Support
 - [x] stdlib: malloc -> alloc
