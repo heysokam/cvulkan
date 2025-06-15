@@ -30,34 +30,44 @@ cvk_Pure VkInstanceCreateInfo cvk_instance_options_create (
 }
 
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
 cvk_bool cvk_instance_layers_checkSupport (
   cvk_Slice const      required,
   cvk_Allocator* const allocator
 ) {
   if (!required.len) return cvk_true;
 
-  uint32_t count;
-  vkEnumerateInstanceLayerProperties(&count, NULL);
-  cvk_Slice layers = /* ptr VkLayerProperties */ allocator->cpu.allocZ(&allocator->cpu, count, sizeof(VkLayerProperties));
-  vkEnumerateInstanceLayerProperties(&count, layers.ptr);
+  cvk_Slice properties = cvk_Slice_empty();
+  vkEnumerateInstanceLayerProperties((uint32_t*)&properties.len, NULL);
+  if (properties.len) {
+    properties = allocator->cpu.allocZ(&allocator->cpu, properties.len, sizeof(VkLayerProperties));
+    vkEnumerateInstanceLayerProperties((uint32_t*)&properties.len, properties.ptr);
+  }
 
   cvk_bool found = cvk_false;
-  for (size_t layerId = 0; layerId < count; ++layerId) {
-    VkLayerProperties const layer = ((VkLayerProperties*)layers.ptr)[layerId];
+  for (size_t layerId = 0; layerId < properties.len; ++layerId) {
+    // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    VkLayerProperties const prop = ((VkLayerProperties*)properties.ptr)[layerId];
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+    // clang-format on
     for (size_t vlayerID = 0; vlayerID < required.len; ++vlayerID) {
-      if (cvk_String_equal(layer.layerName, ((cvk_String*)required.ptr)[vlayerID])) {
+      // clang-format off
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+      cvk_String const extension = ((cvk_String*)required.ptr)[vlayerID];
+      #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+      // clang-format on
+      if (cvk_String_equal(prop.layerName, extension)) {
         found = cvk_true;
         goto end;
       }
     }
   }
 end:
-  allocator->cpu.free(&allocator->cpu, layers);
+  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&properties);
   return found;
 }
-#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 
 
 static void cvk_instance_layers_checkValidation (
@@ -120,12 +130,12 @@ cvk_Pure cvk_Instance cvk_instance_create (
     [0] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
     // FIX: Should come from the user-provided extensions_getRequired function (eg: glfw)
     [1] = VK_KHR_SURFACE_EXTENSION_NAME,
-    [2] = "VK_KHR_xcb_surface", // VK_KHR_XCB_SURFACE_EXTENSION_NAME
+    [2] = "VK_KHR_xcb_surface",  // VK_KHR_XCB_SURFACE_EXTENSION_NAME
     // TODO: Portability for mac
   };
-  cvk_Slice  extensions        = cvk_Slice_empty();
-  extensions.ptr               = &extension_list;
-  extensions.len               = 3;
+  cvk_Slice extensions = cvk_Slice_empty();
+  extensions.ptr       = &extension_list;
+  extensions.len       = 3;
 
   // Create instance.cfg
   //  : with layers
