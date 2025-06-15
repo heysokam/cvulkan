@@ -8,7 +8,7 @@
 cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
   cvk_device_Queue const* const    queue,
   cvk_device_Features const* const features,
-  cvk_Slice /* cvk_String[] */     extensions
+  cvk_device_Extensions const      extensions
 ) {
   return (VkDeviceCreateInfo){
     .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -38,8 +38,7 @@ cvk_Pure cvk_device_Logical cvk_device_logical_create (
   // Create the configuration options
   result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, result.extensions);
   // clang-format off
-  cvk_result_check(
-    vkCreateDevice(arg->physical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+  cvk_result_check(vkCreateDevice(arg->physical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a Vulkan Logical Device");  // clang-format on
   // Return the result
   return result;
@@ -50,7 +49,7 @@ void cvk_device_logical_destroy (
   cvk_device_Logical* const device,
   cvk_Allocator* const      allocator
 ) {
-  allocator->cpu.free(&allocator->cpu, device->extensions);
+  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&device->extensions);
   vkDestroyDevice(device->ct, allocator->gpu);
 }
 
