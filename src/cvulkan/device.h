@@ -20,20 +20,30 @@ typedef struct cvk_device_Physical cvk_device_Physical;
 //
 typedef struct cvk_device_Logical cvk_device_Logical;
 
+
 //______________________________________
 // @section Device: Queue Families
 //____________________________
 
-typedef cvk_Optional_u32         cvk_QueueID;
-typedef struct cvk_QueueFamilies cvk_QueueFamilies;
-struct cvk_QueueFamilies {
-  cvk_Slice /* VkQueueFamilyProperties[] */ properties;
-  cvk_QueueID                               graphics;  ///< ID of the first Graphics queue found on the device
-  cvk_QueueID                               present;   ///< ID of the first queue with Surface Present support found on the device
-  cvk_QueueID                               compute;   ///< ID of the first Compute queue found on the device
-  cvk_QueueID                               transfer;  ///< ID of the first Transfer-only queue found with support on the device
+/// @description
+/// Describes a list of QueueFamily Properties.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkQueueFamilyProperties[]` (aka: `cvk_Slice( VkQueueFamilyProperties )`)
+typedef struct cvk_queueFamilies_properties_List {
+  cvk_size                 len;
+  VkQueueFamilyProperties* ptr;
+} cvk_queueFamilies_properties_List;
+
+typedef cvk_Optional_u32 cvk_QueueID;
+
+typedef struct cvk_QueueFamilies {
+  cvk_queueFamilies_properties_List properties;
+  cvk_QueueID                       graphics;  ///< ID of the first Graphics queue found on the device
+  cvk_QueueID                       present;   ///< ID of the first queue with Surface Present support found on the device
+  cvk_QueueID                       compute;   ///< ID of the first Compute queue found on the device
+  cvk_QueueID                       transfer;  ///< ID of the first Transfer-only queue found with support on the device
   ///< @note Both Graphics and Compute queues can transfer by default
-};
+} cvk_QueueFamilies;
 
 cvk_Pure cvk_QueueFamilies cvk_queue_families_create ( // clang-format off
   cvk_device_Physical const* const device,
@@ -55,6 +65,15 @@ struct cvk_device_Physical {
   char              priv_pad[4];    //
   cvk_QueueFamilies queueFamilies;  ///< Data of the QueueFamilies available on this device
 };
+/// @description
+/// Describes a list of VkPhysicalDevice contexts.
+/// Used mainly to hold the list of devices available on the system.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkPhysicalDevice[]` (aka: `cvk_Slice( VkPhysicalDevice )`)
+typedef struct cvk_device_physical_List {
+  cvk_size          len;
+  VkPhysicalDevice* ptr;
+} cvk_device_physical_List;
 
 typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format off
   cvk_device_Physical const* const device,
@@ -72,7 +91,10 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
 #define cvk_device_physical_isSuitable cvk_device_physical_isSuitable_default
 #endif
 
-cvk_Pure cvk_Slice /* VkPhysicalDevice[] */ cvk_device_physical_getAvailable (cvk_Instance* const instance);
+/// @description
+/// Allocates a `cvk_device_physical_List` that contains all the devices available on the system.
+/// The caller is responsible for freeing the result with the allocator contained in the {@arg instance}.
+cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (cvk_Instance* const instance);
 
 typedef struct cvk_device_physical_create_args {
   cvk_Instance* const                                  instance;
@@ -96,6 +118,7 @@ typedef struct cvk_device_Queue {
   VkQueue                 ct;
   VkDeviceQueueCreateInfo cfg;
   cvk_QueuePriority       priority;
+  char                    priv_pad[4];
 } cvk_device_Queue;
 
 typedef struct cvk_device_queue_create_args {
@@ -104,6 +127,7 @@ typedef struct cvk_device_queue_create_args {
   cvk_QueueID const                id;
   cvk_QueuePriority const          priority;
   cvk_bool const                   Protected;
+  char                             priv_pad[4];
 } cvk_device_queue_create_args;
 cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create ( // clang-format off
   cvk_QueueID  family,
@@ -141,13 +165,69 @@ void cvk_device_queue_create_context ( // clang-format off
 //____________________________
 
 /// @description
-/// Alias for clarity of intention.
+/// Typed `cvk_Slice` for clarity of intention:
 /// Describes a list of (string literal) names of Device.Logical extensions.
-/// `cvk_String[]` (aka: `char const* const*`)
-typedef cvk_Slice /* cvk_String[] */ cvk_device_Extensions;
+/// `cvk_String[]` (aka: `cvk_Slice( char const* )`)
+typedef struct cvk_device_Extensions {
+  cvk_size    len;
+  cvk_String* ptr;
+} cvk_device_Extensions;
 /// @description
-/// Allocates the list of Device.Logical extensions used by this library by default
+/// Allocates the list of Device.Logical extensions used by this library by default.
+/// The caller is responsible for freeing the result with the given {@arg allocator}.
 cvk_Pure cvk_device_Extensions cvk_device_Extensions_default (cvk_Allocator* const allocator);
+
+/// @description
+/// Describes a list of Extension Properties of a Device.Physical.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkExtensionProperties[]` (aka: `cvk_Slice( VkExtensionProperties )`)
+typedef struct cvk_device_extensions_Properties {
+  cvk_size               len;
+  VkExtensionProperties* ptr;
+} cvk_device_extensions_Properties;
+/// @description
+/// Allocates the list of Device.Physical Extension Properties available on this system.
+/// The caller is responsible for freeing the result with the given {@arg allocator}.
+cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_create ( // clang-format off
+  cvk_device_Physical const* const device,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+cvk_Pure cvk_bool cvk_device_extensions_supported ( // clang-format off
+  cvk_device_Physical const* const device,
+  cvk_device_Extensions const      extensions,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+
+//______________________________________
+// @section Device: Swapchain Support
+//____________________________
+
+/// @description
+/// Describes a list of Swapchain formats.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkSurfaceFormatKHR[]` (aka: `cvk_Slice( VkSurfaceFormatKHR )`)
+typedef struct cvk_device_swapchain_Formats {
+  cvk_size            len;
+  VkSurfaceFormatKHR* ptr;
+} cvk_device_swapchain_Formats;
+
+/// @description
+/// Describes a list of Swapchain Present modes.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkPresentModeKHR[]` (aka: `cvk_Slice( VkPresentModeKHR )`)
+typedef struct cvk_device_swapchain_Modes {
+  cvk_size          len;
+  VkPresentModeKHR* ptr;
+} cvk_device_swapchain_Modes;
+
+typedef struct cvk_device_swapchain_Support {
+  VkSurfaceCapabilitiesKHR     capabilities;
+  cvk_device_swapchain_Formats formats;
+  char                         priv_pad[4];
+  cvk_device_swapchain_Modes   modes;
+} cvk_device_swapchain_Support;
 
 
 //______________________________________
@@ -179,7 +259,7 @@ struct cvk_device_Logical {
 cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create ( // clang-format off
   cvk_device_Queue const* const    queue,
   cvk_device_Features const* const features,
-  cvk_Slice /* cvk_String[] */     extensions
+  cvk_device_Extensions const      extensions
 ); // clang-format on
 
 typedef struct cvk_device_logical_create_args {
