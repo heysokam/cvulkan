@@ -6,6 +6,7 @@
 #ifndef H_cvulkan_core
 #define H_cvulkan_core
 #include "./base.h"
+#include "./math.h"
 #include "./result.h"
 #include "./memory.h"
 #include "./config.h"

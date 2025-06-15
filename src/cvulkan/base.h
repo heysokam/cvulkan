@@ -42,6 +42,9 @@ typedef cvk_String* cvk_StringList;
 //____________________________
 
 typedef uint32_t cvk_Version;
+typedef VkExtent2D cvk_Size2D;
+typedef VkExtent3D cvk_Size3D;
+
 
 typedef struct cvk_Slice_s {
   cvk_size    len;
