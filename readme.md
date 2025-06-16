@@ -1,9 +1,23 @@
 # cvulkan | Comfy Vulkan API
-`cvulkan` is a library of helpers to reduce redundant boilerplate when using Vulkan.
+`cvulkan` is a Pure C library of helpers to make Vulkan more comfortable  
+by reducing redundant boilerplate when using the API.  
 
 ## How to
 > TODO: Write a simple howto intro.  
 > Reference the @[examples](./examples/) folder in the meantime.  
+
+Current state of the library can get you up to par with `vk-bootstrap` _(aka: up to Swapchain creation)_.  
+You can see an example of this in the @[bootstrap](./examples/bootstrap.c) example file.  
+Bootstrapping includes:  
+- Instance  
+- Validation Layers  
+- Debug Messenger  
+- Physical Device  
+- Queue  
+- Logical Device  
+- Swapchain  
+- Swapchain.Images  
+- Swapchain.ImageViews  
 
 ## TODO
 ```md
@@ -29,6 +43,10 @@
 ```
 ```md
 # Device
+- [ ] Extensions
+  - [x] Minimal
+  - [ ] Custom
+- [ ] Features
 ## Physical
 - [x] Minimal creation
       Using `isSuitable` and surface support
@@ -44,6 +62,10 @@
 ## Logical
 - [x] Minimal creation
 - [ ] Support Multi-Queue creation
+## Swapchain
+- [x] Context creation
+- [x] Swapchain.Images Request
+- [x] Swapchain.ImageViews Request
 ```
 ```md
 # Memory Allocators
