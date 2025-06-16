@@ -11,9 +11,25 @@ const srcDir       = "."
 const dir_root     = srcDir
 const dir_cvk      = dir_root/"src"
 const dir_examples = dir_root/"examples"
+const dir_shd      = dir_examples/"shaders"
 
 # For csys connector to glfw
 const cdk = Dependency.new("cdk", "https://github.com/heysokam/cdk")
+
+
+#_______________________________________
+# @section Examples: Shaders
+#_____________________________
+proc spirv *(src :PathLike, trg :PathLike) :Command=
+  result = confy.Command()
+  result.add "glslc"
+  result.add src
+  result.add "-o"
+  result.add trg
+#_____________________________
+let triangle_vert = spirv( dir_shd/"triangle.vert", dir_shd/"triangle.vert.spv" )
+let triangle_frag = spirv( dir_shd/"triangle.frag", dir_shd/"triangle.frag.spv" )
+
 
 #_______________________________________
 # @section Build the Examples
@@ -27,5 +43,7 @@ let cvk_wip = Program.new("wip.c",
 )
 
 when isMainModule:
+  triangle_vert.run()
+  triangle_frag.run()
   cvk_wip.build.run
 
