@@ -11,11 +11,12 @@
 
 
 typedef struct Example {
-  cvk_Instance        instance;
-  cvk_Surface         surface;
-  cvk_device_Physical device_physical;
-  cvk_device_Queue    device_queue;
-  cvk_device_Logical  device_logical;
+  cvk_Instance         instance;
+  cvk_Surface          surface;
+  cvk_device_Physical  device_physical;
+  cvk_device_Queue     device_queue;
+  cvk_device_Logical   device_logical;
+  cvk_device_Swapchain device_swapchain;
 } Bootstrap;
 
 
@@ -39,12 +40,14 @@ static cvk_Surface bootstrap_surface_create (
 }
 #define bootstrap_surface_destroy vkDestroySurfaceKHR
 
+
 static Bootstrap bootstrap_create (
-  GLFWwindow* const window  ///< Only for surface creation. @see bootstrap_surface_create for more info
+  GLFWwindow* const window_ct,  ///< Only for surface creation. @see bootstrap_surface_create for more info
+  cvk_Size2D const  window_size
 ) {
   Bootstrap result       = (Bootstrap){ 0 };
   result.instance        = cvk_instance_create(&(cvk_instance_create_args){ 0 });  // Create with all defaults
-  result.surface         = bootstrap_surface_create(result.instance.ct, window, result.instance.allocator.gpu);
+  result.surface         = bootstrap_surface_create(result.instance.ct, window_ct, result.instance.allocator.gpu);
   result.device_physical = cvk_device_physical_create(&(cvk_device_physical_create_args){
     .instance   = &result.instance,
     .surface    = result.surface,
@@ -62,12 +65,21 @@ static Bootstrap bootstrap_create (
     .allocator = &result.instance.allocator,
   });  // clang-format on
   cvk_device_queue_create_context(&result.device_queue, &result.device_logical);
+  result.device_swapchain = cvk_device_swapchain_create(&(cvk_device_swapchain_create_args){
+    .device_physical = &result.device_physical,
+    .device_logical  = &result.device_logical,
+    .surface         = result.surface,
+    .size            = window_size,
+    .allocator       = &result.instance.allocator,
+  });
   return result;
 }
+
 
 static void bootstrap_destroy (
   Bootstrap* gpu
 ) {
+  cvk_device_swapchain_destroy(&gpu->device_swapchain, &gpu->device_logical, &gpu->instance.allocator);
   cvk_device_logical_destroy(&gpu->device_logical, &gpu->instance.allocator);
   cvk_device_queue_destroy(&gpu->device_queue, &gpu->instance.allocator);
   cvk_device_physical_destroy(&gpu->device_physical, &gpu->instance.allocator);
@@ -75,10 +87,11 @@ static void bootstrap_destroy (
   cvk_instance_destroy(&gpu->instance);
 }
 
+
 int main () {
   // Initialize
   csys_System sys = csys_init(csys_init_Options_defaults());
-  Bootstrap   gpu = bootstrap_create(sys.window.ct);
+  Bootstrap   gpu = bootstrap_create(sys.window.ct, (cvk_Size2D){ .width = sys.window.width, .height = sys.window.height });
   // Update Loop
   while (!csys_close(&sys)) { csys_update(&sys); }
   // Terminate

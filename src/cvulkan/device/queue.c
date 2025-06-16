@@ -4,7 +4,7 @@
 #include "../result.h"
 #include "../device.h"
 
-cvk_Pure cvk_QueueFamilies cvk_queue_families_create (
+cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
@@ -51,10 +51,10 @@ cvk_Pure cvk_QueueFamilies cvk_queue_families_create (
   }
   // Return the result
   return result;
-}  //:: cvk_queue_families_create
+}  //:: cvk_device_queue_families_create
 
 
-void cvk_queue_families_destroy (
+void cvk_device_queue_families_destroy (
   cvk_QueueFamilies* const queueFamilies,
   cvk_Allocator* const     allocator
 ) {
@@ -63,7 +63,7 @@ void cvk_queue_families_destroy (
   queueFamilies->present  = cvk_Optional_u32_none;
   queueFamilies->transfer = cvk_Optional_u32_none;
   queueFamilies->compute  = cvk_Optional_u32_none;
-}  //:: cvk_queue_families_destroy
+}  //:: cvk_device_queue_families_destroy
 
 
 cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create (

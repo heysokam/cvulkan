@@ -45,14 +45,59 @@ typedef struct cvk_QueueFamilies {
   ///< @note Both Graphics and Compute queues can transfer by default
 } cvk_QueueFamilies;
 
-cvk_Pure cvk_QueueFamilies cvk_queue_families_create ( // clang-format off
+cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ); // clang-format on
-void cvk_queue_families_destroy ( // clang-format off
+void cvk_device_queue_families_destroy ( // clang-format off
   cvk_QueueFamilies* const queueFamilies,
   cvk_Allocator* const     allocator
+); // clang-format on
+
+
+//______________________________________
+// @section Device: Swapchain Support
+//____________________________
+
+/// @description
+/// Describes a list of Swapchain formats.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkSurfaceFormatKHR[]` (aka: `cvk_Slice( VkSurfaceFormatKHR )`)
+typedef struct cvk_device_swapchain_Formats {
+  cvk_size            len;
+  VkSurfaceFormatKHR* ptr;
+} cvk_device_swapchain_Formats;
+
+/// @description
+/// Describes a list of Swapchain Present modes.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkPresentModeKHR[]` (aka: `cvk_Slice( VkPresentModeKHR )`)
+typedef struct cvk_device_swapchain_Modes {
+  cvk_size          len;
+  VkPresentModeKHR* ptr;
+} cvk_device_swapchain_Modes;
+
+typedef struct cvk_device_swapchain_Support {
+  VkSurfaceCapabilitiesKHR     capabilities;
+  char                         priv_pad[4];
+  cvk_device_swapchain_Formats formats;
+  cvk_device_swapchain_Modes   modes;
+} cvk_device_swapchain_Support;
+
+/// @description
+/// Returns the Swapchain support information for the given Device+Surface
+/// The caller is responsible for calling `cvk_device_swapchain_support_destroy` on the result,
+/// in order to free the memory allocated for its formats and modes lists.
+cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create ( // clang-format off
+  cvk_device_Physical const* const device,
+  cvk_Surface const                surface,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+void cvk_device_swapchain_support_destroy ( // clang-format off
+  cvk_device_swapchain_Support* const support,
+  cvk_Allocator* const                allocator
 ); // clang-format on
 
 
@@ -60,10 +105,11 @@ void cvk_queue_families_destroy ( // clang-format off
 // @section Device: Physical
 //____________________________
 struct cvk_device_Physical {
-  VkPhysicalDevice  ct;
-  cvk_Optional_u32  id;             ///< Identifier that represents its position in the devices list at the time of initialization
-  char              priv_pad[4];    //
-  cvk_QueueFamilies queueFamilies;  ///< Data of the QueueFamilies available on this device
+  VkPhysicalDevice             ct;
+  cvk_Optional_u32             id;                ///< Identifier that represents its position in the devices list at the time of initialization
+  char                         priv_pad[4];       //
+  cvk_QueueFamilies            queueFamilies;     ///< QueueFamilies available on this device
+  cvk_device_swapchain_Support swapchainSupport;  ///< Swapchain Support features on this device
 };
 /// @description
 /// Describes a list of VkPhysicalDevice contexts.
@@ -201,33 +247,92 @@ cvk_Pure cvk_bool cvk_device_extensions_supported ( // clang-format off
 
 
 //______________________________________
-// @section Device: Swapchain Support
+// @section Device: Swapchain
 //____________________________
 
 /// @description
-/// Describes a list of Swapchain formats.
-/// Typed `cvk_Slice` for clarity of intention:
-/// `VkSurfaceFormatKHR[]` (aka: `cvk_Slice( VkSurfaceFormatKHR )`)
-typedef struct cvk_device_swapchain_Formats {
-  cvk_size            len;
-  VkSurfaceFormatKHR* ptr;
-} cvk_device_swapchain_Formats;
+/// Returns the preferred format for the Swapchain Surface
+cvk_Pure VkSurfaceFormatKHR cvk_device_swapchain_select_format (  // clang-format off
+  cvk_device_swapchain_Support const* const support
+);  // clang-format on
 
 /// @description
-/// Describes a list of Swapchain Present modes.
-/// Typed `cvk_Slice` for clarity of intention:
-/// `VkPresentModeKHR[]` (aka: `cvk_Slice( VkPresentModeKHR )`)
-typedef struct cvk_device_swapchain_Modes {
-  cvk_size          len;
-  VkPresentModeKHR* ptr;
-} cvk_device_swapchain_Modes;
+/// Returns the preferred present mode for the Swapchain Surface
+/// @note Searches for Mailbox support first, and returns FIFO if not found
+cvk_Pure VkPresentModeKHR cvk_device_swapchain_select_mode (  // clang-format off
+  cvk_device_swapchain_Support const* const support
+);  // clang-format on
 
-typedef struct cvk_device_swapchain_Support {
-  VkSurfaceCapabilitiesKHR     capabilities;
-  cvk_device_swapchain_Formats formats;
-  char                         priv_pad[4];
-  cvk_device_swapchain_Modes   modes;
-} cvk_device_swapchain_Support;
+/// @description
+/// Returns the size of the Swapchain Surface
+/// @note Measurements in pixels/units are compared, in case they don't match
+cvk_Pure VkExtent2D cvk_device_swapchain_select_size ( // clang-format off
+  cvk_device_swapchain_Support const* const support,
+  cvk_Size2D const                          size
+); // clang-format on
+
+/// @description
+/// Returns the minimum number of images that the Swapchain will contain
+cvk_Pure cvk_size cvk_device_swapchain_select_imgMin (  // clang-format off
+  cvk_device_swapchain_Support const* const support
+);  // clang-format on
+
+cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
+  cvk_device_Physical const* const device,
+  cvk_Surface const                surface,
+  cvk_size const                   img_min,
+  VkSurfaceFormatKHR const         format,
+  cvk_Size2D const                 size,
+  VkSurfaceCapabilitiesKHR* const  capabilities,
+  VkPresentModeKHR const           mode,
+  cvk_Allocator* const             allocator
+);
+
+typedef struct cvk_device_swapchain_Image {
+  VkImage     ct;
+  VkImageView view;
+} cvk_device_swapchain_Image;
+
+typedef struct cvk_device_swapchain_image_List {
+  cvk_size                    len;
+  cvk_device_swapchain_Image* ptr;
+} cvk_device_swapchain_image_List;
+
+typedef struct cvk_device_Swapchain {
+  VkSwapchainKHR                  ct;
+  VkSwapchainCreateInfoKHR        cfg;
+  cvk_device_swapchain_image_List images;
+} cvk_device_Swapchain;
+
+typedef struct cvk_device_swapchain_create_args {
+  cvk_device_Physical* const device_physical;
+  cvk_device_Logical* const  device_logical;
+  cvk_Surface const          surface;
+  cvk_Size2D const           size;
+  cvk_Allocator* const       allocator;
+} cvk_device_swapchain_create_args;
+
+cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create ( // clang-format off
+  cvk_device_Swapchain const* const swapchain,
+  cvk_device_Logical* const         device_logical,
+  cvk_Allocator* const              allocator
+); // clang-format on
+
+void cvk_device_swapchain_image_list_destroy ( // clang-format off
+  cvk_device_swapchain_image_List* const images,
+  cvk_device_Logical* const              device_logical,
+  cvk_Allocator* const                   allocator
+); // clang-format on
+
+cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (  // clang-format off
+  cvk_device_swapchain_create_args *const arg
+);  // clang-format on
+
+void cvk_device_swapchain_destroy ( // clang-format off
+  cvk_device_Swapchain* const swapchain,
+  cvk_device_Logical* const   device,
+  cvk_Allocator* const        allocator
+); // clang-format on
 
 
 //______________________________________
@@ -282,6 +387,7 @@ void cvk_device_logical_destroy ( // clang-format off
 #endif
 #ifdef cvk_Implementation_device
 #include "./device/queue.c"
+#include "./device/swapchain.c"
 #include "./device/physical.c"
 #include "./device/extensions.c"
 #include "./device/features.c"
