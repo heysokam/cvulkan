@@ -1,6 +1,6 @@
 # cvulkan | Comfy Vulkan API
-`cvulkan` is a Pure C library of helpers to make Vulkan more comfortable  
-by reducing redundant boilerplate when using the API.  
+`cvulkan` is a Pure C library of helpers to make Vulkan more comfortable to use  
+by reducing the redundant boilerplate required by the API.  
 
 ## How to
 > TODO: Write a simple howto intro.  
