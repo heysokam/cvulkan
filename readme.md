@@ -78,6 +78,13 @@ You could use SDL, SFML, or any other method of your choosing.
 - [x] Swapchain.ImageViews Request
 ```
 ```md
+# Shaders
+- [x] Single-stage
+- [x] Multi-stage
+      ref: https://www.leadwerks.com/community/blogs/entry/2403-single-file-spir-v-shaders-for-vulkan/
+      note: Currently Untested, but should work
+```
+```md
 # Memory Allocators
 - [x] Minimal creation (cpu:stdlib, gpu:null)
 ## CPU
@@ -96,7 +103,7 @@ You could use SDL, SFML, or any other method of your choosing.
 ## Buildsystem
 > @note  
 > You can completely ignore this library's buildsystem for your app.  
-> Read the [License & Linking](#license--linking) section, add the files into your project, and good to go.  
+> Read the [License & Usage](#license--usage) section, add the files into your project, and good to go.  
 
 This library offers support for both Multifile and Single Compilation Unit (SCU).  
 
@@ -154,18 +161,30 @@ This is only by default, as every usage of stdlib **can be overriden**.
 Every stdlib usage is contained within the [<cvulkan/base.h>](./src/cvulkan/base.h) header file.  
 
 
-### License & Linking
-This library uses the LGPL license.  
+### License & Usage
+This project is covered under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
 
-You _can_ use this project in a closed source application,  
-but you **must** build the code of this project into a static/dynamic library, and **link** directly **to the result**.  
-Otherwise you'd be breaking the terms and conditions of this library's license.
+#### MPL in layman terms
+The [MPL v2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) is a per-file weak copyleft license.  
 
-Both SCU and Multifile are supported for such a case,  
-but you must build them separately from your project and link your app to the result.  
+This means that you _can_ use this project in a closed source application,  
+without any need to build the code into a dynamic library in order to link with it.  
+_(ie: like you would need to do with LGPL)_
+
+It is also NOT a viral license.  
+You are only liable to publish and/or contribute back the code for the specific files **that you modified**.  
+So, if you don't modify anything, you can use it _(and relicense it)_ into your app almost as if it was MIT/BSD.  
+
+The MPL is a not-so-well-known license.  
+Please read the MPL FAQ before using this library:
+https://www.mozilla.org/en-US/MPL/2.0/FAQ/
 
 
 ### Examples
 All examples must be compiled with `-std=c23`.  
 They use helper code from @[`heysokam/cdk`](https://github.com/heysokam/cdk), which is a c23 library.  
+> TODO: Remove cdk dependency from the examples.  
+
+The examples default buildsystem relies on `glslc` and `xxd` installed on the system,  
+but they are not needed for using the library or compiling them in a different way.  
 

@@ -1,8 +1,6 @@
 //:__________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
 //:__________________________________________________________
-#include "../device.h"
-
-
-cvk_Pure cvk_device_Features cvk_device_Features_default () { return (cvk_device_Features){ 0 }; }
+//! @fileoverview Vulkan Pipeline: Types & Tools
+//________________________________________________|
 
