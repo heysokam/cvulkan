@@ -17,5 +17,6 @@
 #include "./surface.h"
 #include "./device.h"
 #include "./shader.h"
+#include "./renderTarget.h"
 #include "./pipeline.h"
 #endif  // H_cvulkan_core
