@@ -112,6 +112,10 @@ You could use SDL, SFML, or any other method of your choosing.
 - [x] Custom Allocator Support
 - [x] NULL Allocator
 - [ ] Pure C Replacement for VMA
+## Docs
+- [ ] How to use the API
+- [ ] Philosophy: Bring your own Allocator (Zig-inspired)
+- [ ] Slices and Slice-like objects
 ```
 
 ## Buildsystem
