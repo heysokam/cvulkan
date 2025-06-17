@@ -19,6 +19,16 @@ Bootstrapping includes:
 - Swapchain.Images  
 - Swapchain.ImageViews  
 
+### Surface Creation
+`cvulkan` is completely system-agnostic.  
+The `cvulkan` functions take a `VkSurfaceKHR` as input.  
+How you request that handle is _up to you_ to decide.  
+
+The examples use GLFW for requesting a `VkSurfaceKHR` handle in a cross-platform way.  
+But this library is **NOT** tied to GLFW in any way.  
+You could use SDL, SFML, or any other method of your choosing.  
+
+
 ## TODO
 ```md
 # VkResult
