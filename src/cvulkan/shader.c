@@ -39,6 +39,8 @@ void cvk_shader_destroy (
   cvk_Shader* const               shader,
   cvk_Allocator* const            allocator
 ) {
+  shader->stage = (VkPipelineShaderStageCreateInfo){ 0 };
+  shader->cfg   = (VkShaderModuleCreateInfo){ 0 };
   vkDestroyShaderModule(device_logical->ct, shader->ct, allocator->gpu);
 }
 

@@ -167,6 +167,7 @@ void cvk_instance_destroy (
   // TODO: Free the Allocator's data
   // TODO: Deallocate the extensions
   cvk_validation_debug_context_destroy(instance->ct, instance->validation.debug_ct, instance->allocator.gpu);
+  instance->cfg = (VkInstanceCreateInfo){ 0 };
   vkDestroyInstance(instance->ct, instance->allocator.gpu);
 }  //:: cvk_instance_destroy
 

@@ -294,6 +294,7 @@ void cvk_device_swapchain_destroy (
     .ptr = (void*)swapchain->cfg.pQueueFamilyIndices,
      #pragma GCC diagnostic pop  // -Wcast-qual
   });  // clang-format on
+  swapchain->cfg = (VkSwapchainCreateInfoKHR){ 0 };
   vkDestroySwapchainKHR(device->ct, swapchain->ct, allocator->gpu);
 }
 

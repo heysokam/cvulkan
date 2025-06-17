@@ -50,6 +50,7 @@ void cvk_device_logical_destroy (
   cvk_Allocator* const      allocator
 ) {
   allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&device->extensions);
+  device->cfg = (VkDeviceCreateInfo){0};
   vkDestroyDevice(device->ct, allocator->gpu);
 }
 
