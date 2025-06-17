@@ -16,4 +16,5 @@
 #include "./instance.h"
 #include "./surface.h"
 #include "./device.h"
+#include "./shader.h"
 #endif  // H_cvulkan_core

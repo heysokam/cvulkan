@@ -20,15 +20,26 @@ const cdk = Dependency.new("cdk", "https://github.com/heysokam/cdk")
 #_______________________________________
 # @section Examples: Shaders
 #_____________________________
-proc spirv *(src :PathLike, trg :PathLike) :Command=
-  result = confy.Command()
-  result.add "glslc"
-  result.add src
-  result.add "-o"
-  result.add trg
+proc spirv *(src :PathLike, trg :PathLike) :CommandList=
+  result = @[]
+  let spv = src&".spv"
+  # glslc src -o src.ext.spv
+  var glslc = confy.Command()
+  glslc.add "glslc"
+  glslc.add src
+  glslc.add "-o"
+  glslc.add spv
+  result.add glslc
+  # xxd -i file.ext.spv trg.ext
+  var xxd = confy.Command()
+  xxd.add "xxd"
+  xxd.add "-i"
+  xxd.add spv
+  xxd.add trg
+  result.add xxd
 #_____________________________
-let triangle_vert = spirv( dir_shd/"triangle.vert", dir_shd/"triangle.vert.spv" )
-let triangle_frag = spirv( dir_shd/"triangle.frag", dir_shd/"triangle.frag.spv" )
+let triangle_vert = spirv( dir_shd/"triangle.vert", dir_shd/"triangle.vert.c" )
+let triangle_frag = spirv( dir_shd/"triangle.frag", dir_shd/"triangle.frag.c" )
 
 
 #_______________________________________

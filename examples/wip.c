@@ -10,16 +10,13 @@
 #define cvk_Implementation
 #include <cvulkan.h>
 
-extern unsigned char alignas(uint32_t) triangle_frag_spv[];  // clang-format off
-unsigned char alignas(uint32_t) triangle_frag_spv[] = {
-  #embed "./shaders/triangle.frag.spv"
-};  // clang-format on
+extern unsigned char examples_shaders_triangle_frag_spv[];
+extern unsigned int examples_shaders_triangle_frag_spv_len;
+#include "./shaders/triangle.frag.c"
 
-extern unsigned char alignas(uint32_t) triangle_vert_spv[];  // clang-format off
-unsigned char alignas(uint32_t) triangle_vert_spv[] = {
-  #embed "./shaders/triangle.vert.spv"
-};  // clang-format on
-
+extern unsigned char examples_shaders_triangle_vert_spv[];
+extern unsigned int examples_shaders_triangle_vert_spv_len;
+#include "./shaders/triangle.vert.c"
 
 typedef struct {
   cvk_Instance         instance;
@@ -142,8 +139,8 @@ int main () {
   csys_System system  = csys_init(csys_init_Options_defaults());
   Example     example = example_create(
     /* system */ &system,
-    /* vert   */ (cvk_SpirV){ .ptr = (uint32_t*)triangle_vert_spv, .len = sizeof(triangle_vert_spv) },
-    /* frag   */ (cvk_SpirV){ .ptr = (uint32_t*)triangle_vert_spv, .len = sizeof(triangle_frag_spv) }
+    /* vert   */ (cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_vert_spv, .len = examples_shaders_triangle_vert_spv_len},
+    /* frag   */ (cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_frag_spv, .len = examples_shaders_triangle_frag_spv_len }
   );
   // Update Loop
   while (!csys_close(&system)) { csys_update(&system); }
