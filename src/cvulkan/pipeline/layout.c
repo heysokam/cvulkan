@@ -1,5 +1,9 @@
+//:__________________________________________________________
+//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
+//:__________________________________________________________
 #include "../result.h"
 #include "../pipeline.h"
+
 
 cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (
   cvk_device_Logical* const device_logical,
