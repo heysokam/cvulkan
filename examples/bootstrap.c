@@ -1,6 +1,6 @@
-//:____________________________________________________________________
-//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  LGPLv3 or higher  :
-//:____________________________________________________________________
+//:___________________________________________________________
+//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  CC0-1.0  :
+//:___________________________________________________________
 //! @fileoverview
 //! Example of using cvulkan to bootstrap all boilerplate
 //! up to retrieving a `VkSwapchainKHR` handle.
