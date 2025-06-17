@@ -41,18 +41,19 @@ typedef cvk_String* cvk_StringList;
 // @section Primitives
 //____________________________
 
-typedef uint32_t cvk_Version;
+typedef uint32_t   cvk_Version;
 typedef VkExtent2D cvk_Size2D;
 typedef VkExtent3D cvk_Size3D;
 
 
 typedef struct cvk_Slice_s {
   cvk_size    len;
+  cvk_size    itemsize; ///< Readonly for statically typed slices.
   cvk_pointer ptr;
 } cvk_Slice_t;
 #ifndef cvk_Slice  // clang-format off
 #define cvk_Slice cvk_Slice_t
-#define cvk_Slice_empty() (cvk_Slice){ .len = 0, .ptr = NULL }
+#define cvk_Slice_empty() (cvk_Slice){ .len = 0, .itemsize= 0, .ptr = NULL }
 #define cvk_Slice_isEmpty(slice) ((slice).ptr == NULL || (slice).len == 0)
 // clang-format on
 #endif  // cvk_Slice

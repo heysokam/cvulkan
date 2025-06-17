@@ -70,7 +70,10 @@ cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create (
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ) {
-  cvk_device_swapchain_Support result = { 0 };
+  cvk_device_swapchain_Support result = {
+    .formats = { .itemsize = sizeof(VkSurfaceFormatKHR) },
+    .modes   = { .itemsize = sizeof(VkPresentModeKHR) },
+  };
 
   // clang-format off
   cvk_result_check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->ct, surface, &result.capabilities),
@@ -81,7 +84,7 @@ cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create (
   cvk_result_check(vkGetPhysicalDeviceSurfaceFormatsKHR(device->ct, surface, (uint32_t*)&result.formats.len, NULL),
     "Failed to retrieve the number of Swapchain Formats for the selected device.");
   if (result.formats.len) {
-    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, data.len, sizeof(VkSurfaceFormatKHR));
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.formats.len, result.formats.itemsize);
     cvk_result_check(vkGetPhysicalDeviceSurfaceFormatsKHR(device->ct, surface, (uint32_t*)&data.len, data.ptr),
       "Failed to retrieve the list of Swapchain Formats for the selected device.");
     result.formats.len = data.len;
@@ -92,7 +95,7 @@ cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create (
   cvk_result_check(vkGetPhysicalDeviceSurfacePresentModesKHR(device->ct, surface, (uint32_t*)&result.modes.len, NULL),
     "Failed to retrieve the number of Swapchain Present Modes for the selected device.");
   if (result.modes.len) {
-    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.modes.len, sizeof(VkPresentModeKHR));
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.modes.len, result.modes.itemsize);
     cvk_result_check(vkGetPhysicalDeviceSurfacePresentModesKHR(device->ct, surface, (uint32_t*)&data.len, data.ptr),
       "Failed to retrieve the list of Swapchain Present Modes for the selected device.");
     result.modes.len = data.len;
@@ -185,13 +188,12 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
   cvk_device_Logical* const         device_logical,
   cvk_Allocator* const              allocator
 ) {
-
-  cvk_device_swapchain_image_List result = (cvk_device_swapchain_image_List){ 0 };
+  cvk_device_swapchain_image_List result = (cvk_device_swapchain_image_List){ .itemsize = sizeof(cvk_device_swapchain_Image) };
   // clang-format off
   cvk_result_check(vkGetSwapchainImagesKHR(device_logical->ct, swapchain->ct, (uint32_t*)&result.len, NULL),
     "Failed to retrieve the number of Images used by the device's Swapchain.");  // clang-format on
   // Temporary Slice that holds our allocated list. Will transfer to the result at the end
-  cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.len, sizeof(cvk_device_swapchain_Image));
+  cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.len, result.itemsize);
 
   // Get the list of Images
   cvk_Slice images = allocator->cpu.allocZ(&allocator->cpu, data.len, sizeof(VkImage));

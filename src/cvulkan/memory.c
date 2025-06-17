@@ -11,7 +11,7 @@ cvk_Pure cvk_Slice cvk_allocator_alloc_stdlib (
   cvk_size const           itemsize
 ) {
   cvk_discard(A);
-  return (cvk_Slice){ .len = count, .ptr = malloc(count * itemsize) };
+  return (cvk_Slice){ .len = count, .itemsize = itemsize, .ptr = malloc(count * itemsize) };
 }
 
 
@@ -21,7 +21,7 @@ cvk_Pure cvk_Slice cvk_allocator_allocZ_stdlib (
   cvk_size const           itemsize
 ) {
   cvk_discard(A);
-  return (cvk_Slice){ .len = count, .ptr = calloc(count, itemsize) };
+  return (cvk_Slice){ .len = count, .itemsize = itemsize, .ptr = calloc(count, itemsize) };
 }
 
 
@@ -31,7 +31,8 @@ void cvk_allocator_free_stdlib (
 ) {
   if (data->ptr == NULL) return;
   cvk_discard(A);
-  data->len = 0;
+  data->itemsize = 0;
+  data->len      = 0;
   free(data->ptr);
 }
 

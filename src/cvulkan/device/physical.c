@@ -41,13 +41,13 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
 cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (
   cvk_Instance* const instance
 ) {
-  cvk_device_physical_List result = (cvk_device_physical_List){ 0 };
+  cvk_device_physical_List result = (cvk_device_physical_List){ .itemsize = sizeof(VkPhysicalDevice) };
   // clang-format off
   cvk_result_check(vkEnumeratePhysicalDevices(instance->ct, (uint32_t*)&result.len, NULL),
     "Failed when searching for GPUs with Vulkan support.");
   cvk_assert(result.len, "Failed to find any GPUs with Vulkan support.");
   if (result.len) {
-    cvk_Slice data = instance->allocator.cpu.allocZ(&instance->allocator.cpu, result.len, sizeof(VkPhysicalDevice));
+    cvk_Slice data = instance->allocator.cpu.allocZ(&instance->allocator.cpu, result.len, result.itemsize);
     cvk_result_check(vkEnumeratePhysicalDevices(instance->ct, (uint32_t*)&data.len, data.ptr), "Failed to retrieve the list of GPUs.");
     result.len = data.len;
     result.ptr = (VkPhysicalDevice*)data.ptr;

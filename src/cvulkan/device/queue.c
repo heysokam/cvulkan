@@ -10,7 +10,7 @@ cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
   cvk_Allocator* const             allocator
 ) {
   cvk_QueueFamilies result = (cvk_QueueFamilies){
-    .properties = (cvk_queueFamilies_properties_List){ 0 },
+    .properties = (cvk_queueFamilies_properties_List){ .itemsize = sizeof(VkQueueFamilyProperties) },
     .graphics   = cvk_Optional_u32_none,
     .present    = cvk_Optional_u32_none,
     .transfer   = cvk_Optional_u32_none,
@@ -18,7 +18,7 @@ cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
   // Allocate the properties of all families available for the device
   vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&result.properties.len, NULL);
   if (result.properties.len) {
-    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.properties.len, sizeof(VkQueueFamilyProperties));
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.properties.len, result.properties.itemsize);
     vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&data.len, data.ptr);
     result.properties.len = data.len;
     result.properties.ptr = (VkQueueFamilyProperties*)data.ptr;

@@ -8,8 +8,8 @@
 cvk_Pure cvk_device_Extensions cvk_device_Extensions_default (
   cvk_Allocator* const allocator
 ) {
-  cvk_device_Extensions result = (cvk_device_Extensions){ .len = 1 };
-  cvk_Slice             data   = allocator->cpu.allocZ(&allocator->cpu, result.len, sizeof(cvk_String));
+  cvk_device_Extensions result = (cvk_device_Extensions){ .len = 1, .itemsize = sizeof(cvk_String) };
+  cvk_Slice             data   = allocator->cpu.allocZ(&allocator->cpu, result.len, result.itemsize);
   result.ptr                   = (cvk_String*)data.ptr;
   result.ptr[0]                = (void*)VK_KHR_SWAPCHAIN_EXTENSION_NAME;
   return result;
@@ -20,19 +20,18 @@ cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_creat
   cvk_device_Physical const* const device,
   cvk_Allocator* const             allocator
 ) {
-  cvk_device_extensions_Properties result = (cvk_device_extensions_Properties){ 0 };
+  cvk_device_extensions_Properties result = (cvk_device_extensions_Properties){ .itemsize = sizeof(VkExtensionProperties) };
   // clang-format off
   cvk_result_check(vkEnumerateDeviceExtensionProperties(device->ct, NULL, (uint32_t*)&result.len, NULL),
     "Failed when searching for Physical Device properties.");
   if (result.len) {
-    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.len, sizeof(VkExtensionProperties));
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.len, result.itemsize);
     cvk_result_check(vkEnumerateDeviceExtensionProperties(device->ct, NULL, (uint32_t*)&data.len, data.ptr),
       "Failed to retrieve the list of Physical Device properties.");
     result.ptr = (VkExtensionProperties*)data.ptr;
   }  // clang-format on
   return result;
 }
-
 
 
 void cvk_device_extensions_properties_destroy (

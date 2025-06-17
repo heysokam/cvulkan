@@ -10,8 +10,9 @@
 
 
 typedef struct cvk_SpirV {
-  cvk_size  len;
-  uint32_t* ptr;
+  cvk_size              len;
+  cvk_Readonly cvk_size itemsize;
+  uint32_t*             ptr;
 } cvk_SpirV;
 
 typedef struct cvk_Shader {
@@ -36,7 +37,7 @@ typedef enum cvk_shader_Stage {
 
 typedef struct cvk_shader_create_args {
   cvk_device_Logical const* const device_logical;
-  cvk_SpirV const                 code;
+  cvk_SpirV const* const          code;
   cvk_shader_Stage const          stage;
   char                            priv_pad[4];
   cvk_Nullable cvk_String const   entryFn_name;  ///< Will use `main` when NULL

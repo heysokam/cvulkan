@@ -31,6 +31,7 @@ typedef struct cvk_device_Logical cvk_device_Logical;
 /// `VkQueueFamilyProperties[]` (aka: `cvk_Slice( VkQueueFamilyProperties )`)
 typedef struct cvk_queueFamilies_properties_List {
   cvk_size                 len;
+  cvk_Readonly cvk_size    itemsize;
   VkQueueFamilyProperties* ptr;
 } cvk_queueFamilies_properties_List;
 
@@ -65,8 +66,9 @@ void cvk_device_queue_families_destroy ( // clang-format off
 /// Typed `cvk_Slice` for clarity of intention:
 /// `VkSurfaceFormatKHR[]` (aka: `cvk_Slice( VkSurfaceFormatKHR )`)
 typedef struct cvk_device_swapchain_Formats {
-  cvk_size            len;
-  VkSurfaceFormatKHR* ptr;
+  cvk_size              len;
+  cvk_Readonly cvk_size itemsize;
+  VkSurfaceFormatKHR*   ptr;
 } cvk_device_swapchain_Formats;
 
 /// @description
@@ -74,8 +76,9 @@ typedef struct cvk_device_swapchain_Formats {
 /// Typed `cvk_Slice` for clarity of intention:
 /// `VkPresentModeKHR[]` (aka: `cvk_Slice( VkPresentModeKHR )`)
 typedef struct cvk_device_swapchain_Modes {
-  cvk_size          len;
-  VkPresentModeKHR* ptr;
+  cvk_size              len;
+  cvk_Readonly cvk_size itemsize;
+  VkPresentModeKHR*     ptr;
 } cvk_device_swapchain_Modes;
 
 typedef struct cvk_device_swapchain_Support {
@@ -117,8 +120,9 @@ struct cvk_device_Physical {
 /// Typed `cvk_Slice` for clarity of intention:
 /// `VkPhysicalDevice[]` (aka: `cvk_Slice( VkPhysicalDevice )`)
 typedef struct cvk_device_physical_List {
-  cvk_size          len;
-  VkPhysicalDevice* ptr;
+  cvk_size              len;
+  cvk_Readonly cvk_size itemsize;
+  VkPhysicalDevice*     ptr;
 } cvk_device_physical_List;
 
 typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format off
@@ -215,8 +219,9 @@ void cvk_device_queue_create_context ( // clang-format off
 /// Describes a list of (string literal) names of Device.Logical extensions.
 /// `cvk_String[]` (aka: `cvk_Slice( char const* )`)
 typedef struct cvk_device_Extensions {
-  cvk_size    len;
-  cvk_String* ptr;
+  cvk_size              len;
+  cvk_Readonly cvk_size itemsize;
+  cvk_String*           ptr;
 } cvk_device_Extensions;
 /// @description
 /// Allocates the list of Device.Logical extensions used by this library by default.
@@ -229,6 +234,7 @@ cvk_Pure cvk_device_Extensions cvk_device_Extensions_default (cvk_Allocator* con
 /// `VkExtensionProperties[]` (aka: `cvk_Slice( VkExtensionProperties )`)
 typedef struct cvk_device_extensions_Properties {
   cvk_size               len;
+  cvk_Readonly cvk_size  itemsize;
   VkExtensionProperties* ptr;
 } cvk_device_extensions_Properties;
 /// @description
@@ -300,6 +306,7 @@ typedef struct cvk_device_swapchain_Image {
 
 typedef struct cvk_device_swapchain_image_List {
   cvk_size                    len;
+  cvk_Readonly cvk_size       itemsize;
   cvk_device_swapchain_Image* ptr;
 } cvk_device_swapchain_image_List;
 
