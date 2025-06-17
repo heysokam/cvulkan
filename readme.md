@@ -29,7 +29,7 @@ But this library is **NOT** tied to GLFW in any way.
 You could use SDL, SFML, or any other method of your choosing.  
 
 
-## TODO
+## TODO & Done
 ```md
 # VkResult
 - [x] toString
