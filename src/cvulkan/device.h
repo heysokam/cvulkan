@@ -239,6 +239,11 @@ cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_creat
   cvk_Allocator* const             allocator
 ); // clang-format on
 
+void cvk_device_extensions_properties_destroy ( // clang-format off
+  cvk_device_extensions_Properties properties,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
 cvk_Pure cvk_bool cvk_device_extensions_supported ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_device_Extensions const      extensions,
