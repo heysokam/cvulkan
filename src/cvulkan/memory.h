@@ -23,15 +23,19 @@ typedef struct cvk_Allocator_CPU_s cvk_Allocator_CPU_t;
 typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_alloc)(cvk_Allocator_CPU* const, cvk_size const, cvk_size const);
 typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_allocZ)(cvk_Allocator_CPU* const, cvk_size const, cvk_size const);
 typedef void (*cvk_Fn_allocator_free)(cvk_Allocator_CPU* const, cvk_Slice* const);
+typedef void (*cvk_Fn_allocator_copy)(cvk_Allocator_CPU* const, cvk_Slice const* const, cvk_Slice* const);
+typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_duplicate)(cvk_Allocator_CPU* const, cvk_Slice const* const);
 
 
 //______________________________________
 // @section Allocator.CPU: Core Type
 //____________________________
 struct cvk_Allocator_CPU_s {
-  cvk_Fn_allocator_alloc  alloc;
-  cvk_Fn_allocator_allocZ allocZ;
-  cvk_Fn_allocator_free   free;
+  cvk_Fn_allocator_alloc     alloc;
+  cvk_Fn_allocator_allocZ    allocZ;
+  cvk_Fn_allocator_free      free;
+  cvk_Fn_allocator_copy      copy;
+  cvk_Fn_allocator_duplicate duplicate;
 };
 
 
@@ -55,6 +59,10 @@ cvk_Pure cvk_Slice cvk_allocator_alloc_stdlib (cvk_Allocator_CPU* const A, cvk_s
 cvk_Pure cvk_Slice cvk_allocator_allocZ_stdlib (cvk_Allocator_CPU* const A, cvk_size const count, cvk_size const itemsize);
 /// @description Thin wrapper for using stdlib.h/free with our allocator API
 void cvk_allocator_free_stdlib (cvk_Allocator_CPU* const A, cvk_Slice* const data);
+/// @description Thin wrapper for using stdlib.h/memcpy with our allocator API
+void cvk_allocator_copy_stdlib (cvk_Allocator_CPU* const A, cvk_Slice const* const src, cvk_Slice* const trg);
+/// @description Thin wrapper for using stdlib.h/malloc+memcpy with our allocator API
+cvk_Pure cvk_Slice cvk_allocator_duplicate_stdlib (cvk_Allocator_CPU* const A, cvk_Slice const* const data);
 /// @description
 /// Function that creates a stdlib CPU allocator wrapper
 /// Allows using stdlib.h with our allocator API

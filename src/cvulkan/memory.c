@@ -37,11 +37,37 @@ void cvk_allocator_free_stdlib (
 }
 
 
+void cvk_allocator_copy_stdlib (
+  cvk_Allocator_CPU* const A,
+  cvk_Slice const* const   src,
+  cvk_Slice* const         trg
+) {
+  if (src->ptr == NULL) return;
+  if (src->len > trg->len) return;
+  cvk_discard(A);
+  memcpy(trg->ptr, src->ptr, src->len * src->itemsize);
+}
+
+
+cvk_Pure cvk_Slice cvk_allocator_duplicate_stdlib (
+  cvk_Allocator_CPU* const A,
+  cvk_Slice const* const   data
+) {
+  if (data->ptr == NULL) return cvk_Slice_empty();
+  cvk_discard(A);
+  cvk_Slice result = A->allocZ(A, data->len, data->itemsize);
+  A->copy(A, data, &result);
+  return result;
+}
+
+
 cvk_Pure cvk_Allocator_CPU cvk_allocator_cpu_stdlib () {
   return (cvk_Allocator_CPU){
-    .alloc  = cvk_allocator_alloc_stdlib,
-    .allocZ = cvk_allocator_allocZ_stdlib,
-    .free   = cvk_allocator_free_stdlib,
+    .alloc     = cvk_allocator_alloc_stdlib,
+    .allocZ    = cvk_allocator_allocZ_stdlib,
+    .free      = cvk_allocator_free_stdlib,
+    .copy      = cvk_allocator_copy_stdlib,
+    .duplicate = cvk_allocator_duplicate_stdlib,
   };
 }
 
