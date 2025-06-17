@@ -85,6 +85,20 @@ You could use SDL, SFML, or any other method of your choosing.
       note: Currently Untested, but should work
 ```
 ```md
+# Pipeline
+## State
+- [ ] Minimal Creation
+- [ ] Customizable Options
+- [ ] Sane Defaults when `NULL`
+## Layout
+- [x] Minimal Creation
+- [ ] Customizable Options
+## Context
+- [ ] Minimal Creation
+- [ ] Customizable Options
+- [ ] Sane Defaults when `NULL`
+```
+```md
 # Memory Allocators
 - [x] Minimal creation (cpu:stdlib, gpu:null)
 ## CPU
