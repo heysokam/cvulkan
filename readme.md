@@ -33,6 +33,7 @@ The examples use GLFW for requesting a `VkSurfaceKHR` handle in a cross-platform
 But this library is **NOT** tied to GLFW in any way.  
 You could use SDL, SFML, or any other method of your choosing.  
 
+
 ## Buildsystem
 > @note  
 > You can completely ignore this library's buildsystem for your app.  
@@ -120,6 +121,25 @@ They use helper code from @[`heysokam/cdk`](https://github.com/heysokam/cdk), wh
 
 The examples default buildsystem relies on `glslc` and `xxd` installed on the system,  
 but they are not needed for using the library or compiling them in a different way.  
+
+
+## Naming Convention
+### Casing
+Regular symbols use `camelCase`.  
+Typedefs and Constants use `PascalCase`.  
+Namespaces are separated by `_`.  
+### Name Structure
+This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%E2%80%93verb_word_order) word order **strictly**.
+```md
+- Subject : The owner of the function.  `eg: vk`
+- Object  : The target of an action.    `eg: instance`
+- Verb    : The action being executed.  `eg: create`
+- SVO     : `vkCreateInstance`
+- SOV     : `vk_instance_create`
+```
+> @note  
+> This does NOT follow english syntactical/gramattical rules, and this is **by design**.  
+> _SVO causes tremendous amount of inconsistencies when creating a systematic naming convention._  
 
 
 ## TODO & Done
