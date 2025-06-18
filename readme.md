@@ -230,6 +230,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [x] Allocate: Customizable
 - [x] Begin
 - [x] End
+- [x] Reset
 ## Semaphore
 - [x] Creation (has no options)
 ## Fence

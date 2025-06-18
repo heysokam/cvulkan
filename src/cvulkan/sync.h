@@ -52,6 +52,7 @@ cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (  // clang-format off
 
 void cvk_command_buffer_begin (cvk_command_Buffer const* const command_buffer);
 void cvk_command_buffer_end (cvk_command_Buffer const* const command_buffer);
+void cvk_command_buffer_reset (cvk_command_Buffer const* const command_buffer, cvk_bool const releaseResources);
 
 
 //______________________________________

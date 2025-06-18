@@ -43,3 +43,12 @@ inline void cvk_command_buffer_end (
     "Failed to finish recording a Command Buffer");  // clang-format on
 }
 
+
+inline void cvk_command_buffer_reset (
+  cvk_command_Buffer const* const command_buffer,
+  cvk_bool const                  releaseResources
+) {  // clang-format off
+  cvk_result_check(vkResetCommandBuffer(command_buffer->ct, (VkCommandBufferResetFlags)releaseResources),
+    "Failed to reset a Command Buffer.");
+}
+
