@@ -46,6 +46,7 @@ typedef struct cvk_framebuffer_create_args {
   cvk_size const                              attachments_len;
   VkImageView const* const                    attachments_ptr;
   cvk_Nullable VkFramebufferCreateFlags const flags;
+  char                                        priv_pad[4];
   cvk_Allocator* const                        allocator;
 } cvk_framebuffer_create_args;
 
