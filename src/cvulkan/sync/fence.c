@@ -34,19 +34,20 @@ void cvk_fence_destroy (
 }
 
 
-void cvk_fence_wait (
-  cvk_device_Logical const* const device_logical,
-  cvk_Fence const* const          fence
+inline void cvk_fence_wait (
+  cvk_Fence const* const          fence,
+  cvk_device_Logical const* const device_logical
 ) {  // clang-format off
   cvk_result_check(vkWaitForFences(device_logical->ct, 1, &fence->ct, cvk_true, UINT64_MAX),
     "Something went wrong when waiting for a CPU Fence.");  // clang-format on
 }
 
-void cvk_fence_reset (
-  cvk_device_Logical const* const device_logical,
-  cvk_Fence const* const          fence
+
+inline void cvk_fence_reset (
+  cvk_Fence const* const          fence,
+  cvk_device_Logical const* const device_logical
 ) {  // clang-format off
   cvk_result_check(vkResetFences(device_logical->ct, 1, &fence->ct),
-    "Something went wrong when resetting a CPU Fence"); // clang-format on
+    "Something went wrong when resetting a CPU Fence");  // clang-format on
 }
 

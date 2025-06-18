@@ -87,13 +87,13 @@ void cvk_fence_destroy ( // clang-format off
 ); // clang-format on
 
 void cvk_fence_wait ( // clang-format off
-  cvk_device_Logical const* const device_logical,
-  cvk_Fence const* const          fence
+  cvk_Fence const* const          fence,
+  cvk_device_Logical const* const device_logical
 ); // clang-format on
 
 void cvk_fence_reset ( // clang-format off
-  cvk_device_Logical const* const device_logical,
-  cvk_Fence const* const          fence
+  cvk_Fence const* const          fence,
+  cvk_device_Logical const* const device_logical
 ); // clang-format on
 
 
