@@ -2,6 +2,11 @@
 `cvulkan` is a Pure C library of helpers to make Vulkan more comfortable to use  
 by reducing the redundant boilerplate required by the API.  
 
+## Current Status
+See the @[TODO & Done](#todo--done) section for an up-to-date list of features pending and done.  
+Current state of the library can get you up to par with `vk-bootstrap` _(aka: up to Swapchain creation)_.  
+You can see an example of the bootstrapping code in the @[bootstrap](./examples/bootstrap.c) example file.  
+
 ## How to
 > TODO: Write a simple howto intro.  
 > Reference the @[examples](./examples/) folder in the meantime.  
@@ -27,97 +32,6 @@ How you request that handle is _up to you_ to decide.
 The examples use GLFW for requesting a `VkSurfaceKHR` handle in a cross-platform way.  
 But this library is **NOT** tied to GLFW in any way.  
 You could use SDL, SFML, or any other method of your choosing.  
-
-
-## TODO & Done
-```md
-# VkResult
-- [x] toString
-- [x] check
-- [x] assert
-```
-```md
-# VkInstance
-- [x] Minimal creation
-- [x] Application Info
-- [x] Validation Layers
-- [x] Debug Messenger
-- [ ] Extensions
-  - [x] Minimal
-  - [ ] Custom
-```
-```md
-# VkSurfaceKHR
-- [x] Accept a Surface handle from the user
-- [x] Destroy helper for naming consistency
-```
-```md
-# Device
-- [ ] Extensions
-  - [x] Minimal
-  - [ ] Custom
-- [ ] Features
-## Physical
-- [x] Minimal creation
-      Using `isSuitable` and surface support
-- [ ] Suitability
-  - [x] Boolean: Overridable `device_physical_isSuitable` function
-        Returns true/false for whether the device is valid or not
-  - [ ] Ranked : Overridable `device_physical_rank` function
-        Track scores and pick the best
-## Queue
-- [x] Minimal creation (1 graphics+present Q)
-- [ ] Arbitrary Queue creation (multi-queue)
-      Needs support on the device.logical function
-## Logical
-- [x] Minimal creation
-- [ ] Support Multi-Queue creation
-## Swapchain
-- [x] Context creation
-- [x] Swapchain.Images Request
-- [x] Swapchain.ImageViews Request
-```
-```md
-# Shaders
-- [x] Single-stage
-- [x] Multi-stage
-      ref: https://www.leadwerks.com/community/blogs/entry/2403-single-file-spir-v-shaders-for-vulkan/
-      note: Currently Untested, but should work
-```
-```md
-# Pipeline
-## State
-- [ ] Minimal Creation
-- [ ] Customizable Options
-- [ ] Sane Defaults when `NULL`
-## Layout
-- [x] Minimal Creation
-- [ ] Customizable Options
-## Context: Graphics
-- [x] Minimal Creation: Single Pipeline
-- [ ] Customizable Options
-- [ ] Sane Defaults when `NULL`
-- [ ] Multi-pipeline
-```
-```md
-# Memory Allocators
-- [x] Minimal creation (cpu:stdlib, gpu:null)
-## CPU
-- [x] Custom Allocator Support
-- [x] stdlib: malloc -> alloc
-- [x] stdlib: calloc -> allocZ
-- [x] stdlib: free   -> free
-- [ ] stdlib: memcpy -> copy
-- [ ] stdlib: memset -> set
-## GPU
-- [x] Custom Allocator Support
-- [x] NULL Allocator
-- [ ] Pure C Replacement for VMA
-## Docs
-- [ ] How to use the API
-- [ ] Philosophy: Bring your own Allocator (Zig-inspired)
-- [ ] Slices and Slice-like objects
-```
 
 ## Buildsystem
 > @note  
@@ -206,4 +120,115 @@ They use helper code from @[`heysokam/cdk`](https://github.com/heysokam/cdk), wh
 
 The examples default buildsystem relies on `glslc` and `xxd` installed on the system,  
 but they are not needed for using the library or compiling them in a different way.  
+
+
+## TODO & Done
+```md
+# VkResult
+- [x] toString
+- [x] check
+- [x] assert
+```
+```md
+# VkInstance
+- [x] Minimal creation
+- [x] Application Info
+- [x] Validation Layers
+- [x] Debug Messenger
+- [ ] Extensions
+  - [x] Minimal
+  - [ ] Custom
+```
+```md
+# VkSurfaceKHR
+- [x] Accept a Surface handle from the user
+- [x] Destroy helper for naming consistency
+```
+```md
+# Device
+- [ ] Extensions
+  - [x] Minimal
+  - [ ] Custom
+- [ ] Features
+## Physical
+- [x] Minimal creation
+      Using `isSuitable` and surface support
+- [ ] Suitability
+  - [x] Boolean: Overridable `device_physical_isSuitable` function
+        Returns true/false for whether the device is valid or not
+  - [ ] Ranked : Overridable `device_physical_rank` function
+        Track scores and pick the best
+## Queue
+- [x] Minimal creation (1 graphics+present Q)
+- [ ] Arbitrary Queue creation (multi-queue)
+      Needs support on the device.logical function
+## Logical
+- [x] Minimal creation
+- [ ] Support Multi-Queue creation
+## Swapchain
+- [x] Context creation
+- [x] Swapchain.Images Request
+- [x] Swapchain.ImageViews Request
+```
+```md
+# Shaders
+- [x] Single-stage
+- [x] Multi-stage
+      ref: https://www.leadwerks.com/community/blogs/entry/2403-single-file-spir-v-shaders-for-vulkan/
+      note: Currently Untested, but should work
+```
+```md
+# Pipeline
+## State
+- [ ] Minimal Creation
+- [ ] Customizable Options
+- [ ] Sane Defaults when `NULL`
+## Layout
+- [x] Minimal Creation
+- [ ] Customizable Options
+## Context: Graphics
+- [x] Minimal Creation: Single Pipeline
+- [ ] Customizable Options
+- [ ] Sane Defaults when `NULL`
+- [ ] Multi-pipeline
+```
+```md
+# Framebuffer & Renderpass
+## Framebuffer
+- [x] Minimal Creation
+- [ ] Customizable Options
+## Renderpass
+- [x] Minimal Creation
+- [ ] Customizable Options
+```
+```md
+# Synchronization Structures
+## Command Pool
+- [x] Minimal Creation
+- [ ] Customizable Options
+## Command Buffer
+- [x] Allocate: Customizable
+```
+```md
+# Memory Allocators
+- [x] Minimal creation (cpu:stdlib, gpu:null)
+## CPU
+- [x] Custom Allocator Support
+- [x] stdlib: malloc -> alloc
+- [x] stdlib: calloc -> allocZ
+- [x] stdlib: free   -> free
+- [x] stdlib: memcpy -> copy
+- [x] stdlib: ??     -> duplicate
+- [ ] stdlib: memset -> set
+- [ ] stdlib: ??     -> resize
+## GPU
+- [x] Custom Allocator Support
+- [x] NULL Allocator
+- [ ] Pure C Replacement for VMA
+## Docs
+- [ ] How to use the API
+- [ ] Philosophy: Bring your own Allocator (Zig-inspired)
+- [ ] Slices and Slice-like objects
+```
+
 
