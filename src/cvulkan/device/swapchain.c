@@ -300,3 +300,19 @@ void cvk_device_swapchain_destroy (
   vkDestroySwapchainKHR(device->ct, swapchain->ct, allocator->gpu);
 }
 
+
+cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
+  cvk_device_swapchain_nextImageID_args const* const arg
+) {  // clang-format off
+  uint32_t result = UINT32_MAX;
+  cvk_result_check(vkAcquireNextImageKHR(
+    /* device      */ arg->device_logical->ct,
+    /* swapchain   */ arg->swapchain->ct,
+    /* timeout     */ UINT64_MAX,
+    /* semaphore   */ (arg->semaphore) ? arg->semaphore->ct : VK_NULL_HANDLE,
+    /* fence       */ (arg->fence    ) ? arg->fence->ct     : VK_NULL_HANDLE,
+    /* pImageIndex */ &result
+  ), "Failed to request the next ID from the Device.Swapchain's list of images.");  // clang-format on
+  return result;
+}
+

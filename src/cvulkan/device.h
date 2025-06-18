@@ -219,6 +219,17 @@ void cvk_device_swapchain_destroy ( // clang-format off
   cvk_Allocator* const        allocator
 ); // clang-format on
 
+typedef struct cvk_device_swapchain_nextImageID_args {
+  cvk_device_Logical const* const         device_logical;
+  cvk_device_Swapchain const* const       swapchain;
+  cvk_Nullable cvk_Semaphore const* const semaphore;
+  cvk_Nullable cvk_Fence const* const     fence;
+} cvk_device_swapchain_nextImageID_args;
+
+cvk_Pure cvk_size cvk_device_swapchain_nextImageID ( // clang-format off
+  cvk_device_swapchain_nextImageID_args const* const arg
+);  // clang-format on
+
 
 //______________________________________
 // @section Device: Features
