@@ -6,8 +6,8 @@
 
 
 cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (
-  cvk_device_Logical* const device_logical,
-  cvk_Allocator* const      allocator
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
 ) {  // clang-format off
   cvk_pipeline_Layout result = (cvk_pipeline_Layout){
     .ct                     = NULL,
@@ -28,9 +28,9 @@ cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (
 
 
 void cvk_pipeline_layout_destroy (
-  cvk_device_Logical* const  device_logical,
-  cvk_pipeline_Layout* const layout,
-  cvk_Allocator* const       allocator
+  cvk_pipeline_Layout* const      layout,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
 ) {
   layout->cfg = (VkPipelineLayoutCreateInfo){ 0 };
   vkDestroyPipelineLayout(device_logical->ct, layout->ct, allocator->gpu);
