@@ -38,10 +38,10 @@ void cvk_framebuffer_destroy (
 }
 
 
-cvk_Pure cvk_device_swapchain_framebuffer_List cvk_device_swapchain_framebuffers_create (
+cvk_Pure cvk_framebuffer_List cvk_device_swapchain_framebuffers_create (
   cvk_device_swapchain_framebuffers_create_args const* const arg
 ) {
-  cvk_device_swapchain_framebuffer_List result = (cvk_device_swapchain_framebuffer_List){
+  cvk_framebuffer_List result = (cvk_framebuffer_List){
     .len      = arg->swapchain->images.len,
     .itemsize = sizeof(cvk_Framebuffer),
     .ptr      = NULL,
@@ -62,13 +62,12 @@ cvk_Pure cvk_device_swapchain_framebuffer_List cvk_device_swapchain_framebuffers
 }
 
 
-void cvk_device_swapchain_framebuffers_destroy (
-  cvk_device_swapchain_framebuffer_List* const framebuffers,
-  cvk_device_Logical const* const              device_logical,
-  cvk_Allocator* const                         allocator
+void cvk_framebuffer_list_destroy (
+  cvk_framebuffer_List* const     framebuffers,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
 ) {
   for (cvk_size id = 0; id < framebuffers->len; ++id) cvk_framebuffer_destroy(&framebuffers->ptr[id], device_logical, allocator);
   allocator->cpu.free(&allocator->cpu, (cvk_Slice*)framebuffers);
 }
-
 

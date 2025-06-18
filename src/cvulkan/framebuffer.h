@@ -27,6 +27,18 @@ typedef struct cvk_Framebuffer {
   VkFramebufferCreateInfo cfg;
 } cvk_Framebuffer;
 
+typedef struct cvk_framebuffer_List {
+  cvk_size              len;
+  cvk_Readonly cvk_size itemsize;
+  cvk_Framebuffer*      ptr;
+} cvk_framebuffer_List;
+
+void cvk_framebuffer_list_destroy ( // clang-format off
+  cvk_framebuffer_List* const framebuffers,
+  cvk_device_Logical const* const              device_logical,
+  cvk_Allocator* const                         allocator
+); // clang-format on
+
 typedef struct cvk_framebuffer_create_args {
   cvk_device_Logical const* const             device_logical;
   cvk_Renderpass const* const                 renderpass;
@@ -49,14 +61,8 @@ void cvk_framebuffer_destroy ( // clang-format off
 
 
 //______________________________________
-// @section Framebuffer: Swapchain Context List
+// @section Framebuffer: Swapchain Framebuffer List
 //____________________________
-
-typedef struct cvk_device_swapchain_framebuffer_List {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  cvk_Framebuffer*      ptr;
-} cvk_device_swapchain_framebuffer_List;
 
 typedef struct cvk_device_swapchain_framebuffers_create_args {
   cvk_device_Swapchain const* const swapchain;
@@ -65,16 +71,9 @@ typedef struct cvk_device_swapchain_framebuffers_create_args {
   cvk_Allocator* const              allocator;
 } cvk_device_swapchain_framebuffers_create_args;
 
-cvk_Pure cvk_device_swapchain_framebuffer_List cvk_device_swapchain_framebuffers_create ( // clang-format off
+cvk_Pure cvk_framebuffer_List cvk_device_swapchain_framebuffers_create (  // clang-format off
   cvk_device_swapchain_framebuffers_create_args const* const arg
-); // clang-format on
-
-void cvk_device_swapchain_framebuffers_destroy ( // clang-format off
-  cvk_device_swapchain_framebuffer_List* const framebuffers,
-  cvk_device_Logical const* const              device_logical,
-  cvk_Allocator* const                         allocator
-); // clang-format on
-
+);  // clang-format on
 
 
 //______________________________________
