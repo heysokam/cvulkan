@@ -49,6 +49,18 @@ cvk_Pure cvk_Renderpass cvk_renderpass_create (
       .pResolveAttachments     = NULL, // For Multisampling
       .pDepthStencilAttachment = NULL, // Depth and Stencil data
     },
+    // FIX: Remove hardcoded subpass dependency configuration
+    //    : Alternative: Change `waitStages` for `imageAvailable` Semaphore to `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT`
+    .dependencyCount           = 1,
+    .pDependencies             = &(VkSubpassDependency){
+      .srcSubpass              = VK_SUBPASS_EXTERNAL,
+      .dstSubpass              = 0,
+      .srcStageMask            = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+      .dstStageMask            = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+      .srcAccessMask           = (VkAccessFlags)0,
+      .dstAccessMask           = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+      .dependencyFlags         = (VkDependencyFlags)0,
+    },
   }; //:: result.cfg
   cvk_result_check(vkCreateRenderPass(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a Renderpass");  // clang-format on
