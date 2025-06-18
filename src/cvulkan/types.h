@@ -1,6 +1,11 @@
+//:__________________________________________________________
+//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
+//:__________________________________________________________
+//! @fileoverview cvulkan: Core Types
+//____________________________________|
+#ifndef H_cvulkan_types
+#define H_cvulkan_types
 #include "./base.h"
-
-#define cvk_Application VkApplicationInfo
 
 
 //______________________________________
@@ -42,6 +47,13 @@ typedef struct cvk_Allocator {
   cvk_Allocator_GPU gpu;
   cvk_Allocator_CPU cpu;
 } cvk_Allocator;
+
+
+//______________________________________
+// @section Application Info
+//____________________________
+
+#define cvk_Application VkApplicationInfo
 
 
 //______________________________________
@@ -388,4 +400,6 @@ typedef struct cvk_Fence {
   VkFenceCreateInfo cfg;
 } cvk_Fence;
 
+
+#endif  // H_cvulkan_types
 

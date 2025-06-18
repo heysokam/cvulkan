@@ -1,8 +1,8 @@
 //:__________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
 //:__________________________________________________________
-//! @fileoverview Vulkan Sync Structures: Types & Tools
-//______________________________________________________|
+//! @fileoverview Vulkan Sync Structures: Tools
+//______________________________________________|
 #ifndef H_cvulkan_sync
 #define H_cvulkan_sync
 #include "./base.h"
