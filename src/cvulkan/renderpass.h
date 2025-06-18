@@ -14,6 +14,33 @@
 #ifndef H_cvulkan_renderpass
 #define H_cvulkan_renderpass
 #include "./base.h"
+#include "./device.h"
+
+
+//______________________________________
+// @section RenderPass: Renderpass
+//____________________________
+
+typedef struct cvk_Renderpass {
+  VkRenderPass           ct;
+  VkRenderPassCreateInfo cfg;
+} cvk_Renderpass;
+
+typedef struct cvk_renderpass_create_args {
+  cvk_device_Logical const* const   device_logical;
+  cvk_device_Swapchain const* const swapchain;
+  cvk_Allocator* const              allocator;
+} cvk_renderpass_create_args;
+
+cvk_Pure cvk_Renderpass cvk_renderpass_create (  // clang-format off
+  cvk_renderpass_create_args const* const arg
+);  // clang-format on
+
+void cvk_renderpass_destroy ( // clang-format off
+  cvk_Renderpass* const           renderpass,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
+); // clang-format on
 
 
 //______________________________________
@@ -23,9 +50,7 @@
 #define cvk_Implementation_renderpass
 #endif
 #ifdef cvk_Implementation_renderpass
-#include "./renderpass/pass.c"
-#include "./renderpass/subpass.c"
-#include "./renderpass/framebuffer.c"
+#include "./renderpass.c"
 #endif
 
 
