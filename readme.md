@@ -138,7 +138,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - SOV     : `vk_instance_create`
 ```
 > @note  
-> This does NOT follow english syntactical/gramattical rules, and this is **by design**.  
+> This does NOT respect english syntactical/gramattical rules, and this is **by design**.  
 > _SVO causes tremendous amount of inconsistencies when creating a systematic naming convention._  
 
 
