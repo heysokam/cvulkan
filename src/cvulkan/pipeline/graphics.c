@@ -6,6 +6,7 @@
 #include "../result.h"
 #include "../pipeline.h"
 
+
 cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
   cvk_pipeline_graphics_create_args const* const arg
 ) {
@@ -57,5 +58,4 @@ void cvk_pipeline_graphics_destroy (
   pipeline->cfg = (VkGraphicsPipelineCreateInfo){ 0 };
   vkDestroyPipeline(device_logical->ct, pipeline->ct, allocator->gpu);
 }
-
 

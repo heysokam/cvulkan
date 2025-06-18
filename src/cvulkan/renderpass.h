@@ -14,17 +14,12 @@
 #ifndef H_cvulkan_renderpass
 #define H_cvulkan_renderpass
 #include "./base.h"
-#include "./device.h"
+#include "./types.h"
 
 
 //______________________________________
-// @section RenderPass: Renderpass
+// @section RenderPass
 //____________________________
-
-typedef struct cvk_Renderpass {
-  VkRenderPass           ct;
-  VkRenderPassCreateInfo cfg;
-} cvk_Renderpass;
 
 typedef struct cvk_renderpass_create_args {
   cvk_device_Logical const* const   device_logical;

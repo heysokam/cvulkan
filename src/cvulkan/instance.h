@@ -6,16 +6,7 @@
 #ifndef H_cvk_instance
 #define H_cvk_instance
 #include "./base.h"
-#include "./memory.h"
-#include "./validation.h"
-#include "./application.h"
-
-typedef struct cvk_Instance cvk_Instance;
-
-/// @description
-/// Function shape expected by cvk to request the required extensions from the system.
-/// @returns cvk_Slice[cvk_String] List of string literals with the names of the required extensions
-typedef cvk_Slice (*cvk_Fn_extensions_Instance_getRequired)(void);
+#include "./types.h"
 
 
 //______________________________________
@@ -24,8 +15,12 @@ typedef cvk_Slice (*cvk_Fn_extensions_Instance_getRequired)(void);
 
 /// @description
 /// Creates a valid VkInstanceCreateInfo object with the given arguments
-cvk_Pure VkInstanceCreateInfo
-cvk_instance_options_create (cvk_Application const* const application, VkInstanceCreateFlags const flags, cvk_Slice const layers, cvk_Slice const extensions);
+cvk_Pure VkInstanceCreateInfo cvk_instance_options_create ( // clang-format off
+  cvk_Application const* const application,
+  VkInstanceCreateFlags const  flags,
+  cvk_Slice const              layers,
+  cvk_Slice const              extensions
+); // clang-format on
 
 
 //______________________________________
@@ -44,18 +39,6 @@ typedef struct cvk_instance_create_args {
 } cvk_instance_create_args;
 cvk_Pure cvk_Instance cvk_instance_create (cvk_instance_create_args const* const arg);
 void                  cvk_instance_destroy (cvk_Instance* const instance);
-
-
-//______________________________________
-// @section Instance: Core Type
-//____________________________
-struct cvk_Instance {
-  VkInstance           ct;
-  VkInstanceCreateInfo cfg;
-  cvk_Allocator        allocator;
-  VkApplicationInfo    application;
-  cvk_Validation       validation;
-};
 
 
 //______________________________________

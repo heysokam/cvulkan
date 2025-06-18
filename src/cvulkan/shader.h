@@ -6,21 +6,8 @@
 #ifndef H_cvulkan_shader
 #define H_cvulkan_shader
 #include "./base.h"
-#include "./device.h"
+#include "./types.h"
 
-
-typedef struct cvk_SpirV {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  uint32_t*             ptr;
-} cvk_SpirV;
-
-typedef struct cvk_Shader {
-  VkShaderModule                  ct;
-  VkShaderModuleCreateInfo        cfg;
-  VkPipelineShaderStageCreateInfo stage;
-  cvk_SpirV                       code;
-} cvk_Shader;
 
 /// @description
 /// Minimal alias of `VkShaderStageFlagBits` for naming consistency.

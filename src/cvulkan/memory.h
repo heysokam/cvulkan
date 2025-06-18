@@ -6,47 +6,7 @@
 #ifndef H_cvulkan_memory
 #define H_cvulkan_memory
 #include "./base.h"
-
-
-//______________________________________
-// @section Allocator.CPU: Overridable Type
-//____________________________
-#ifndef cvk_Allocator_CPU
-typedef struct cvk_Allocator_CPU_s cvk_Allocator_CPU_t;
-#define cvk_Allocator_CPU cvk_Allocator_CPU_t
-#endif  // cvk_Allocator_CPU
-
-
-//______________________________________
-// @section Allocator.CPU: Function Types Declarations
-//____________________________
-typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_alloc)(cvk_Allocator_CPU* const, cvk_size const, cvk_size const);
-typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_allocZ)(cvk_Allocator_CPU* const, cvk_size const, cvk_size const);
-typedef void (*cvk_Fn_allocator_free)(cvk_Allocator_CPU* const, cvk_Slice* const);
-typedef void (*cvk_Fn_allocator_copy)(cvk_Allocator_CPU* const, cvk_Slice const* const, cvk_Slice* const);
-typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_duplicate)(cvk_Allocator_CPU* const, cvk_Slice const* const);
-
-
-//______________________________________
-// @section Allocator.CPU: Core Type
-//____________________________
-struct cvk_Allocator_CPU_s {
-  cvk_Fn_allocator_alloc     alloc;
-  cvk_Fn_allocator_allocZ    allocZ;
-  cvk_Fn_allocator_free      free;
-  cvk_Fn_allocator_copy      copy;
-  cvk_Fn_allocator_duplicate duplicate;
-};
-
-
-//______________________________________
-// @section Allocator: Core Types
-//____________________________
-#define cvk_Allocator_GPU VkAllocationCallbacks*
-typedef struct cvk_Allocator {
-  cvk_Allocator_GPU gpu;
-  cvk_Allocator_CPU cpu;
-} cvk_Allocator;
+#include "./types.h"
 
 
 //______________________________________

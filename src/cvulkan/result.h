@@ -7,6 +7,7 @@
 #define H_cvk_result
 #include "./base.h"
 
+
 cvk_String cvk_result_toString_default (VkResult status);
 #ifndef cvk_result_toString
 #define cvk_result_toString cvk_result_toString_default

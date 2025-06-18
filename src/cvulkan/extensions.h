@@ -6,6 +6,7 @@
 #ifndef H_cvk_extensions
 #define H_cvk_extensions
 #include "./base.h"
+#include "./types.h"
 
 #ifndef cvk_extensions_instance_getRequired
 #define cvk_extensions_instance_getRequired() cvk_Slice_empty

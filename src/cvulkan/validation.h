@@ -6,7 +6,7 @@
 #ifndef H_cvulkan_validation
 #define H_cvulkan_validation
 #include "./base.h"
-#include "./memory.h"
+#include "./types.h"
 
 
 
@@ -14,17 +14,6 @@
 /// Validation Layer Name, missing from the spec.
 /// Should be VK_KHR_VALIDATION_LAYER_NAME or similar
 #define cvk_validation_LayerName "VK_LAYER_KHRONOS_validation"
-
-
-//______________________________________
-// @section Validation: Data
-//____________________________
-typedef struct cvk_Validation {
-  VkDebugUtilsMessengerEXT           debug_ct;
-  VkDebugUtilsMessengerCreateInfoEXT debug_cfg;
-  cvk_bool                           debug_active;
-  cvk_bool                           layers_active;
-} cvk_Validation;
 
 
 //______________________________________

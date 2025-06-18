@@ -14,24 +14,12 @@
 #ifndef H_cvulkan_framebuffer
 #define H_cvulkan_framebuffer
 #include "./base.h"
-#include "./device.h"
-#include "./renderpass.h"
+#include "./types.h"
 
 
 //______________________________________
 // @section Framebuffer: Context
 //____________________________
-
-typedef struct cvk_Framebuffer {
-  VkFramebuffer           ct;
-  VkFramebufferCreateInfo cfg;
-} cvk_Framebuffer;
-
-typedef struct cvk_framebuffer_List {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  cvk_Framebuffer*      ptr;
-} cvk_framebuffer_List;
 
 void cvk_framebuffer_list_destroy ( // clang-format off
   cvk_framebuffer_List* const framebuffers,

@@ -17,4 +17,3 @@
 typedef VkSurfaceKHR cvk_Surface;
 
 #endif  // H_cvulkan_surface
-

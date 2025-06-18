@@ -6,31 +6,17 @@
 #ifndef H_cvulkan_pipeline
 #define H_cvulkan_pipeline
 #include "./base.h"
-#include "./memory.h"
-#include "./device.h"
-#include "./renderpass.h"
+#include "./types.h"
 
 
 //______________________________________
 // @section Pipeline: State
 //____________________________
 
-typedef struct cvk_pipeline_shaderStage_List {
-  cvk_size                               len;
-  cvk_Readonly cvk_size                  itemsize;
-  VkPipelineShaderStageCreateInfo* const ptr;
-} cvk_pipeline_shaderStage_List;
-
 
 //______________________________________
 // @section Pipeline: Layout
 //____________________________
-
-typedef struct cvk_pipeline_Layout {
-  VkPipelineLayout           ct;
-  VkPipelineLayoutCreateInfo cfg;
-} cvk_pipeline_Layout;
-
 cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create ( // clang-format off
   cvk_device_Logical const* const device_logical,
   cvk_Allocator* const            allocator
@@ -46,13 +32,6 @@ void cvk_pipeline_layout_destroy ( // clang-format off
 //______________________________________
 // @section Pipeline: Graphics Context
 //____________________________
-
-typedef struct cvk_pipeline_Graphics {
-  VkPipeline                   ct;
-  VkGraphicsPipelineCreateInfo cfg;
-  cvk_pipeline_Layout          layout;
-  cvk_Renderpass               renderpass;
-} cvk_pipeline_Graphics;
 
 typedef struct cvk_pipeline_graphics_create_args {
   cvk_device_Logical const* const                                 device_logical;

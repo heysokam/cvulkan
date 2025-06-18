@@ -1,7 +1,6 @@
 //:__________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
 //:__________________________________________________________
-#include "../result.h"
 #include "../device.h"
 
 cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
