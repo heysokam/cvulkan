@@ -6,27 +6,12 @@
 #ifndef H_cvulkan_sync
 #define H_cvulkan_sync
 #include "./base.h"
-#include "./device.h"
+#include "./types.h"
 
 
 //______________________________________
 // @section Command Pool
 //____________________________
-
-typedef struct cvk_command_Pool {
-  VkCommandPool           ct;
-  VkCommandPoolCreateInfo cfg;
-} cvk_command_Pool;
-
-/// @description
-/// Alias to `VkCommandPoolCreateFlags` for naming consistency.
-/// Fully compatible with the original type.
-typedef enum cvk_command_pool_Flags {
-  cvk_command_pool_Transient     = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-  cvk_command_pool_Reset         = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-  cvk_command_pool_Protected     = VK_COMMAND_POOL_CREATE_PROTECTED_BIT,
-  cvk_command_pool_Flags_Force32 = VK_COMMAND_POOL_CREATE_FLAG_BITS_MAX_ENUM,
-} cvk_command_pool_Flags;
 
 typedef struct cvk_command_pool_create_args {
   cvk_device_Logical const* const device_logical;
@@ -50,20 +35,6 @@ void cvk_command_pool_destroy ( // clang-format off
 // @section Command Buffer
 //____________________________
 
-typedef struct cvk_command_Buffer {
-  VkCommandBuffer             ct;
-  VkCommandBufferAllocateInfo cfg;
-} cvk_command_Buffer;
-
-/// @description
-/// Alias to `VkCommandBufferLevel` for naming consistency.
-/// Fully compatible with the original type.
-typedef enum cvk_command_buffer_Level {
-  cvk_command_buffer_Primary       = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-  cvk_command_buffer_Secondary     = VK_COMMAND_BUFFER_LEVEL_SECONDARY,
-  cvk_command_buffer_Level_Force32 = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM,
-} cvk_command_buffer_Level;
-
 typedef struct cvk_command_buffer_allocate_args {
   cvk_device_Logical const* const             device_logical;
   cvk_command_Pool const* const               pool;
@@ -82,6 +53,50 @@ cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (  // clang-format off
 void cvk_command_buffer_begin (cvk_command_Buffer const* const command_buffer);
 void cvk_command_buffer_end (cvk_command_Buffer const* const command_buffer);
 
+
+//______________________________________
+// @section Semaphore
+//____________________________
+
+cvk_Pure cvk_Semaphore cvk_semaphore_create (  // clang-format off
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator const* const      allocator
+);  // clang-format on
+
+void cvk_semaphore_destroy ( // clang-format off
+  cvk_Semaphore* const            semaphore,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
+); // clang-format on
+
+
+//______________________________________
+// @section Fence
+//____________________________
+
+cvk_Pure cvk_Fence cvk_fence_create (  // clang-format off
+  cvk_device_Logical const* const device_logical,
+  cvk_bool const                  signaled,
+  cvk_Allocator const* const      allocator
+);  // clang-format on
+
+void cvk_fence_destroy ( // clang-format off
+  cvk_Fence* const                fence,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
+); // clang-format on
+
+void cvk_fence_wait ( // clang-format off
+  cvk_device_Logical const* const device_logical,
+  cvk_Fence const* const          fence
+); // clang-format on
+
+void cvk_fence_reset ( // clang-format off
+  cvk_device_Logical const* const device_logical,
+  cvk_Fence const* const          fence
+); // clang-format on
+
+
 //______________________________________
 // @section Single Header Support
 //____________________________
@@ -91,6 +106,8 @@ void cvk_command_buffer_end (cvk_command_Buffer const* const command_buffer);
 #ifdef cvk_Implementation_sync
 #include "./sync/command/pool.c"
 #include "./sync/command/buffer.c"
+#include "./sync/fence.c"
+#include "./sync/semaphore.c"
 #endif
 
 

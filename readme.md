@@ -228,6 +228,14 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [ ] Customizable Options
 ## Command Buffer
 - [x] Allocate: Customizable
+- [x] Begin
+- [x] End
+## Semaphore
+- [x] Creation (has no options)
+## Fence
+- [x] Creation: Customizable
+- [x] Wait
+- [x] Reset
 ```
 ```md
 # Memory Allocators
