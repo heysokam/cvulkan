@@ -93,10 +93,11 @@ You could use SDL, SFML, or any other method of your choosing.
 ## Layout
 - [x] Minimal Creation
 - [ ] Customizable Options
-## Context
-- [ ] Minimal Creation
+## Context: Graphics
+- [x] Minimal Creation: Single Pipeline
 - [ ] Customizable Options
 - [ ] Sane Defaults when `NULL`
+- [ ] Multi-pipeline
 ```
 ```md
 # Memory Allocators
