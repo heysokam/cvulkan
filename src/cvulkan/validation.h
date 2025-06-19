@@ -19,14 +19,7 @@
 //______________________________________
 // @section Validation: Options
 //____________________________
-typedef struct cvk_validation_Options {
-  cvk_Readonly cvk_bool                             layers_active;  ///< Will enable validation layers when true
-  cvk_Readonly cvk_bool                             debug_active;   ///< Will enable debug messenger when true
-  cvk_Readonly VkDebugUtilsMessageSeverityFlagsEXT  debug_severity;
-  cvk_Readonly VkDebugUtilsMessageTypeFlagsEXT      debug_msgType;
-  cvk_Readonly PFN_vkDebugUtilsMessengerCallbackEXT debug_callback;
-  cvk_Readonly cvk_pointer                          debug_userdata;
-} cvk_validation_Options;
+
 cvk_Pure cvk_validation_Options cvk_validation_options_defaults ();
 
 

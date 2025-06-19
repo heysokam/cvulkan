@@ -81,6 +81,15 @@ typedef struct cvk_Fence {
 // @section Validation
 //____________________________
 
+typedef struct cvk_validation_Options {
+  cvk_Readonly cvk_bool                             layers_active;  ///< Will enable validation layers when true
+  cvk_Readonly cvk_bool                             debug_active;   ///< Will enable debug messenger when true
+  cvk_Readonly VkDebugUtilsMessageSeverityFlagsEXT  debug_severity;
+  cvk_Readonly VkDebugUtilsMessageTypeFlagsEXT      debug_msgType;
+  cvk_Readonly PFN_vkDebugUtilsMessengerCallbackEXT debug_callback;
+  cvk_Readonly cvk_pointer                          debug_userdata;
+} cvk_validation_Options;
+
 typedef struct cvk_Validation {
   VkDebugUtilsMessengerEXT           debug_ct;
   VkDebugUtilsMessengerCreateInfoEXT debug_cfg;
