@@ -50,6 +50,27 @@ typedef struct cvk_Allocator {
 
 
 //______________________________________
+// @section Semaphore
+//____________________________
+
+typedef struct cvk_Semaphore {
+  VkSemaphore           ct;
+  VkSemaphoreCreateInfo cfg;
+} cvk_Semaphore;
+
+
+//______________________________________
+// @section Fence
+//____________________________
+
+typedef struct cvk_Fence {
+  VkFence           ct;
+  VkFenceCreateInfo cfg;
+} cvk_Fence;
+
+
+
+//______________________________________
 // @section Application Info
 //____________________________
 
@@ -222,8 +243,9 @@ typedef struct cvk_device_extensions_Properties {
 //____________________________
 
 typedef struct cvk_device_swapchain_Image {
-  VkImage     ct;
-  VkImageView view;
+  VkImage       ct;
+  VkImageView   view;
+  cvk_Semaphore finished;
 } cvk_device_swapchain_Image;
 
 typedef struct cvk_device_swapchain_image_List {
@@ -379,26 +401,6 @@ typedef enum cvk_command_buffer_Level {
   cvk_command_buffer_Secondary     = VK_COMMAND_BUFFER_LEVEL_SECONDARY,
   cvk_command_buffer_Level_Force32 = VK_COMMAND_BUFFER_LEVEL_MAX_ENUM,
 } cvk_command_buffer_Level;
-
-
-//______________________________________
-// @section Semaphore
-//____________________________
-
-typedef struct cvk_Semaphore {
-  VkSemaphore           ct;
-  VkSemaphoreCreateInfo cfg;
-} cvk_Semaphore;
-
-
-//______________________________________
-// @section Fence
-//____________________________
-
-typedef struct cvk_Fence {
-  VkFence           ct;
-  VkFenceCreateInfo cfg;
-} cvk_Fence;
 
 
 #endif  // H_cvulkan_types

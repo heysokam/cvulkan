@@ -1,6 +1,7 @@
 //:__________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
 //:__________________________________________________________
+#include "../sync.h"
 #include "../result.h"
 #include "../math.h"
 #include "../device.h"
@@ -174,8 +175,9 @@ void cvk_device_swapchain_image_list_destroy (
   for (cvk_size id = 0; id < images->len; ++id) {  // clang-format off
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-    images->ptr[id].ct = NULL;
+    cvk_semaphore_destroy(&images->ptr[id].finished, device_logical, allocator);
     vkDestroyImageView(device_logical->ct, images->ptr[id].view, allocator->gpu);
+    images->ptr[id].ct = NULL;
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
   // Allocated in cvk_device_swapchain_image_list_create
@@ -235,6 +237,18 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
     // clang-format on
   }
+
+  // Create the Image Semaphores
+  for (cvk_size id = 0; id < data.len; ++id) {
+    // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    ((cvk_device_swapchain_Image*)data.ptr)[id].finished = cvk_semaphore_create(device_logical, allocator);
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+    // clang-format on
+  }
+
+  // Assign to the result
   for (cvk_size id = 0; id < views.len; ++id) {
     // clang-format off
     #pragma GCC diagnostic push
