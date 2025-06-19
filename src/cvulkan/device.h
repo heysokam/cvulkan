@@ -259,6 +259,7 @@ void cvk_device_logical_destroy ( // clang-format off
   cvk_Allocator* const      allocator
 ); // clang-format on
 
+void cvk_device_logical_wait (cvk_device_Logical const* const device_logical);
 
 //______________________________________
 // @section Single Header Support
