@@ -331,6 +331,8 @@ cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
 }
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
 void cvk_device_swapchain_present (
   cvk_device_Swapchain const* const swapchain,
   cvk_size const                    imageID,
@@ -348,4 +350,5 @@ void cvk_device_swapchain_present (
     .pResults           = NULL, // todo: How to deal with multiple swapchains. This returns their VkResult[]
   }), "Failed when presenting the Graphics Commands with the given Queue");
 }  // clang-format on
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 
