@@ -330,3 +330,22 @@ cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
   return result;
 }
 
+
+void cvk_device_swapchain_present (
+  cvk_device_Swapchain const* const swapchain,
+  cvk_size const                    imageID,
+  cvk_device_Queue const* const     queue
+) {
+  // clang-format off
+  cvk_result_check(vkQueuePresentKHR(queue->ct, &(VkPresentInfoKHR){
+    .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .pNext              = NULL,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores    = &swapchain->images.ptr[imageID].finished.ct,
+    .swapchainCount     = 1,
+    .pSwapchains        = &swapchain->ct,
+    .pImageIndices      = (uint32_t const*)&imageID,
+    .pResults           = NULL, // todo: How to deal with multiple swapchains. This returns their VkResult[]
+  }), "Failed when presenting the Graphics Commands with the given Queue");
+}  // clang-format on
+
