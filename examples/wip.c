@@ -9,121 +9,53 @@
 #define cvk_Implementation
 #include <cvulkan.h>
 
+//______________________________________
+// SpirV shaders used by this example
 extern unsigned char examples_shaders_triangle_frag_spv[];
 extern unsigned int  examples_shaders_triangle_frag_spv_len;
 #include "./shaders/triangle.frag.c"
-
+//____________________________
 extern unsigned char examples_shaders_triangle_vert_spv[];
 extern unsigned int  examples_shaders_triangle_vert_spv_len;
 #include "./shaders/triangle.vert.c"
+//______________________________________
 
-typedef struct {
-  cvk_Instance         instance;
-  cvk_Surface          surface;
-  cvk_device_Physical  device_physical;
-  cvk_device_Queue     device_queue;
-  cvk_device_Logical   device_logical;
-  cvk_device_Swapchain device_swapchain;
-  cvk_framebuffer_List device_framebuffers;
-} GPU;
+
+//______________________________________
+// Generic boilerplate shared by all Examples
+#include "./helpers/bootstrap.c"
+//______________________________________
+
 
 typedef struct example_Pipeline {
   cvk_pipeline_Graphics           graphics;
   VkPipelineShaderStageCreateInfo stages[2];
   cvk_Renderpass                  renderpass;
 } example_Pipeline;
-
+enum { example_frames_Len = 2 };
 typedef struct example_Sync {
   cvk_command_Pool   command_pool;
-  cvk_command_Buffer command_buffer;
-  cvk_Semaphore      imageAvailable;
-  cvk_Semaphore      renderFinished;
-  cvk_Fence          framesPending;
+  cvk_command_Buffer command_buffer[example_frames_Len];
+  cvk_Semaphore      imageAvailable[example_frames_Len];
+  cvk_Fence          framesPending[example_frames_Len];
 } example_Sync;
 
 typedef struct Example {
-  GPU gpu;
+  example_Bootstrap gpu;
   struct {
     cvk_Shader vert;
     cvk_Shader frag;
   } shader;
-  example_Pipeline pipeline;
-  example_Sync     sync;
+  example_Pipeline     pipeline;
+  cvk_framebuffer_List device_framebuffers;
+  example_Sync         sync;
 } Example;
 
 
-/// @important
-/// Surface requesting would force this library to depend on a specific windowing library.
-/// As such, cvulkan expects you to send the VkSurfaceKHR handle as input.
-/// How you request that handle is up to you. cvulkan doesn't need to know about it.
-///
-/// @description
-/// Example of how to create a valid Vulkan Surface for the given GLFW {@arg window}
-///
-static cvk_Surface example_surface_create (
-  VkInstance const       instance,
-  GLFWwindow* const      window,
-  VkAllocationCallbacks* allocator
-) {
-  VkSurfaceKHR result = NULL;  // clang-format off
-  cvk_result_check(glfwCreateWindowSurface(instance, window, allocator, &result),
-    "Failed to create the Vulkan Surface for the given GLFW window.");  // clang-format on
-  return result;
-}
-#define example_surface_destroy vkDestroySurfaceKHR
-
-
-static GPU example_gpu_create (
-  GLFWwindow* const window_ct,  ///< Only for surface creation. @see example_surface_create for more info
-  cvk_Size2D const  window_size
-) {  // clang-format off
-  GPU result           = (GPU){ 0 };
-  result.instance         = cvk_instance_create(&(cvk_instance_create_args){ 0 });  // Create with all defaults
-  result.surface          = example_surface_create(result.instance.ct, window_ct, result.instance.allocator.gpu);
-  result.device_physical  = cvk_device_physical_create(&(cvk_device_physical_create_args){
-    .instance             = &result.instance,
-    .surface              = result.surface,
-    .forceFirst           = cvk_true,
-  });
-  result.device_queue     = cvk_device_queue_create_noContext(&(cvk_device_queue_create_args){
-    .instance             = &result.instance,
-    .device               = &result.device_physical,
-    .id                   = result.device_physical.queueFamilies.graphics,
-    .priority             = 1.0f,
-  });
-  result.device_logical   = cvk_device_logical_create(&(cvk_device_logical_create_args){
-    .physical             = &result.device_physical,
-    .queue                = &result.device_queue,
-    .allocator            = &result.instance.allocator,
-  });
-  cvk_device_queue_create_context(&result.device_queue, &result.device_logical);
-  result.device_swapchain = cvk_device_swapchain_create(&(cvk_device_swapchain_create_args){
-    .device_physical      = &result.device_physical,
-    .device_logical       = &result.device_logical,
-    .surface              = result.surface,
-    .size                 = window_size,
-    .allocator            = &result.instance.allocator,
-  });                           // clang-format on
-  return result;
-}
-
-
-static void example_gpu_destroy (
-  GPU* gpu
-) {
-  cvk_device_swapchain_destroy(&gpu->device_swapchain, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_device_logical_destroy(&gpu->device_logical, &gpu->instance.allocator);
-  cvk_device_queue_destroy(&gpu->device_queue, &gpu->instance.allocator);
-  cvk_device_physical_destroy(&gpu->device_physical, &gpu->instance.allocator);
-  example_surface_destroy(gpu->instance.ct, gpu->surface, gpu->instance.allocator.gpu);
-  cvk_instance_destroy(&gpu->instance);
-}
-
-
 static example_Pipeline example_pipeline_create (
-  GPU* const        gpu,
-  cvk_Shader* const vert,
-  cvk_Shader* const frag
+  example_Bootstrap* const gpu,
+  cvk_Shader* const        vert,
+  cvk_Shader* const        frag
 ) {
   example_Pipeline result = (example_Pipeline){ 0 };
 
@@ -297,7 +229,7 @@ static void example_pipeline_destroy (
 
 
 static cvk_Pure example_Sync example_sync_create (
-  GPU* const gpu
+  example_Bootstrap* const gpu
 ) {
   example_Sync result = (example_Sync){
     .command_pool = cvk_command_pool_create(&(cvk_command_pool_create_args){
@@ -307,13 +239,17 @@ static cvk_Pure example_Sync example_sync_create (
       .allocator      = &gpu->instance.allocator,
     }),
   };
-  result.command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
-    .device_logical = &gpu->device_logical,
-    .pool           = &result.command_pool,
-  });
-  result.imageAvailable = cvk_semaphore_create(&gpu->device_logical, &gpu->instance.allocator);
-  result.renderFinished = cvk_semaphore_create(&gpu->device_logical, &gpu->instance.allocator);
-  result.framesPending  = cvk_fence_create(&gpu->device_logical, /*signaled*/ cvk_true, &gpu->instance.allocator);
+  for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    result.command_buffer[id] = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
+      .device_logical = &gpu->device_logical,
+      .pool           = &result.command_pool,
+    });
+    result.imageAvailable[id] = cvk_semaphore_create(&gpu->device_logical, &gpu->instance.allocator);
+    result.framesPending[id]  = cvk_fence_create(&gpu->device_logical, /*signaled*/ cvk_true, &gpu->instance.allocator);
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  }  // clang-format on
   return result;
 }
 
@@ -323,9 +259,13 @@ static void example_sync_destroy (
   cvk_device_Logical const* const device_logical,
   cvk_Allocator* const            allocator
 ) {
-  cvk_semaphore_destroy(&sync->imageAvailable, device_logical, allocator);
-  cvk_semaphore_destroy(&sync->renderFinished, device_logical, allocator);
-  cvk_fence_destroy(&sync->framesPending, device_logical, allocator);
+  for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    cvk_semaphore_destroy(&sync->imageAvailable[id], device_logical, allocator);
+    cvk_fence_destroy(&sync->framesPending[id], device_logical, allocator);
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  }  // clang-format on
   cvk_command_pool_destroy(&sync->command_pool, device_logical, allocator);
 }
 
@@ -336,7 +276,7 @@ static Example example_create (
   cvk_SpirV const* const   frag
 ) {
   Example result     = (Example){ 0 };
-  result.gpu         = example_gpu_create(system->window.ct, (cvk_Size2D){ .width = system->window.width, .height = system->window.height });
+  result.gpu         = example_bootstrap_create(system->window.ct, (cvk_Size2D){ .width = system->window.width, .height = system->window.height });
   result.shader.vert = cvk_shader_create(&(cvk_shader_create_args){
     .device_logical = &result.gpu.device_logical,
     .stage          = cvk_shader_stage_Vertex,
@@ -352,7 +292,7 @@ static Example example_create (
   });
   result.pipeline    = example_pipeline_create(&result.gpu, &result.shader.vert, &result.shader.frag);
 
-  result.gpu.device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
+  result.device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
     .swapchain      = &result.gpu.device_swapchain,
     .device_logical = &result.gpu.device_logical,
     .renderpass     = &result.pipeline.renderpass,
@@ -367,18 +307,23 @@ static Example example_create (
 static void example_destroy (
   Example* const example
 ) {
+  cvk_device_logical_wait(&example->gpu.device_logical);
   example_sync_destroy(&example->sync, &example->gpu.device_logical, &example->gpu.instance.allocator);
-  cvk_framebuffer_list_destroy(&example->gpu.device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
+  cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
   example_pipeline_destroy(&example->pipeline, &example->gpu.device_logical, &example->gpu.instance.allocator);
   cvk_shader_destroy(&example->gpu.device_logical, &example->shader.frag, &example->gpu.instance.allocator);
   cvk_shader_destroy(&example->gpu.device_logical, &example->shader.vert, &example->gpu.instance.allocator);
-  example_gpu_destroy(&example->gpu);
+  example_bootstrap_destroy(&example->gpu);
 }
 
+
+static int frameID = 0;
 
 static void example_update (
   Example* const example
 ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   //____________________________
   // Frame Overview:
   // 1. Wait for the previous frame to finish
@@ -386,94 +331,69 @@ static void example_update (
   // 3. Record a command buffer that draws into the swapchain image
   // 4. Submit the recorded command buffer
   // 5. Present the Swapchain image to the screen
+  // 6. Advance to next frame
   //____________________________
 
   //______________________________________
   // 1. Wait for the previous frame to finish
-  cvk_fence_wait(&example->sync.framesPending, &example->gpu.device_logical);
-  cvk_fence_reset(&example->sync.framesPending, &example->gpu.device_logical);
+  cvk_fence_wait(&example->sync.framesPending[frameID], &example->gpu.device_logical);
+  cvk_fence_reset(&example->sync.framesPending[frameID], &example->gpu.device_logical);
 
   //______________________________________
   // 2. Get an image from the Swapchain
   cvk_size const imageID = cvk_device_swapchain_nextImageID(&(cvk_device_swapchain_nextImageID_args){
     .device_logical = &example->gpu.device_logical,
     .swapchain      = &example->gpu.device_swapchain,
-    .semaphore      = &example->sync.imageAvailable,
+    .semaphore      = &example->sync.imageAvailable[frameID],
   });
 
   //______________________________________
   // 3. Record the Command Buffer
-  cvk_command_buffer_reset(&example->sync.command_buffer, /* releaseResources */ cvk_false);
-  cvk_command_buffer_begin(&example->sync.command_buffer);  // clang-format off
-  // TODO: cvk_command_renderpass_begin()
-  vkCmdBeginRenderPass(example->sync.command_buffer.ct, &(VkRenderPassBeginInfo){
-    .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-    .pNext           = NULL,
-    .renderPass      = example->pipeline.renderpass.ct,
-    .framebuffer     = example->gpu.device_framebuffers.ptr[imageID].ct,
-    .renderArea      = { .offset = { 0, 0 }, .extent = example->gpu.device_swapchain.cfg.imageExtent },
-    .clearValueCount = 1,
-    .pClearValues    = &(VkClearValue){ .color = { .float32 = { [0] = 0.222f, [1] = 0.333f, [2] = 0.444f, [3] = 1.0f } } },
-  }, VK_SUBPASS_CONTENTS_INLINE);  // clang-format on
-  // TODO: cvk_command_pipeline_bind()
-  vkCmdBindPipeline(example->sync.command_buffer.ct, VK_PIPELINE_BIND_POINT_GRAPHICS, example->pipeline.graphics.ct);
-  //____________________________
-  // TODO: cvk_command_viewport_set()
+  cvk_command_buffer_reset(&example->sync.command_buffer[frameID], /* releaseResources */ cvk_false);
+  cvk_command_buffer_begin(&example->sync.command_buffer[frameID]);  // clang-format off
+  cvk_renderpass_command_begin(&example->pipeline.renderpass, &(cvk_renderpass_command_begin_args){
+    .command_buffer = &example->sync.command_buffer[frameID],
+    .framebuffer    = &example->device_framebuffers.ptr[imageID],
+    .extent         = example->gpu.device_swapchain.cfg.imageExtent,
+  });  // clang-format on
+  cvk_pipeline_graphics_command_bind(&example->pipeline.graphics, &example->sync.command_buffer[frameID]);
   // clang-format off
-  vkCmdSetViewport(example->sync.command_buffer.ct, 0, 1, &(VkViewport){
-    .x        = 0.0f,
-    .y        = 0.0f,
+  cvk_viewport_command_set(&(VkViewport){
     .width    = (float)example->gpu.device_swapchain.cfg.imageExtent.width,
     .height   = (float)example->gpu.device_swapchain.cfg.imageExtent.height,
-    .minDepth = /* range[0..1] */ 0.0f,  // TODO: Configurable Reverse Depth
-    .maxDepth = /* range[0..1] */ 1.0f,  // TODO: Configurable Reverse Depth
-  });  // clang-format on
-  //____________________________
-  // TODO: cvk_command_scissor_set()
+    .maxDepth = 1.0f, // near:0, far:1
+  }, &example->sync.command_buffer[frameID]);  // clang-format on
   // clang-format off
-  vkCmdSetScissor(example->sync.command_buffer.ct, 0, 1, &(VkRect2D){
+  cvk_scissor_command_set(&(VkRect2D){
     .offset = (VkOffset2D){.x= 0, .y= 0},
     .extent = example->gpu.device_swapchain.cfg.imageExtent,
-  });  // clang-format on
-  //____________________________
-  // TODO: cvk_command_draw()
-  vkCmdDraw(example->sync.command_buffer.ct, 3, 1, 0, 0);
-  //____________________________
-  // TODO: cvk_command_renderpass_end()
-  vkCmdEndRenderPass(example->sync.command_buffer.ct);
-  cvk_command_buffer_end(&example->sync.command_buffer);
+  }, &example->sync.command_buffer[frameID]);  // clang-format on
+  cvk_command_draw(&example->sync.command_buffer[frameID]);
+  cvk_renderpass_command_end(&example->pipeline.renderpass, &example->sync.command_buffer[frameID]);
+  cvk_command_buffer_end(&example->sync.command_buffer[frameID]);
 
   //______________________________________
   // 4. Submit the recorded command buffer
-  // TODO: cvk_device_queue_submit()
   // clang-format off
-  cvk_result_check(vkQueueSubmit(example->gpu.device_queue.ct, 1, &(VkSubmitInfo ){
-    .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-    .pNext                = NULL,
-    .waitSemaphoreCount   = 1,
-    .pWaitSemaphores      = &example->sync.imageAvailable.ct,
-    .pWaitDstStageMask    = &(VkPipelineStageFlags){VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
-    .commandBufferCount   = 1,
-    .pCommandBuffers      = &example->sync.command_buffer.ct,
-    .signalSemaphoreCount = 1,
-    .pSignalSemaphores    = &example->sync.renderFinished.ct,
-  }, example->sync.framesPending.ct), "Failed to submit the Example's Command Buffer to the Graphics Queue");  // clang-format on
+  cvk_device_queue_submit(&example->gpu.device_queue, &(cvk_device_queue_submit_args){
+    .command_buffer   = &example->sync.command_buffer[frameID],
+    .semaphore_wait   = &example->sync.imageAvailable[frameID],
+    .semaphore_signal = &example->gpu.device_swapchain.images.ptr[imageID].finished,
+    .fence            = &example->sync.framesPending[frameID],
+  });  // clang-format on
 
   //______________________________________
   // 5. Present the Swapchain image to the screen
-  // TODO: cvk_device_queue_present()
-  // clang-format off
-  cvk_result_check(vkQueuePresentKHR(example->gpu.device_queue.ct, &(VkPresentInfoKHR){
-    .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-    .pNext              = NULL,
-    .waitSemaphoreCount = 1,
-    .pWaitSemaphores    = &example->sync.renderFinished.ct,
-    .swapchainCount     = 1,
-    .pSwapchains        = &example->gpu.device_swapchain.ct,
-    .pImageIndices      = (uint32_t const*)&imageID,
-    .pResults           = NULL, // todo: How to deal with multiple swapchains. This returns their VkResult[]
-  }), "Failed when presenting the Graphics Commands with the given Queue");  // clang-format on
+  //    @note: Called `vkQueuePresentKHR` by Vulkan
+  cvk_device_swapchain_present(&example->gpu.device_swapchain, imageID, &example->gpu.device_queue);
+
+  //______________________________________
+  // 6. Advance to next frame
+  frameID = (frameID + 1) % example_frames_Len;
+
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 }
+
 
 int main () {
   // Initialize
