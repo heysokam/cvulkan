@@ -77,3 +77,28 @@ void cvk_renderpass_destroy (
   vkDestroyRenderPass(device_logical->ct, renderpass->ct, allocator->gpu);
 }
 
+
+void cvk_renderpass_command_begin (
+  cvk_Renderpass const* const                    renderpass,
+  cvk_renderpass_command_begin_args const* const arg
+) {  // clang-format off
+  vkCmdBeginRenderPass(arg->command_buffer->ct, &(VkRenderPassBeginInfo){
+    .sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+    .pNext           = NULL,
+    .renderPass      = renderpass->ct,
+    .framebuffer     = arg->framebuffer->ct,
+    .renderArea      = { .offset = arg->offset, .extent = arg->extent },
+    .clearValueCount = 1,
+    .pClearValues    = &(VkClearValue){ .color = { .float32 = { [0] = 0.222f, [1] = 0.333f, [2] = 0.444f, [3] = 1.0f } } },
+  }, VK_SUBPASS_CONTENTS_INLINE);  // clang-format on
+}
+
+
+void cvk_renderpass_command_end (
+  cvk_Renderpass const* const     renderpass,
+  cvk_command_Buffer const* const command_buffer
+) {
+  cvk_discard(renderpass);
+  vkCmdEndRenderPass(command_buffer->ct);
+}
+

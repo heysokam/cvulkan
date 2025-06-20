@@ -37,6 +37,22 @@ void cvk_renderpass_destroy ( // clang-format off
   cvk_Allocator* const            allocator
 ); // clang-format on
 
+typedef struct cvk_renderpass_command_begin_args {
+  cvk_command_Buffer const* const command_buffer;
+  cvk_Framebuffer const* const    framebuffer;
+  VkOffset2D const                offset;
+  cvk_Size2D const                extent;
+} cvk_renderpass_command_begin_args;
+void cvk_renderpass_command_begin ( // clang-format off
+  cvk_Renderpass const* const                    renderpass,
+  cvk_renderpass_command_begin_args const* const arg
+); // clang-format on
+
+void cvk_renderpass_command_end ( // clang-format off
+  cvk_Renderpass const* const     renderpass,
+  cvk_command_Buffer const* const command_buffer
+); // clang-format on
+
 
 //______________________________________
 // @section Single Header Support
