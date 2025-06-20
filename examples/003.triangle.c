@@ -84,7 +84,7 @@ int main () {
 
   //________________________________________________
   // Initialize: GPU Device.Queue Context
-  // @note Could not be init wihout a device_logical
+  // @note Could not be init without a device_logical
   cvk_device_queue_create_context(&device_queue, &device_logical);
 
 
