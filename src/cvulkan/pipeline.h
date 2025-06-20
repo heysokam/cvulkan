@@ -13,6 +13,38 @@
 // @section Pipeline: State
 //____________________________
 
+cvk_Pure VkPipelineDynamicStateCreateInfo cvk_pipeline_state_dynamic_setup ( // clang-format off
+  cvk_size const       states_len,
+  VkDynamicState const states_ptr[]
+); // clang-format on
+cvk_Pure VkPipelineVertexInputStateCreateInfo   cvk_pipeline_state_vertexInput_setup ();
+cvk_Pure VkPipelineInputAssemblyStateCreateInfo cvk_pipeline_state_inputAssembly_setup ();
+cvk_Pure VkPipelineViewportStateCreateInfo      cvk_pipeline_state_viewport_setup ();
+cvk_Pure VkPipelineRasterizationStateCreateInfo cvk_pipeline_state_rasterization_setup ();
+cvk_Pure VkPipelineMultisampleStateCreateInfo   cvk_pipeline_state_multisample_setup ();
+
+cvk_Pure VkPipelineColorBlendAttachmentState cvk_pipeline_state_colorBlend_attachment_setup ();
+
+typedef struct cvk_pipeline_state_colorBlend_setup_args {
+  cvk_Nullable cvk_size const                                   attachments_len;
+  cvk_Nullable VkPipelineColorBlendAttachmentState const* const attachments_ptr;
+} cvk_pipeline_state_colorBlend_setup_args;
+cvk_Pure VkPipelineColorBlendStateCreateInfo cvk_pipeline_state_colorBlend_setup (  // clang-format off
+  cvk_pipeline_state_colorBlend_setup_args const* const arg
+);  // clang-format on
+
+// TODO: There is probably a better header/location for this
+void cvk_viewport_command_set ( // clang-format off
+  VkViewport const* const         viewport,
+  cvk_command_Buffer const* const command_buffer
+); // clang-format on
+
+// TODO: There is probably a better header/location for this
+void cvk_scissor_command_set ( // clang-format off
+  VkRect2D const* const           scissor,
+  cvk_command_Buffer const* const command_buffer
+); // clang-format on
+
 
 //______________________________________
 // @section Pipeline: Layout
@@ -61,6 +93,14 @@ void cvk_pipeline_graphics_destroy ( // clang-format off
   cvk_Allocator* const            allocator
 ); // clang-format on
 
+void cvk_pipeline_graphics_command_bind ( // clang-format off
+  cvk_pipeline_Graphics const* const pipeline,
+  cvk_command_Buffer const* const    command_buffer
+); // clang-format on
+
+void cvk_command_draw (  // clang-format off
+  cvk_command_Buffer const* const command_buffer
+);  // clang-format on
 
 
 //______________________________________
@@ -70,6 +110,7 @@ void cvk_pipeline_graphics_destroy ( // clang-format off
 #define cvk_Implementation_pipeline
 #endif
 #ifdef cvk_Implementation_pipeline
+#include "./pipeline/state.c"
 #include "./pipeline/layout.c"
 #include "./pipeline/graphics.c"
 // #include "./pipeline/compute.c"
