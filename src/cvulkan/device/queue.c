@@ -1,7 +1,9 @@
 //:__________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
 //:__________________________________________________________
+#include "../result.h"
 #include "../device.h"
+
 
 cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
   cvk_device_Physical const* const device,
@@ -115,4 +117,23 @@ void cvk_device_queue_create_context (
 ) {
   vkGetDeviceQueue(device->ct, queue->cfg.queueFamilyIndex, 0, &queue->ct);
 }
+
+
+void cvk_device_queue_submit (
+  cvk_device_Queue const* const             queue,
+  cvk_device_queue_submit_args const* const arg
+) {
+  // clang-format off
+  cvk_result_check(vkQueueSubmit(queue->ct, 1, &(VkSubmitInfo){
+    .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .pNext                = NULL,
+    .waitSemaphoreCount   = 1,
+    .pWaitSemaphores      = &arg->semaphore_wait->ct,
+    .pWaitDstStageMask    = &(VkPipelineStageFlags){VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
+    .commandBufferCount   = 1,
+    .pCommandBuffers      = &arg->command_buffer->ct,
+    .signalSemaphoreCount = 1,
+    .pSignalSemaphores    = &arg->semaphore_signal->ct,
+  }, arg->fence->ct), "Failed to submit a Command Buffer to the given Device.Queue");
+} // clang-format on
 

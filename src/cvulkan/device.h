@@ -117,6 +117,17 @@ void cvk_device_queue_create_context ( // clang-format off
 #define cvk_device_queue_destroy(ct, A) (void)(ct); (void)(A)
 // clang-format on
 
+typedef struct cvk_device_queue_submit_args {
+  cvk_command_Buffer const* const command_buffer;
+  cvk_Semaphore const* const      semaphore_wait;
+  cvk_Semaphore const* const      semaphore_signal;
+  cvk_Fence const* const          fence;
+} cvk_device_queue_submit_args;
+void cvk_device_queue_submit ( // clang-format off
+  cvk_device_Queue const* const             queue,
+  cvk_device_queue_submit_args const* const arg
+); // clang-format on
+
 
 //______________________________________
 // @section Device: Extensions
