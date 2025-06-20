@@ -45,7 +45,7 @@ static example_Bootstrap example_bootstrap_create (
   GLFWwindow* const window_ct,  ///< Only for surface creation. @see bootstrap_surface_create for more info
   cvk_Size2D const  window_size
 ) {  // clang-format off
-  example_Bootstrap result        = (example_Bootstrap){ 0 };
+  example_Bootstrap result = (example_Bootstrap){ 0 };
   result.instance         = cvk_instance_create(&(cvk_instance_create_args){ 0 });  // Create with all defaults
   result.surface          = example_bootstrap_surface_create(result.instance.ct, window_ct, result.instance.allocator.gpu);
   result.device_physical  = cvk_device_physical_create(&(cvk_device_physical_create_args){
