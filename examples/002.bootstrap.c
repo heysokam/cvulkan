@@ -96,12 +96,6 @@ int main () {
 
 
   //________________________________________________
-  // Minimal window refresh loop
-  // (Not needed in this example. Just for clarity of debugging)
-  while (!csys_close(&sys)) { csys_update(&sys); }
-
-
-  //________________________________________________
   // Terminate: All GPU Bootstrapped data
   cvk_device_swapchain_destroy(&device_swapchain, &device_logical, &instance.allocator);
   cvk_device_logical_destroy(&device_logical, &instance.allocator);
