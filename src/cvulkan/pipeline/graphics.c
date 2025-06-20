@@ -59,3 +59,18 @@ void cvk_pipeline_graphics_destroy (
   vkDestroyPipeline(device_logical->ct, pipeline->ct, allocator->gpu);
 }
 
+void cvk_pipeline_graphics_command_bind (
+  cvk_pipeline_Graphics const* const pipeline,
+  cvk_command_Buffer const* const    command_buffer
+) {
+  // cvk_command_pipeline_graphics_bind(&command_buffer[frameID], &pipeline_graphics);
+  vkCmdBindPipeline(command_buffer->ct, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->ct);
+}
+
+
+void cvk_command_draw (
+  cvk_command_Buffer const* const command_buffer
+) {
+  vkCmdDraw(command_buffer->ct, 3, 1, 0, 0);  // TODO: Configurable
+}
+
