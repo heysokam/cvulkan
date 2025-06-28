@@ -37,7 +37,7 @@ int main () {
   // Initialize: GPU Surface
   // @important
   // Surface requesting not in cvulkan (by design).
-  // It would force this library to depend on a specific windowing library.
+  // This library is system/windowing agnostic.
   // As such, cvulkan expects you to send the VkSurfaceKHR handle as input.
   // How you request that handle is up to you. cvulkan doesn't need to know about it.
   //
@@ -59,7 +59,7 @@ int main () {
 
   //________________________________________________
   // Initialize: GPU Device.Queue (without context)
-  // @not Queue.ct requires a logical device, but the logical device requires Queues information
+  // @note Queue.ct requires a logical device, but the logical device requires Queues information
   cvk_device_Queue device_queue = cvk_device_queue_create_noContext(&(cvk_device_queue_create_args){
     .instance = &instance,
     .device   = &device_physical,
