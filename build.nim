@@ -14,9 +14,6 @@ const dir_examples = dir_root/"examples"
 const dir_helpers  = dir_examples/"helpers"
 const dir_shd      = dir_examples/"shaders"
 
-# For csys connector to glfw
-const cdk = Dependency.new("cdk", "https://github.com/heysokam/cdk")
-
 
 #_______________________________________
 # @section Examples: Shaders

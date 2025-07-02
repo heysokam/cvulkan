@@ -116,8 +116,6 @@ https://www.mozilla.org/en-US/MPL/2.0/FAQ/
 
 ### Examples
 All examples must be compiled with `-std=c23`.  
-They use helper code from @[`heysokam/cdk`](https://github.com/heysokam/cdk), which is a c23 library.  
-> TODO: Remove cdk dependency from the examples.  
 
 The examples default buildsystem relies on `glslc` and `xxd` installed on the system,  
 but they are not needed for using the library or compiling them in a different way.  
@@ -189,6 +187,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [x] Context creation
 - [x] Swapchain.Images Request
 - [x] Swapchain.ImageViews Request
+- [ ] Swapchain.recreate // Almost done.  FIX: Triggers a validation error on recreation.
 ```
 ```md
 # Shaders
@@ -200,7 +199,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 ```md
 # Pipeline
 ## State
-- [ ] Minimal Creation
+- [x] Minimal Creation
 - [ ] Customizable Options
 - [ ] Sane Defaults when `NULL`
 ## Layout
