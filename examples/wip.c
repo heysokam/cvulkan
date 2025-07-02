@@ -317,10 +317,40 @@ static void example_destroy (
 }
 
 
+static void example_swapchain_recreate (
+  Example* const           example,
+  csys_System const* const system
+) {
+  //__________________________________________________________________
+  // FIX:
+  // Resizing is broken.
+  // Something about the Queue and Semaphores is not quite correct
+  //__________________________________________________________________
+  // Get the new size
+  int newSize_width  = 0;
+  int newSize_height = 0;
+  glfwGetWindowSize(system->window.ct, &newSize_width, &newSize_height);
+  example->gpu.device_swapchain.cfg.imageExtent = (cvk_Size2D){ .width = (uint32_t)newSize_width, .height = (uint32_t)newSize_height };
+  cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
+  // clang-format off
+  cvk_device_swapchain_recreate(&example->gpu.device_swapchain, &(cvk_device_swapchain_recreate_args){
+    .device_logical = &example->gpu.device_logical,
+    .allocator      = &example->gpu.instance.allocator,
+  });  // clang-format on
+  example->device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
+    .swapchain      = &example->gpu.device_swapchain,
+    .device_logical = &example->gpu.device_logical,
+    .renderpass     = &example->pipeline.renderpass,
+    .allocator      = &example->gpu.instance.allocator,
+  });
+}
+
+
 static int frameID = 0;
 
 static void example_update (
-  Example* const example
+  Example* const           example,
+  csys_System const* const system
 ) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
@@ -341,11 +371,17 @@ static void example_update (
 
   //______________________________________
   // 2. Get an image from the Swapchain
+  VkResult       status  = VK_RESULT_MAX_ENUM;
   cvk_size const imageID = cvk_device_swapchain_nextImageID(&(cvk_device_swapchain_nextImageID_args){
     .device_logical = &example->gpu.device_logical,
     .swapchain      = &example->gpu.device_swapchain,
     .semaphore      = &example->sync.imageAvailable[frameID],
+    .status         = &status,
   });
+  if (status) {
+    cvk_print("--------------> Swapchain needs to be recreated.\n");
+    example_swapchain_recreate(example, system);
+  }
 
   //______________________________________
   // 3. Record the Command Buffer
@@ -406,7 +442,7 @@ int main () {
   // Update Loop
   while (!csys_close(&system)) {
     csys_update(&system);
-    example_update(&example);
+    example_update(&example, &system);
   }
   // Terminate
   example_destroy(&example);
