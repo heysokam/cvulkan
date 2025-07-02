@@ -235,6 +235,9 @@ typedef struct cvk_device_swapchain_nextImageID_args {
   cvk_device_Swapchain const* const       swapchain;
   cvk_Nullable cvk_Semaphore const* const semaphore;
   cvk_Nullable cvk_Fence const* const     fence;
+  cvk_Nullable VkResult* const            status;
+  cvk_Nullable cvk_bool const             log_disable;  ///< Disables internal cvulkan logging inside the function.
+  char                                    priv_pad[4];
 } cvk_device_swapchain_nextImageID_args;
 
 cvk_Pure cvk_size cvk_device_swapchain_nextImageID (  // clang-format off
@@ -246,7 +249,6 @@ void cvk_device_swapchain_present ( // clang-format off
   cvk_size const                    imageID,
   cvk_device_Queue const* const     queue
 ); // clang-format on
-
 
 
 //______________________________________

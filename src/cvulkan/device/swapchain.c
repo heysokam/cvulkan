@@ -319,14 +319,17 @@ cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
   cvk_device_swapchain_nextImageID_args const* const arg
 ) {  // clang-format off
   uint32_t result = UINT32_MAX;
-  cvk_result_check(vkAcquireNextImageKHR(
+  VkResult status = VK_RESULT_MAX_ENUM;
+  status = vkAcquireNextImageKHR(
     /* device      */ arg->device_logical->ct,
     /* swapchain   */ arg->swapchain->ct,
     /* timeout     */ UINT64_MAX,
     /* semaphore   */ (arg->semaphore) ? arg->semaphore->ct : VK_NULL_HANDLE,
     /* fence       */ (arg->fence    ) ? arg->fence->ct     : VK_NULL_HANDLE,
     /* pImageIndex */ &result
-  ), "Failed to request the next ID from the Device.Swapchain's list of images.");  // clang-format on
+  );  // clang-format on
+  if (!arg->log_disable && status) cvk_print("Failed to request the next ID from the Device.Swapchain's list of images.");
+  if (arg->status) *arg->status = status;
   return result;
 }
 
@@ -349,6 +352,6 @@ void cvk_device_swapchain_present (
     .pImageIndices      = (uint32_t const*)&imageID,
     .pResults           = NULL, // todo: How to deal with multiple swapchains. This returns their VkResult[]
   }), "Failed when presenting the Graphics Commands with the given Queue");
-}  // clang-format on
+}                           // clang-format on
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 
