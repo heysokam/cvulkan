@@ -221,13 +221,23 @@ void cvk_device_swapchain_image_list_destroy ( // clang-format off
 ); // clang-format on
 
 cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (  // clang-format off
-  cvk_device_swapchain_create_args *const arg
+  cvk_device_swapchain_create_args const*const arg
 );  // clang-format on
 
 void cvk_device_swapchain_destroy ( // clang-format off
   cvk_device_Swapchain* const swapchain,
   cvk_device_Logical* const   device,
   cvk_Allocator* const        allocator
+); // clang-format on
+
+typedef struct cvk_device_swapchain_recreate_args {
+  cvk_device_Logical* const device_logical;
+  cvk_Allocator* const      allocator;
+} cvk_device_swapchain_recreate_args;
+
+void cvk_device_swapchain_recreate ( // clang-format off
+  cvk_device_Swapchain* const                     swapchain,
+  cvk_device_swapchain_recreate_args const* const arg
 ); // clang-format on
 
 typedef struct cvk_device_swapchain_nextImageID_args {

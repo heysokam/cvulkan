@@ -271,7 +271,7 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
 
 
 cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (
-  cvk_device_swapchain_create_args* const arg
+  cvk_device_swapchain_create_args const* const arg
 ) {
   cvk_device_Swapchain result = (cvk_device_Swapchain){
     .ct               = NULL,
@@ -298,10 +298,10 @@ cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (
 
 void cvk_device_swapchain_destroy (
   cvk_device_Swapchain* const swapchain,
-  cvk_device_Logical* const   device,
+  cvk_device_Logical* const   device_logical,
   cvk_Allocator* const        allocator
 ) {  // clang-format off
-  cvk_device_swapchain_image_list_destroy(&swapchain->images, device, allocator);
+  cvk_device_swapchain_image_list_destroy(&swapchain->images, device_logical, allocator);
   if (swapchain->cfg.pQueueFamilyIndices) allocator->cpu.free(&allocator->cpu, &(cvk_Slice){
     // Allocated in cvk_device_swapchain_options_create
     .len = swapchain->cfg.queueFamilyIndexCount,
@@ -311,7 +311,25 @@ void cvk_device_swapchain_destroy (
      #pragma GCC diagnostic pop  // -Wcast-qual
   });  // clang-format on
   swapchain->cfg = (VkSwapchainCreateInfoKHR){ 0 };
-  vkDestroySwapchainKHR(device->ct, swapchain->ct, allocator->gpu);
+  vkDestroySwapchainKHR(device_logical->ct, swapchain->ct, allocator->gpu);
+}
+
+
+void cvk_device_swapchain_recreate (
+  cvk_device_Swapchain* const                     swapchain,
+  cvk_device_swapchain_recreate_args const* const arg
+) {
+  // Store the old handle & Destroy the old images
+  swapchain->cfg.oldSwapchain = swapchain->ct;
+  cvk_device_swapchain_image_list_destroy(&swapchain->images, arg->device_logical, arg->allocator);
+  // Create a new handle and request its list of images
+  cvk_result_check(
+    vkCreateSwapchainKHR(arg->device_logical->ct, &swapchain->cfg, arg->allocator->gpu, &swapchain->ct),
+    "Failed to re-create the device's Swapchain context."
+  );  // clang-format on
+  swapchain->images = cvk_device_swapchain_image_list_create(swapchain, arg->device_logical, arg->allocator);
+  // Destroy the old handle
+  vkDestroySwapchainKHR(arg->device_logical->ct, swapchain->cfg.oldSwapchain, arg->allocator->gpu);
 }
 
 
@@ -328,7 +346,7 @@ cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
     /* fence       */ (arg->fence    ) ? arg->fence->ct     : VK_NULL_HANDLE,
     /* pImageIndex */ &result
   );  // clang-format on
-  if (!arg->log_disable && status) cvk_print("Failed to request the next ID from the Device.Swapchain's list of images.");
+  if (!arg->log_disable && status) cvk_print("Failed to request the next ID from the Device.Swapchain's list of images.\n");
   if (arg->status) *arg->status = status;
   return result;
 }
