@@ -5,14 +5,14 @@ by reducing the redundant boilerplate required by the API.
 ## Current Status
 See the @[TODO & Done](#todo--done) section for an up-to-date list of features pending and done.  
 Current state of the library can get you up to par with `vk-bootstrap` _(aka: up to Swapchain creation)_.  
-You can see an example of the bootstrapping code in the @[bootstrap](./examples/bootstrap.c) example file.  
+You can see an example of the bootstrapping code in the @[bootstrap](./examples/002.bootstrap.c) example file.  
 
 ## How to
 > TODO: Write a simple howto intro.  
 > Reference the @[examples](./examples/) folder in the meantime.  
 
 Current state of the library can get you up to par with `vk-bootstrap` _(aka: up to Swapchain creation)_.  
-You can see an example of this in the @[bootstrap](./examples/bootstrap.c) example file.  
+You can see an example of this in the @[bootstrap](./examples/002.bootstrap.c) example file.  
 Bootstrapping includes:  
 - Instance  
 - Validation Layers  
