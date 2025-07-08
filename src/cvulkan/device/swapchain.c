@@ -185,6 +185,35 @@ void cvk_device_swapchain_image_list_destroy (
 }
 
 
+cvk_Pure VkImageView cvk_device_swapchain_image_view_create (
+  cvk_device_Swapchain const* const                        swapchain,
+  cvk_device_swapchain_image_view_create_args const* const arg
+) {
+  VkImageView result = NULL;
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  cvk_result_check(vkCreateImageView(arg->device_logical->ct, &(VkImageViewCreateInfo){
+    .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    .pNext            = NULL,
+    .flags            = (VkImageViewCreateFlags)0,
+    .image            = arg->image,
+    .viewType         = VK_IMAGE_VIEW_TYPE_2D,
+    .format           = swapchain->cfg.imageFormat,
+    .components       = (VkComponentMapping){ .r = 0, .g = 0, .b = 0, .a = 0 },
+    .subresourceRange = (VkImageSubresourceRange){
+      .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
+      .baseMipLevel   = 0,
+      .levelCount     = 1,
+      .baseArrayLayer = 0,
+      .layerCount     = 1,
+    }}, arg->allocator->gpu, &result),
+    "Failed to retrieve one of the ImageViews used by the Swapchain.");
+  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  // clang-format on
+  return result;
+}
+
 cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create (
   cvk_device_Swapchain const* const swapchain,
   cvk_device_Logical* const         device_logical,
@@ -218,22 +247,11 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
     // clang-format off
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-    cvk_result_check(vkCreateImageView(device_logical->ct, &(VkImageViewCreateInfo){
-      .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-      .pNext            = NULL,
-      .flags            = (VkImageViewCreateFlags)0,
-      .image            = ((VkImage*)images.ptr)[id],
-      .viewType         = VK_IMAGE_VIEW_TYPE_2D,
-      .format           = swapchain->cfg.imageFormat,
-      .components       = (VkComponentMapping){ .r = 0, .g = 0, .b = 0, .a = 0 },
-      .subresourceRange = (VkImageSubresourceRange){
-        .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
-        .baseMipLevel   = 0,
-        .levelCount     = 1,
-        .baseArrayLayer = 0,
-        .layerCount     = 1,
-      }}, allocator->gpu, &((VkImageView*)views.ptr)[id]),
-      "Failed to retrieve one of the ImageViews used by the Swapchain.");
+    ((VkImageView*)views.ptr)[id] = cvk_device_swapchain_image_view_create(swapchain, &(cvk_device_swapchain_image_view_create_args){
+      .device_logical = device_logical,
+      .image          = ((VkImage*)images.ptr)[id],
+      .allocator      = allocator,
+    });
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
     // clang-format on
   }

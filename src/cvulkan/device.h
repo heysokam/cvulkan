@@ -200,13 +200,16 @@ cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
   cvk_Allocator* const             allocator
 );
 
-typedef struct cvk_device_swapchain_create_args {
-  cvk_device_Physical* const device_physical;
-  cvk_device_Logical* const  device_logical;
-  cvk_Surface const          surface;
-  cvk_Size2D const           size;
-  cvk_Allocator* const       allocator;
-} cvk_device_swapchain_create_args;
+typedef struct cvk_device_swapchain_image_view_create_args {
+  cvk_device_Logical const* const device_logical;
+  VkImage const                   image;
+  cvk_Allocator const* const      allocator;
+} cvk_device_swapchain_image_view_create_args;
+
+cvk_Pure VkImageView cvk_device_swapchain_image_view_create ( // clang-format off
+  cvk_device_Swapchain const* const                        swapchain,
+  cvk_device_swapchain_image_view_create_args const* const arg
+); // clang-format on
 
 cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create ( // clang-format off
   cvk_device_Swapchain const* const swapchain,
@@ -219,6 +222,14 @@ void cvk_device_swapchain_image_list_destroy ( // clang-format off
   cvk_device_Logical* const              device_logical,
   cvk_Allocator* const                   allocator
 ); // clang-format on
+
+typedef struct cvk_device_swapchain_create_args {
+  cvk_device_Physical* const device_physical;
+  cvk_device_Logical* const  device_logical;
+  cvk_Surface const          surface;
+  cvk_Size2D const           size;
+  cvk_Allocator* const       allocator;
+} cvk_device_swapchain_create_args;
 
 cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (  // clang-format off
   cvk_device_swapchain_create_args const*const arg
