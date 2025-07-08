@@ -57,15 +57,14 @@ But most of the files are independent and only use the other modules's typedefs.
 
 ### Single Header / Single Unit  (SCU)
 SCU support is controlled with the `cvk_Implementation` set of `#define` switches.  
-Similar to other header-only libraries, you'd add `#define cvk_Implementation` to the top of **one** `.c` file,  
-before importing the main header of this library,  
+Similar to other header-only libraries, add `#define cvk_Implementation` to the top of **one** `.c` file,  
 and that file will become the `cvulkan` implementation that the compiler will build.  
 
 > @note  
 > Every header has its own `cvk_Implementation_*` sub-flag,  
 > which behaves in the same way as the top-level `cvk_Implementation` flag,  
 > but only for the contents of that one specific file.  
-> `cvk_Implementation` is just an ergonomic way of adding the switches from all files, all at once.  
+> `cvk_Implementation` is just an ergonomic way of adding the switches for all files, all at once.  
 
 ```c
 // yourapp.c
