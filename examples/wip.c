@@ -378,7 +378,7 @@ static void example_update (
     .semaphore      = &example->sync.imageAvailable[frameID],
     .status         = &status,
   });
-  if (status) {
+  if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
     cvk_print("--------------> Swapchain needs to be recreated.\n");
     example_swapchain_recreate(example, system);
   }
