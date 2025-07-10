@@ -333,19 +333,47 @@ void cvk_device_swapchain_destroy (
 }
 
 
+//______________________________________
+// FIX:
+// How to recreate correctly?
+// Currently gives validation errors on unreachable semaphore.
+// https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation
+//______________________________________
 void cvk_device_swapchain_recreate (
   cvk_device_Swapchain* const                     swapchain,
   cvk_device_swapchain_recreate_args const* const arg
 ) {
+  // cvk_device_logical_wait(arg->device_logical);
+
   // Store the old handle & Destroy the old images
   swapchain->cfg.oldSwapchain = swapchain->ct;
-  cvk_device_swapchain_image_list_destroy(&swapchain->images, arg->device_logical, arg->allocator);
-  // Create a new handle and request its list of images
-  cvk_result_check(
-    vkCreateSwapchainKHR(arg->device_logical->ct, &swapchain->cfg, arg->allocator->gpu, &swapchain->ct),
+
+  // Destroy the Swapchain's ImageViews
+  for (cvk_size id = 0; id < swapchain->images.len; ++id) {  // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    vkDestroyImageView(arg->device_logical->ct, swapchain->images.ptr[id].view, arg->allocator->gpu);
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  }  // clang-format on
+
+  // Create a new Swapchain handle and request its list of images
+  // clang-format off
+  cvk_result_check(vkCreateSwapchainKHR(arg->device_logical->ct, &swapchain->cfg, arg->allocator->gpu, &swapchain->ct),
     "Failed to re-create the device's Swapchain context."
   );  // clang-format on
-  swapchain->images = cvk_device_swapchain_image_list_create(swapchain, arg->device_logical, arg->allocator);
+
+  // Re-Create the Swapchain's ImageViews
+  for (cvk_size id = 0; id < swapchain->images.len; ++id) {  // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    swapchain->images.ptr[id].view = cvk_device_swapchain_image_view_create(swapchain, &(cvk_device_swapchain_image_view_create_args){
+      .device_logical = arg->device_logical,
+      .image          = swapchain->images.ptr[id].ct,
+      .allocator      = arg->allocator,
+    });
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  }  // clang-format on
+
   // Destroy the old handle
   vkDestroySwapchainKHR(arg->device_logical->ct, swapchain->cfg.oldSwapchain, arg->allocator->gpu);
 }
