@@ -1,6 +1,6 @@
-//:__________________________________________________________
-//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
-//:__________________________________________________________
+//:___________________________________________________________
+//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
+//:___________________________________________________________
 #include "../sync.h"
 #include "../result.h"
 #include "../math.h"
@@ -343,7 +343,7 @@ void cvk_device_swapchain_recreate (
   cvk_device_Swapchain* const                     swapchain,
   cvk_device_swapchain_recreate_args const* const arg
 ) {
-  // cvk_device_logical_wait(arg->device_logical);
+  cvk_device_logical_wait(arg->device_logical);
 
   // Store the old handle & Destroy the old images
   swapchain->cfg.oldSwapchain = swapchain->ct;
