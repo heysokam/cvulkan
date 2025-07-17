@@ -81,9 +81,12 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
   }
   // Cleanup the list of devices
   arg->instance->allocator.cpu.free(&arg->instance->allocator.cpu, (cvk_Slice*)&available);
-  // Validate and Return the result
+  // Validate
   cvk_assert(cvk_Optional_u32_hasValue(result.id), "Failed to find a Physical Device (GPU) suitable for Vulkan.");
   cvk_assert(result.ct != VK_NULL_HANDLE, "Failed to find a Physical Device (GPU) suitable for Vulkan.");
+  // Get the Memory Properties of the device
+  vkGetPhysicalDeviceMemoryProperties(result.ct, &result.memory);
+  // Return the result
   return result;
 }  //:: cvk_device_physical_create
 

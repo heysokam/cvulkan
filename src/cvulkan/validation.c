@@ -3,7 +3,6 @@
 //:___________________________________________________________
 #include "./config.h"
 #include "./result.h"
-#include <vulkan/vulkan_core.h>
 #include "./validation.h"
 
 

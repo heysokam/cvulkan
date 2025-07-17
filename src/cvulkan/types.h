@@ -1,6 +1,6 @@
-//:__________________________________________________________
-//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
-//:__________________________________________________________
+//:___________________________________________________________
+//  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
+//:___________________________________________________________
 //! @fileoverview cvulkan: Core Types
 //____________________________________|
 #ifndef H_cvulkan_types
@@ -67,7 +67,6 @@ typedef struct cvk_Fence {
   VkFence           ct;
   VkFenceCreateInfo cfg;
 } cvk_Fence;
-
 
 
 //______________________________________
@@ -183,11 +182,12 @@ typedef struct cvk_device_swapchain_Support {
 // @section Device: Physical
 //____________________________
 typedef struct cvk_device_Physical {
-  VkPhysicalDevice             ct;
-  cvk_Optional_u32             id;                ///< Identifier that represents its position in the devices list at the time of initialization
-  char                         priv_pad[4];       //
-  cvk_QueueFamilies            queueFamilies;     ///< QueueFamilies available on this device
-  cvk_device_swapchain_Support swapchainSupport;  ///< Swapchain Support features on this device
+  VkPhysicalDevice                 ct;
+  cvk_Optional_u32                 id;                ///< Identifier that represents its position in the devices list at the time of initialization
+  char                             priv_pad[4];       //
+  cvk_QueueFamilies                queueFamilies;     ///< QueueFamilies available on this device
+  cvk_device_swapchain_Support     swapchainSupport;  ///< Swapchain Support features on this device
+  VkPhysicalDeviceMemoryProperties memory;            ///< Memory Properties of this device
 } cvk_device_Physical;
 /// @description
 /// Describes a list of VkPhysicalDevice contexts.
