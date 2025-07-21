@@ -98,8 +98,15 @@ void cvk_pipeline_graphics_command_bind ( // clang-format off
   cvk_command_Buffer const* const    command_buffer
 ); // clang-format on
 
+typedef struct cvk_command_draw_args {
+  cvk_Nullable uint32_t vertex_len;
+  uint32_t              vertex_first;
+  cvk_Nullable uint32_t instance_len;
+  uint32_t              instance_first;
+} cvk_command_draw_args;
 void cvk_command_draw (  // clang-format off
-  cvk_command_Buffer const* const command_buffer
+  cvk_command_Buffer const* const    command_buffer,
+  cvk_command_draw_args const* const arg
 );  // clang-format on
 
 

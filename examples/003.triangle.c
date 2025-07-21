@@ -260,7 +260,7 @@ int main () {
       .offset = (VkOffset2D){.x= 0, .y= 0},
       .extent = device_swapchain.cfg.imageExtent,
     }, &command_buffer[frameID]);  // clang-format on
-    cvk_command_draw(&command_buffer[frameID]);
+    cvk_command_draw(&command_buffer[frameID], &(cvk_command_draw_args){0});
     cvk_renderpass_command_end(&pipeline_renderpass, &command_buffer[frameID]);
     cvk_command_buffer_end(&command_buffer[frameID]);
 
