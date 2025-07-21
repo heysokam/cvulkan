@@ -237,6 +237,14 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [x] Reset
 ```
 ```md
+# Data
+## Buffer
+- [x] Creation: Customizable
+- [x] Bind
+## Memory
+- [x] Creation: Customizable
+```
+```md
 # Memory Allocators
 - [x] Minimal creation (cpu:stdlib, gpu:null)
 ## CPU
