@@ -412,5 +412,28 @@ typedef enum cvk_command_buffer_Level {
 } cvk_command_buffer_Level;
 
 
+//______________________________________
+// @section Data
+//____________________________
+
+typedef struct cvk_Memory {
+  VkDeviceMemory       ct;
+  VkMemoryAllocateInfo cfg;
+  cvk_pointer          data;
+} cvk_Memory;
+
+typedef struct cvk_buffer_Memory {
+  VkMemoryRequirements requirements;
+  uint32_t             kind;
+  char                 priv_pad[4];
+} cvk_buffer_Memory;
+
+typedef struct cvk_Buffer {
+  VkBuffer           ct;
+  VkBufferCreateInfo cfg;
+  cvk_buffer_Memory  memory;
+} cvk_Buffer;
+
+
 #endif  // H_cvulkan_types
 

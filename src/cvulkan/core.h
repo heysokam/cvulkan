@@ -17,6 +17,7 @@
 #include "./surface.h"
 #include "./device.h"
 #include "./shader.h"
+#include "./data.h"
 #include "./renderpass.h"
 #include "./framebuffer.h"
 #include "./pipeline.h"
