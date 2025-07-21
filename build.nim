@@ -10,9 +10,28 @@ import confy
 const srcDir       = "."
 const dir_root     = srcDir
 const dir_cvk      = dir_root/"src"
+const dir_ffi_base = dir_cvk/"ffi"
+const dir_ffi_zig  = dir_ffi_base/"zig"
+const dir_ffi_nim  = dir_ffi_base/"nim"
 const dir_examples = dir_root/"examples"
 const dir_helpers  = dir_examples/"helpers"
 const dir_shd      = dir_examples/"shaders"
+
+
+#_______________________________________
+# @section Create the FFI Bindings
+#_____________________________
+const file_ffi_base = dir_ffi_base/"impl.c"
+const file_ffi_zig  = dir_ffi_zig/"src"/"cvulkan.zig"
+const file_ffi_nim  = dir_ffi_nim/"src"/"cvulkan.nim"
+when isMainModule:
+  # Nim Bindings
+  discard  # TODO:.. 
+
+when isMainModule:
+  # Zig Bindings
+  sh confy.cfg.zig.bin, "translate-c", "-I/usr/include", file_ffi_base, ">", file_ffi_zig
+  # dir_ffi_zig
 
 
 #_______________________________________
@@ -54,7 +73,6 @@ template example_shaders_compile=
 const examples_flags = Flags(
   cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation-unknown-command"],
   ld: @["-lvulkan", "-lglfw"])
-# cvk
 confy.cfg.dirs.src = dir_examples
 let example_wip = Program.new("wip.c",           flags= examples_flags)
 let example_001 = Program.new("001.instance.c",  flags= examples_flags)
