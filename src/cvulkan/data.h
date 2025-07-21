@@ -104,6 +104,7 @@ void cvk_buffer_vertex_command_bind ( // clang-format off
 #define cvk_Implementation_data
 #endif
 #ifdef cvk_Implementation_data
+#include "./data/buffer.c"
 #endif
 
 
