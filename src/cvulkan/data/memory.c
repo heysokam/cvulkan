@@ -20,12 +20,6 @@ cvk_Pure cvk_Memory cvk_memory_create (
   };
   cvk_result_check(vkAllocateMemory(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to allocate a block of GPU memory.");
-  // if (arg->buffer) cvk_result_check(vkBindBufferMemory(
-  //   /* device */ arg->device_logical->ct,
-  //   /* buffer */ arg->buffer->ct,
-  //   /* memory */ result.ct,
-  //   /* offset */ 0
-  // ), "Failed to bind a GPU Memory block to its respective buffer.");
   cvk_result_check(vkMapMemory(
     /* device */ arg->device_logical->ct,
     /* memory */ result.ct,

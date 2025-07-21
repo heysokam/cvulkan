@@ -32,7 +32,6 @@ typedef struct cvk_memory_create_args {
   cvk_pointer const                    data;
   uint32_t                             kind;
   char                                 priv_pad1[4];
-  cvk_Nullable cvk_Buffer const* const buffer;
   VkDeviceSize                         size_alloc;
   VkDeviceSize                         size_data;
   cvk_Nullable VkDeviceSize const      offset;
