@@ -11,19 +11,20 @@
 
 //______________________________________
 // SpirV shaders used by this example
-extern unsigned char examples_shaders_triangle_frag_spv[];
-extern unsigned int  examples_shaders_triangle_frag_spv_len;
-#include "./shaders/triangle.frag.c"
+extern unsigned char examples_shaders_triangle_buffered_frag_spv[];
+extern unsigned int  examples_shaders_triangle_buffered_frag_spv_len;
+#include "./shaders/triangle_buffered.frag.c"
 //____________________________
-extern unsigned char examples_shaders_triangle_vert_spv[];
-extern unsigned int  examples_shaders_triangle_vert_spv_len;
-#include "./shaders/triangle.vert.c"
+extern unsigned char examples_shaders_triangle_buffered_vert_spv[];
+extern unsigned int  examples_shaders_triangle_buffered_vert_spv_len;
+#include "./shaders/triangle_buffered.vert.c"
 //______________________________________
 
 
 //______________________________________
 // Generic boilerplate shared by all Examples
 #include "./helpers/bootstrap.c"
+#include "./helpers/math.c"
 //______________________________________
 
 
@@ -40,6 +41,14 @@ typedef struct example_Sync {
   cvk_Fence          framesPending[example_frames_Len];
 } example_Sync;
 
+typedef struct example_Vertices {
+  cvk_Buffer                        buffer;
+  VkVertexInputBindingDescription   binding;
+  VkVertexInputAttributeDescription attributes[2];
+  char                              priv_pad[4];
+  cvk_Memory                        memory;
+} example_Vertices;
+
 typedef struct Example {
   example_Bootstrap gpu;
   struct {
@@ -49,13 +58,96 @@ typedef struct Example {
   example_Pipeline     pipeline;
   cvk_framebuffer_List device_framebuffers;
   example_Sync         sync;
+  cvk_bool             resized;
+  char                 priv_pad[4];
+  example_Vertices     verts;
 } Example;
 
 
+//______________________________________
+// TODO: Move to cvulkan
+//____________________________
+static VkVertexInputBindingDescription cvk_vertex_binding_description (
+  uint32_t const slot,
+  uint32_t const stride,
+  cvk_bool const instanced
+) {
+  return (VkVertexInputBindingDescription){
+    .inputRate = instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX,
+    .binding   = slot,
+    .stride    = stride,
+  };
+}
+//__________________
+//______________________________________
+
+
+static example_Vertices example_verts_create (
+  example_Bootstrap* const gpu
+) {
+  example_Vertices result       = (example_Vertices){ 0 };
+  uint32_t const   verts_len    = 3;
+  Vertex           verts_ptr[3] = {
+    // clang-format off
+    [0]= (Vertex){.pos= (Vec2){.x=  0.0f, .y= -0.5f}, .color= (Vec3){.r= 1.0f, .g= 0.0f, .b= 0.0f}},
+    [1]= (Vertex){.pos= (Vec2){.x=  0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 1.0f, .b= 0.0f}},
+    [2]= (Vertex){.pos= (Vec2){.x= -0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 0.0f, .b= 1.0f}},
+  };
+  result.buffer = cvk_buffer_create(&(cvk_buffer_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .usage           = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    .sharing         = VK_SHARING_MODE_EXCLUSIVE,
+    .size            = sizeof(verts_ptr[0]) * verts_len,
+    .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
+    .allocator       = &gpu->instance.allocator,
+  });
+  result.memory = cvk_memory_create(&(cvk_memory_create_args){
+    .device_logical = &gpu->device_logical,
+    .data           = (void*)verts_ptr,
+    .kind           = result.buffer.memory.kind,
+    .size_alloc     = result.buffer.memory.requirements.size,
+    .size_data      = result.buffer.cfg.size,
+    .allocator      = &gpu->instance.allocator,
+  });
+  cvk_buffer_bind(&result.buffer, &(cvk_buffer_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory,
+  });  // clang-format on
+  result.binding = cvk_vertex_binding_description(0, sizeof(Vertex), cvk_false);
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  result.attributes[0] = (VkVertexInputAttributeDescription){ 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, pos) };
+  result.attributes[1] = (VkVertexInputAttributeDescription){ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) };
+  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  // clang-format on
+  return result;
+}
+
+
+static void example_verts_destroy (
+  example_Vertices* const  verts,
+  example_Bootstrap* const gpu
+) {
+  verts->binding = (VkVertexInputBindingDescription){ 0 };
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  verts->attributes[0] = (VkVertexInputAttributeDescription){ 0 };
+  verts->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
+  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  // clang-format on
+  cvk_buffer_destroy(&verts->buffer, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&verts->memory, &gpu->device_logical, &gpu->instance.allocator);
+}
+
+
 static example_Pipeline example_pipeline_create (
-  example_Bootstrap* const gpu,
-  cvk_Shader* const        vert,
-  cvk_Shader* const        frag
+  example_Bootstrap* const      gpu,
+  example_Vertices const* const verts,
+  cvk_Shader* const             vert,
+  cvk_Shader* const             frag
 ) {
   example_Pipeline result = (example_Pipeline){ 0 };
 
@@ -79,10 +171,10 @@ static example_Pipeline example_pipeline_create (
     .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
     .pNext                           = NULL,
     .flags                           = /* Vk.Spec -> Reserved for future use */ (VkPipelineVertexInputStateCreateFlags)0,
-    .vertexBindingDescriptionCount   = 0,     // TODO: Configurable
-    .pVertexBindingDescriptions      = NULL,  // TODO: Configurable
-    .vertexAttributeDescriptionCount = 0,     // TODO: Configurable
-    .pVertexAttributeDescriptions    = NULL,  // TODO: Configurable
+    .vertexBindingDescriptionCount   = 1,                  // TODO: Configurable
+    .pVertexBindingDescriptions      = &verts->binding,    // TODO: Configurable
+    .vertexAttributeDescriptionCount = 2,                  // TODO: Configurable
+    .pVertexAttributeDescriptions    = verts->attributes,  // TODO: Configurable
   };
 
   //________________________________________________
@@ -290,7 +382,8 @@ static Example example_create (
     .code           = frag,
     .allocator      = &result.gpu.instance.allocator,
   });
-  result.pipeline    = example_pipeline_create(&result.gpu, &result.shader.vert, &result.shader.frag);
+  result.verts       = example_verts_create(&result.gpu);
+  result.pipeline    = example_pipeline_create(&result.gpu, &result.verts, &result.shader.vert, &result.shader.frag);
 
   result.device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
     .swapchain      = &result.gpu.device_swapchain,
@@ -308,6 +401,7 @@ static void example_destroy (
   Example* const example
 ) {
   cvk_device_logical_wait(&example->gpu.device_logical);
+  example_verts_destroy(&example->verts, &example->gpu);
   example_sync_destroy(&example->sync, &example->gpu.device_logical, &example->gpu.instance.allocator);
   cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
   example_pipeline_destroy(&example->pipeline, &example->gpu.device_logical, &example->gpu.instance.allocator);
@@ -329,7 +423,13 @@ static void example_swapchain_recreate (
   // Get the new size
   int newSize_width  = 0;
   int newSize_height = 0;
-  glfwGetWindowSize(system->window.ct, &newSize_width, &newSize_height);
+  glfwGetFramebufferSize(system->window.ct, &newSize_width, &newSize_height);
+  // Pause until the window exits minimize mode (size 0,0)
+  while (!newSize_width || !newSize_height) {
+    glfwGetFramebufferSize(system->window.ct, &newSize_width, &newSize_height);
+    glfwWaitEvents();
+  }
+  // Recreate the data
   example->gpu.device_swapchain.cfg.imageExtent = (cvk_Size2D){ .width = (uint32_t)newSize_width, .height = (uint32_t)newSize_height };
   cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
   // clang-format off
@@ -367,7 +467,6 @@ static void example_update (
   //______________________________________
   // 1. Wait for the previous frame to finish
   cvk_fence_wait(&example->sync.framesPending[frameID], &example->gpu.device_logical);
-  cvk_fence_reset(&example->sync.framesPending[frameID], &example->gpu.device_logical);
 
   //______________________________________
   // 2. Get an image from the Swapchain
@@ -378,10 +477,17 @@ static void example_update (
     .semaphore      = &example->sync.imageAvailable[frameID],
     .status         = &status,
   });
-  if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
+  if (example->resized || status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
     cvk_print("--------------> Swapchain needs to be recreated.\n");
+    example->resized = false;
     example_swapchain_recreate(example, system);
-  }
+    return;
+  } else if (status) cvk_result_check(status, "Something went wrong when requesting the Swapchain.nextImageID");
+
+  //______________________________________
+  // 1.2. Only reset the frame if we are submitting work
+  cvk_fence_reset(&example->sync.framesPending[frameID], &example->gpu.device_logical);
+
 
   //______________________________________
   // 3. Record the Command Buffer
@@ -393,6 +499,7 @@ static void example_update (
     .extent         = example->gpu.device_swapchain.cfg.imageExtent,
   });  // clang-format on
   cvk_pipeline_graphics_command_bind(&example->pipeline.graphics, &example->sync.command_buffer[frameID]);
+  cvk_buffer_vertex_command_bind(&example->verts.buffer, &example->sync.command_buffer[frameID]);
   // clang-format off
   cvk_viewport_command_set(&(VkViewport){
     .width    = (float)example->gpu.device_swapchain.cfg.imageExtent.width,
@@ -404,7 +511,7 @@ static void example_update (
     .offset = (VkOffset2D){.x= 0, .y= 0},
     .extent = example->gpu.device_swapchain.cfg.imageExtent,
   }, &example->sync.command_buffer[frameID]);  // clang-format on
-  cvk_command_draw(&example->sync.command_buffer[frameID]);
+  cvk_command_draw(&example->sync.command_buffer[frameID], &(cvk_command_draw_args){ 0 });
   cvk_renderpass_command_end(&example->pipeline.renderpass, &example->sync.command_buffer[frameID]);
   cvk_command_buffer_end(&example->sync.command_buffer[frameID]);
 
@@ -431,19 +538,43 @@ static void example_update (
 }
 
 
+static void example_resize (
+  GLFWwindow* window,
+  int         width,
+  int         height
+) {
+  //______________________________________
+  // FIX: Setting example->resized to true crashes the app
+  //______________________________________
+  cvk_discard(width);
+  cvk_discard(height);
+  Example* const example = (Example*)glfwGetWindowUserPointer(window);
+  // example->resized       = true;
+  cvk_discard(example);
+}
+
+
 int main () {
-  // Initialize
-  csys_System system  = csys_init(csys_init_Options_defaults());
-  Example     example = example_create(
+  // Initialize: Window/Input
+  csys_init_Options system_cfg = csys_init_Options_defaults();
+  system_cfg.window.cb_resize  = example_resize;
+  // system_cfg.window.resize     = true;  // FIX: Which part of the resizing logic is out of order ?
+  csys_System system = csys_init(system_cfg);
+
+  // Initialize: Example Data
+  Example example = example_create(
     /* system */ &system,  // clang-format off
-    /* vert   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_vert_spv, .len = examples_shaders_triangle_vert_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) },
-    /* frag   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_frag_spv, .len = examples_shaders_triangle_frag_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) }
+    /* vert   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_buffered_vert_spv, .len = examples_shaders_triangle_buffered_vert_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) },
+    /* frag   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_buffered_frag_spv, .len = examples_shaders_triangle_buffered_frag_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) }
   );  // clang-format on
+  glfwSetWindowUserPointer(system.window.ct, (void*)&example);
+
   // Update Loop
   while (!csys_close(&system)) {
     csys_update(&system);
     example_update(&example, &system);
   }
+
   // Terminate
   example_destroy(&example);
   csys_term(&system);

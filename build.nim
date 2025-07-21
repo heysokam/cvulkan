@@ -1,6 +1,6 @@
-#:__________________________________________________________
-#  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0 :
-#:__________________________________________________________
+#:___________________________________________________________
+#  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
+#:___________________________________________________________
 import confy
 
 
@@ -36,14 +36,24 @@ proc spirv *(src :PathLike, trg :PathLike) :CommandList=
   xxd.add trg
   result.add xxd
 #_____________________________
-let triangle_vert = spirv( dir_shd/"triangle.vert", dir_shd/"triangle.vert.c" )
-let triangle_frag = spirv( dir_shd/"triangle.frag", dir_shd/"triangle.frag.c" )
+let triangle_hardcoded_vert = spirv( dir_shd/"triangle.vert", dir_shd/"triangle.vert.c" )
+let triangle_hardcoded_frag = spirv( dir_shd/"triangle.frag", dir_shd/"triangle.frag.c" )
+let triangle_buffered_vert  = spirv( dir_shd/"triangle_buffered.vert", dir_shd/"triangle_buffered.vert.c" )
+let triangle_buffered_frag  = spirv( dir_shd/"triangle_buffered.frag", dir_shd/"triangle_buffered.frag.c" )
+template example_shaders_compile=
+  triangle_hardcoded_vert.run()
+  triangle_hardcoded_frag.run()
+  triangle_buffered_vert.run()
+  triangle_buffered_frag.run()
+
 
 
 #_______________________________________
 # @section Build the Examples
 #_____________________________
-const examples_flags = Flags(cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}"], ld: @["-lvulkan", "-lglfw"])
+const examples_flags = Flags(
+  cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation-unknown-command"],
+  ld: @["-lvulkan", "-lglfw"])
 # cvk
 confy.cfg.dirs.src = dir_examples
 let example_wip = Program.new("wip.c",           flags= examples_flags)
@@ -52,8 +62,7 @@ let example_002 = Program.new("002.bootstrap.c", flags= examples_flags)
 let example_003 = Program.new("003.triangle.c",  flags= examples_flags)
 
 when isMainModule:
-  triangle_vert.run()
-  triangle_frag.run()
+  example_shaders_compile
   example_001.build.run
   example_002.build.run
   example_003.build.run
