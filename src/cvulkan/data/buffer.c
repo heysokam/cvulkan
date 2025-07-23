@@ -2,6 +2,8 @@
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
 #include "../result.h"
+#include "../sync.h"
+#include "../device.h"
 #include "../data.h"
 
 
@@ -59,6 +61,29 @@ cvk_Pure cvk_Optional_u32 cvk_buffer_memoryType (
   }
   cvk_assert(cvk_false, "Failed to find a suitable memory type for a Buffer.");
   return result;
+}
+
+
+void cvk_buffer_copy (
+  cvk_Buffer const* const A,
+  cvk_Buffer const* const B,
+  cvk_buffer_copy_args const*const arg
+) {
+  cvk_command_Buffer command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
+    .device_logical = arg->device_logical,
+    .pool           = arg->pool,
+  });
+  cvk_command_buffer_begin2(&command_buffer, &(cvk_command_buffer_begin_args){
+    .flags = cvk_command_buffer_OneTimeSubmit,
+  });
+  vkCmdCopyBuffer(command_buffer.ct, A->ct, B->ct, 1, &(VkBufferCopy){
+    .size = A->cfg.size
+  });
+  cvk_command_buffer_end(&command_buffer);
+  cvk_device_queue_submit(arg->device_queue, &(cvk_device_queue_submit_args){
+    .command_buffer = &command_buffer,
+  });
+  cvk_device_queue_wait(arg->device_queue);
 }
 
 

@@ -241,6 +241,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 ## Buffer
 - [x] Creation: Customizable
 - [x] Bind
+- [x] Copy
 ## Memory
 - [x] Creation: Customizable
 ```
