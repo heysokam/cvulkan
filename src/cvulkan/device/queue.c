@@ -137,3 +137,11 @@ void cvk_device_queue_submit (
   }, arg->fence->ct), "Failed to submit a Command Buffer to the given Device.Queue");
 } // clang-format on
 
+
+void cvk_device_queue_wait (
+  cvk_device_Queue const* const queue
+) {  // clang-format off
+  cvk_result_check(vkQueueWaitIdle(queue->ct),
+    "Failed while waiting for a Queue to finish.");  // clang-format on
+}
+
