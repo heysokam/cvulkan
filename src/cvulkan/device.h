@@ -118,10 +118,10 @@ void cvk_device_queue_create_context ( // clang-format off
 // clang-format on
 
 typedef struct cvk_device_queue_submit_args {
-  cvk_command_Buffer const* const command_buffer;
-  cvk_Semaphore const* const      semaphore_wait;
-  cvk_Semaphore const* const      semaphore_signal;
-  cvk_Fence const* const          fence;
+  cvk_command_Buffer const* const         command_buffer;
+  cvk_Nullable cvk_Semaphore const* const semaphore_wait;
+  cvk_Nullable cvk_Semaphore const* const semaphore_signal;
+  cvk_Nullable cvk_Fence const* const     fence;
 } cvk_device_queue_submit_args;
 void cvk_device_queue_submit ( // clang-format off
   cvk_device_Queue const* const             queue,
