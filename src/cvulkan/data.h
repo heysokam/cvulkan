@@ -28,14 +28,14 @@ typedef enum cvk_memory_Kind {
 typedef VkMemoryPropertyFlags cvk_memory_Flags;
 
 typedef struct cvk_memory_create_args {
-  cvk_device_Logical const* const      device_logical;
-  cvk_pointer const                    data;
-  uint32_t                             kind;
-  char                                 priv_pad1[4];
-  VkDeviceSize                         size_alloc;
-  VkDeviceSize                         size_data;
-  cvk_Nullable VkDeviceSize const      offset;
-  cvk_Allocator* const                 allocator;
+  cvk_device_Logical const* const   device_logical;
+  cvk_Nullable cvk_pointer const    data;  ///< {@link cvk_memory_create} Will automatically map+copy the memory to the GPU when not `NULL`
+  uint32_t                          kind;
+  char                              priv_pad1[4];
+  VkDeviceSize                      size_alloc;
+  VkDeviceSize                      size_data;
+  cvk_Nullable VkDeviceSize const   offset;
+  cvk_Nullable cvk_Allocator* const allocator; ///< Can only be `NULL` when `.data` is `NULL`
 } cvk_memory_create_args;
 cvk_Pure cvk_Memory cvk_memory_create (  // clang-format off
   cvk_memory_create_args const* const arg
@@ -94,6 +94,18 @@ void cvk_buffer_vertex_command_bind ( // clang-format off
   cvk_Buffer const* const         buffer,
   cvk_command_Buffer const* const command_buffer
 ); // clang-format on
+
+typedef struct cvk_buffer_copy_args {
+  cvk_command_Pool const* const  pool;
+  cvk_device_Logical const*const device_logical;
+  cvk_device_Queue const*const   device_queue;
+} cvk_buffer_copy_args;
+void cvk_buffer_copy ( // clang-format off
+  cvk_Buffer const* const A,
+  cvk_Buffer const* const B,
+  cvk_buffer_copy_args const*const arg
+); // clang-format on
+
 
 
 //______________________________________
