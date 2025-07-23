@@ -122,20 +122,20 @@ void cvk_device_queue_create_context (
 void cvk_device_queue_submit (
   cvk_device_Queue const* const             queue,
   cvk_device_queue_submit_args const* const arg
-) {
-  // clang-format off
+) {  // clang-format off
   cvk_result_check(vkQueueSubmit(queue->ct, 1, &(VkSubmitInfo){
     .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
     .pNext                = NULL,
-    .waitSemaphoreCount   = 1,
-    .pWaitSemaphores      = &arg->semaphore_wait->ct,
+    .waitSemaphoreCount   = arg->semaphore_wait ? 1 : 0,
+    .pWaitSemaphores      = arg->semaphore_wait ? &arg->semaphore_wait->ct : NULL,
     .pWaitDstStageMask    = &(VkPipelineStageFlags){VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
     .commandBufferCount   = 1,
     .pCommandBuffers      = &arg->command_buffer->ct,
-    .signalSemaphoreCount = 1,
-    .pSignalSemaphores    = &arg->semaphore_signal->ct,
-  }, arg->fence->ct), "Failed to submit a Command Buffer to the given Device.Queue");
-} // clang-format on
+    .signalSemaphoreCount = arg->semaphore_signal ? 1 : 0,
+    .pSignalSemaphores    = arg->semaphore_signal ? &arg->semaphore_signal->ct : NULL,
+    }, /* fence */ arg->fence ? arg->fence->ct : NULL
+    ), "Failed to submit a Command Buffer to the given Device.Queue");
+}  // clang-format on
 
 
 void cvk_device_queue_wait (
