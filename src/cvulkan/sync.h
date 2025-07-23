@@ -50,6 +50,22 @@ cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (  // clang-format off
   cvk_command_buffer_allocate_args const* const arg
 );  // clang-format on
 
+typedef enum cvk_command_buffer_Usage {
+  cvk_command_buffer_OneTimeSubmit      = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+  cvk_command_buffer_RenderPassContinue = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+  cvk_command_buffer_Simultaneous       = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+  cvk_command_buffer_Usage_Force32      = VK_COMMAND_BUFFER_USAGE_FLAG_BITS_MAX_ENUM
+} cvk_command_buffer_Usage;
+
+typedef struct cvk_command_buffer_begin_args {
+  VkCommandBufferUsageFlags const                          flags;
+  char                                                     priv_pad[4];
+  cvk_Nullable VkCommandBufferInheritanceInfo const* const inheritance;
+} cvk_command_buffer_begin_args;
+void cvk_command_buffer_begin2 ( // clang-format off
+  cvk_command_Buffer const* const            command_buffer,
+  cvk_command_buffer_begin_args const* const arg
+); // clang-format on
 void cvk_command_buffer_begin (cvk_command_Buffer const* const command_buffer);
 void cvk_command_buffer_end (cvk_command_Buffer const* const command_buffer);
 void cvk_command_buffer_reset (cvk_command_Buffer const* const command_buffer, cvk_bool const releaseResources);

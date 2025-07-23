@@ -23,16 +23,22 @@ cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (
   return result;
 }
 
-
-inline void cvk_command_buffer_begin (
-  cvk_command_Buffer const* const command_buffer
+void cvk_command_buffer_begin2 (
+  cvk_command_Buffer const* const            command_buffer,
+  cvk_command_buffer_begin_args const* const arg
 ) {  // clang-format off
   cvk_result_check(vkBeginCommandBuffer(command_buffer->ct, &(VkCommandBufferBeginInfo){
     .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
     .pNext            = NULL,
-    .flags            = (VkCommandBufferUsageFlags)0, // TODO: Configurable
-    .pInheritanceInfo = NULL,                         // TODO: Configurable
+    .flags            = (VkCommandBufferUsageFlags)arg->flags,
+    .pInheritanceInfo = arg->inheritance,
   }), "Failed to begin recording a Command Buffer");  // clang-format on
+}
+
+inline void cvk_command_buffer_begin (
+  cvk_command_Buffer const* const command_buffer
+) {  // clang-format off
+  cvk_command_buffer_begin2(command_buffer, &(cvk_command_buffer_begin_args){0});
 }
 
 
