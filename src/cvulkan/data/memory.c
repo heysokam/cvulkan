@@ -20,20 +20,22 @@ cvk_Pure cvk_Memory cvk_memory_create (
   };
   cvk_result_check(vkAllocateMemory(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to allocate a block of GPU memory.");
-  cvk_result_check(vkMapMemory(
-    /* device */ arg->device_logical->ct,
-    /* memory */ result.ct,
-    /* offset */ arg->offset,
-    /* size   */ arg->size_data,
-    /* flags  */ (VkMemoryMapFlags)0,
-    /* ppData */ &result.data
-  ), "Failed to map a GPU Memory block.");  // clang-format on
-  arg->allocator->cpu.copy(
-    /* A   */ &arg->allocator->cpu,
-    /* src */ &(cvk_Slice){ arg->size_data, 1, arg->data },
-    /* trg */ &(cvk_Slice){ arg->size_data, 1, result.data }
-  );
-  vkUnmapMemory(arg->device_logical->ct, result.ct);
+  if (arg->data) {
+    cvk_result_check(vkMapMemory(
+      /* device */ arg->device_logical->ct,
+      /* memory */ result.ct,
+      /* offset */ arg->offset,
+      /* size   */ arg->size_data,
+      /* flags  */ (VkMemoryMapFlags)0,
+      /* ppData */ &result.data
+    ), "Failed to map a GPU Memory block.");  // clang-format on
+    arg->allocator->cpu.copy(
+      /* A   */ &arg->allocator->cpu,
+      /* src */ &(cvk_Slice){ arg->size_data, 1, arg->data },
+      /* trg */ &(cvk_Slice){ arg->size_data, 1, result.data }
+    );
+    vkUnmapMemory(arg->device_logical->ct, result.ct);
+  }
   return result;
 }
 
