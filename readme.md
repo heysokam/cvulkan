@@ -179,6 +179,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [x] Minimal creation (1 graphics+present Q)
 - [ ] Arbitrary Queue creation (multi-queue)
       Needs support on the device.logical function
+- [x] Wait
 ## Logical
 - [x] Minimal creation
 - [ ] Support Multi-Queue creation
@@ -227,6 +228,8 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 ## Command Buffer
 - [x] Allocate: Customizable
 - [x] Begin
+  - [x] Minimal
+  - [x] Customizable
 - [x] End
 - [x] Reset
 ## Semaphore
