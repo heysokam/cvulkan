@@ -128,6 +128,10 @@ void cvk_device_queue_submit ( // clang-format off
   cvk_device_queue_submit_args const* const arg
 ); // clang-format on
 
+void cvk_device_queue_wait (  // clang-format off
+  cvk_device_Queue const* const queue
+);  // clang-format on
+
 
 //______________________________________
 // @section Device: Extensions
