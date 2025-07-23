@@ -132,6 +132,6 @@ when isMainModule:
   example_002.build.run
   example_003.build.run
   example_wip.build.run
-  gen_zig()
-  gen_nim()
+  # gen_zig()
+  # gen_nim()
 
