@@ -41,12 +41,20 @@ typedef struct example_Sync {
   cvk_Fence          framesPending[example_frames_Len];
 } example_Sync;
 
+typedef struct example_Buffer {
+  cvk_Buffer ram;
+  cvk_Buffer vram;
+} example_Buffer;
+typedef struct example_Memory {
+  cvk_Memory ram;
+  cvk_Memory vram;
+} example_Memory;
 typedef struct example_Vertices {
-  cvk_Buffer                        buffer;
+  example_Buffer                    buffer;
   VkVertexInputBindingDescription   binding;
   VkVertexInputAttributeDescription attributes[2];
   char                              priv_pad[4];
-  cvk_Memory                        memory;
+  example_Memory                    memory;
 } example_Vertices;
 
 typedef struct Example {
@@ -83,7 +91,8 @@ static VkVertexInputBindingDescription cvk_vertex_binding_description (
 
 
 static example_Vertices example_verts_create (
-  example_Bootstrap* const gpu
+  example_Bootstrap* const      gpu,
+  cvk_command_Pool const* const command_pool
 ) {
   example_Vertices result       = (example_Vertices){ 0 };
   uint32_t const   verts_len    = 3;
@@ -93,26 +102,49 @@ static example_Vertices example_verts_create (
     [1]= (Vertex){.pos= (Vec2){.x=  0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 1.0f, .b= 0.0f}},
     [2]= (Vertex){.pos= (Vec2){.x= -0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 0.0f, .b= 1.0f}},
   };
-  result.buffer = cvk_buffer_create(&(cvk_buffer_create_args){
+  result.buffer.ram = cvk_buffer_create(&(cvk_buffer_create_args){
     .device_physical = &gpu->device_physical,
     .device_logical  = &gpu->device_logical,
-    .usage           = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    .sharing         = VK_SHARING_MODE_EXCLUSIVE,
+    .usage           = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
     .size            = sizeof(verts_ptr[0]) * verts_len,
     .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
     .allocator       = &gpu->instance.allocator,
   });
-  result.memory = cvk_memory_create(&(cvk_memory_create_args){
+  result.buffer.vram = cvk_buffer_create(&(cvk_buffer_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .usage           = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    .size            = sizeof(verts_ptr[0]) * verts_len,
+    .memory_flags    = cvk_memory_DeviceLocal,
+    .allocator       = &gpu->instance.allocator,
+  });
+  result.memory.ram = cvk_memory_create(&(cvk_memory_create_args){
     .device_logical = &gpu->device_logical,
     .data           = (void*)verts_ptr,
-    .kind           = result.buffer.memory.kind,
-    .size_alloc     = result.buffer.memory.requirements.size,
-    .size_data      = result.buffer.cfg.size,
+    .kind           = result.buffer.ram.memory.kind,
+    .size_alloc     = result.buffer.ram.memory.requirements.size,
+    .size_data      = result.buffer.ram.cfg.size,
     .allocator      = &gpu->instance.allocator,
   });
-  cvk_buffer_bind(&result.buffer, &(cvk_buffer_bind_args){
+  result.memory.vram = cvk_memory_create(&(cvk_memory_create_args){
     .device_logical = &gpu->device_logical,
-    .memory         = &result.memory,
+    .kind           = result.buffer.vram.memory.kind,
+    .size_alloc     = result.buffer.vram.memory.requirements.size,
+    .size_data      = result.buffer.vram.cfg.size,
+    .allocator      = &gpu->instance.allocator,
+  });
+  cvk_buffer_bind(&result.buffer.ram, &(cvk_buffer_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory.ram,
+  });
+  cvk_buffer_bind(&result.buffer.vram, &(cvk_buffer_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory.vram,
+  });
+  cvk_buffer_copy(&result.buffer.ram, &result.buffer.vram, &(cvk_buffer_copy_args){
+    .device_logical = &gpu->device_logical,
+    .device_queue   = &gpu->device_queue,
+    .pool           = command_pool,
   });  // clang-format on
   result.binding = cvk_vertex_binding_description(0, sizeof(Vertex), cvk_false);
   // clang-format off
@@ -138,8 +170,10 @@ static void example_verts_destroy (
   verts->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
   #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   // clang-format on
-  cvk_buffer_destroy(&verts->buffer, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_memory_destroy(&verts->memory, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_buffer_destroy(&verts->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_buffer_destroy(&verts->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&verts->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&verts->memory.vram, &gpu->device_logical, &gpu->instance.allocator);
 }
 
 
@@ -369,6 +403,7 @@ static Example example_create (
 ) {
   Example result     = (Example){ 0 };
   result.gpu         = example_bootstrap_create(system->window.ct, (cvk_Size2D){ .width = system->window.width, .height = system->window.height });
+  result.sync        = example_sync_create(&result.gpu);
   result.shader.vert = cvk_shader_create(&(cvk_shader_create_args){
     .device_logical = &result.gpu.device_logical,
     .stage          = cvk_shader_stage_Vertex,
@@ -382,7 +417,7 @@ static Example example_create (
     .code           = frag,
     .allocator      = &result.gpu.instance.allocator,
   });
-  result.verts       = example_verts_create(&result.gpu);
+  result.verts       = example_verts_create(&result.gpu, &result.sync.command_pool);
   result.pipeline    = example_pipeline_create(&result.gpu, &result.verts, &result.shader.vert, &result.shader.frag);
 
   result.device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
@@ -391,8 +426,6 @@ static Example example_create (
     .renderpass     = &result.pipeline.renderpass,
     .allocator      = &result.gpu.instance.allocator,
   });
-
-  result.sync = example_sync_create(&result.gpu);
   return result;
 }
 
@@ -499,7 +532,7 @@ static void example_update (
     .extent         = example->gpu.device_swapchain.cfg.imageExtent,
   });  // clang-format on
   cvk_pipeline_graphics_command_bind(&example->pipeline.graphics, &example->sync.command_buffer[frameID]);
-  cvk_buffer_vertex_command_bind(&example->verts.buffer, &example->sync.command_buffer[frameID]);
+  cvk_buffer_vertex_command_bind(&example->verts.buffer.vram, &example->sync.command_buffer[frameID]);
   // clang-format off
   cvk_viewport_command_set(&(VkViewport){
     .width    = (float)example->gpu.device_swapchain.cfg.imageExtent.width,
