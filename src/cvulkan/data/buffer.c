@@ -101,6 +101,14 @@ void cvk_buffer_vertex_command_bind (
   cvk_command_Buffer const* const command_buffer
 ) {
   VkDeviceSize const offsets[] = { 0 };
-  vkCmdBindVertexBuffers(command_buffer->ct, 0, 1, &buffer->ct, offsets);
+  vkCmdBindVertexBuffers(command_buffer->ct, 0, 1, &buffer->ct, offsets);  // TODO: Configurable
+}
+
+
+void cvk_buffer_index_command_bind (
+  cvk_Buffer const* const         buffer,
+  cvk_command_Buffer const* const command_buffer
+) {
+  vkCmdBindIndexBuffer(command_buffer->ct, buffer->ct, 0, VK_INDEX_TYPE_UINT16);  // TODO: Configurable
 }
 

@@ -109,6 +109,17 @@ void cvk_command_draw (  // clang-format off
   cvk_command_draw_args const* const arg
 );  // clang-format on
 
+typedef struct cvk_command_draw_indexed_args {
+  cvk_Nullable uint32_t indices_len;
+  uint32_t              indices_first;
+  cvk_Nullable uint32_t instance_len;
+  uint32_t              instance_first;
+  int32_t               vertex_offset;
+} cvk_command_draw_indexed_args;
+void cvk_command_draw_indexed (  // clang-format off
+  cvk_command_Buffer const* const    command_buffer,
+  cvk_command_draw_indexed_args const* const arg
+);  // clang-format on
 
 //______________________________________
 // @section Single Header Support

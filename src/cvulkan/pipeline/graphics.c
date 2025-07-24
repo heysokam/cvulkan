@@ -73,9 +73,23 @@ void cvk_command_draw (
 ) {
   vkCmdDraw(
     /* commandBuffer */ command_buffer->ct,
-    /* vertexCount   */ (!arg->instance_len) ? 3 : arg->vertex_len,
+    /* vertexCount   */ (!arg->vertex_len) ? 3 : arg->vertex_len,
     /* instanceCount */ (!arg->instance_len) ? 1 : arg->instance_len,
     /* firstVertex   */ arg->vertex_first,
+    /* firstInstance */ arg->instance_first
+  );
+}
+
+void cvk_command_draw_indexed (
+  cvk_command_Buffer const* const            command_buffer,
+  cvk_command_draw_indexed_args const* const arg
+) {
+  vkCmdDrawIndexed(
+    /* commandBuffer */ command_buffer->ct,
+    /* indexCount    */ (!arg->indices_len) ? 3 : arg->indices_len,
+    /* instanceCount */ (!arg->instance_len) ? 1 : arg->instance_len,
+    /* firstIndex    */ arg->indices_first,
+    /* vertexOffset  */ arg->vertex_offset,
     /* firstInstance */ arg->instance_first
   );
 }
