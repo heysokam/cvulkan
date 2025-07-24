@@ -56,6 +56,13 @@ typedef struct example_Vertices {
   char                              priv_pad[4];
   example_Memory                    memory;
 } example_Vertices;
+typedef struct example_Indices {
+  // @note
+  // There is no need to keep the staging buffer around.
+  // Keeping it until app termination just for simplicity of the code
+  example_Memory memory;
+  example_Buffer buffer;
+} example_Indices;
 
 typedef struct Example {
   example_Bootstrap gpu;
@@ -69,6 +76,7 @@ typedef struct Example {
   cvk_bool             resized;
   char                 priv_pad[4];
   example_Vertices     verts;
+  example_Indices      inds;
 } Example;
 
 
@@ -95,12 +103,13 @@ static example_Vertices example_verts_create (
   cvk_command_Pool const* const command_pool
 ) {
   example_Vertices result       = (example_Vertices){ 0 };
-  uint32_t const   verts_len    = 3;
-  Vertex           verts_ptr[3] = {
+  uint32_t const   verts_len    = 4;
+  Vertex           verts_ptr[4] = {
     // clang-format off
-    [0]= (Vertex){.pos= (Vec2){.x=  0.0f, .y= -0.5f}, .color= (Vec3){.r= 1.0f, .g= 0.0f, .b= 0.0f}},
-    [1]= (Vertex){.pos= (Vec2){.x=  0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 1.0f, .b= 0.0f}},
-    [2]= (Vertex){.pos= (Vec2){.x= -0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 0.0f, .b= 1.0f}},
+    [0]= (Vertex){.pos= (Vec2){.x= -0.5f, .y= -0.5f}, .color= (Vec3){.r= 1.0f, .g= 0.0f, .b= 0.0f}},
+    [1]= (Vertex){.pos= (Vec2){.x=  0.5f, .y= -0.5f}, .color= (Vec3){.r= 0.0f, .g= 1.0f, .b= 0.0f}},
+    [2]= (Vertex){.pos= (Vec2){.x=  0.5f, .y=  0.5f}, .color= (Vec3){.r= 0.0f, .g= 0.0f, .b= 1.0f}},
+    [3]= (Vertex){.pos= (Vec2){.x= -0.5f, .y=  0.5f}, .color= (Vec3){.r= 1.0f, .g= 1.0f, .b= 1.0f}},
   };
   result.buffer.ram = cvk_buffer_create(&(cvk_buffer_create_args){
     .device_physical = &gpu->device_physical,
@@ -177,13 +186,92 @@ static void example_verts_destroy (
 }
 
 
+static example_Indices example_inds_create (
+  example_Bootstrap* const      gpu,
+  cvk_command_Pool const* const command_pool
+) {
+  example_Indices result = (example_Indices){ 0 };
+
+  uint32_t const inds_len    = 6;
+  uint16_t       inds_ptr[6] = { /* tri0 */ 0, 1, 2, /* tri1 */ 2, 3, 0 };
+
+  result.buffer.ram  = cvk_buffer_create(&(cvk_buffer_create_args){
+     .device_physical = &gpu->device_physical,
+     .device_logical  = &gpu->device_logical,
+     .usage           = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+     .size            = sizeof(inds_ptr[0]) * inds_len,
+     .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
+     .allocator       = &gpu->instance.allocator,
+  });
+  result.buffer.vram = cvk_buffer_create(&(cvk_buffer_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .usage           = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    .size            = sizeof(inds_ptr[0]) * inds_len,
+    .memory_flags    = cvk_memory_DeviceLocal,
+    .allocator       = &gpu->instance.allocator,
+  });
+  result.memory.ram  = cvk_memory_create(&(cvk_memory_create_args){
+     .device_logical = &gpu->device_logical,
+     .data           = (void*)inds_ptr,
+     .kind           = result.buffer.ram.memory.kind,
+     .size_alloc     = result.buffer.ram.memory.requirements.size,
+     .size_data      = result.buffer.ram.cfg.size,
+     .allocator      = &gpu->instance.allocator,
+  });
+  result.memory.vram = cvk_memory_create(&(cvk_memory_create_args){
+    .device_logical = &gpu->device_logical,
+    .kind           = result.buffer.vram.memory.kind,
+    .size_alloc     = result.buffer.vram.memory.requirements.size,
+    .size_data      = result.buffer.vram.cfg.size,
+    .allocator      = &gpu->instance.allocator,
+  });  // clang-format off
+  cvk_buffer_bind(&result.buffer.ram, &(cvk_buffer_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory.ram,
+  });
+  cvk_buffer_bind(&result.buffer.vram, &(cvk_buffer_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory.vram,
+  });
+  cvk_buffer_copy(&result.buffer.ram, &result.buffer.vram, &(cvk_buffer_copy_args){
+    .device_logical = &gpu->device_logical,
+    .device_queue   = &gpu->device_queue,
+    .pool           = command_pool,
+  });  // clang-format on
+
+  return result;
+}
+
+static void example_inds_destroy (
+  example_Indices* const   inds,
+  example_Bootstrap* const gpu
+) {
+  // inds->binding = (VkVertexInputBindingDescription){ 0 };
+  // clang-format off
+  // #pragma GCC diagnostic push
+  // #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  // inds->attributes[0] = (VkVertexInputAttributeDescription){ 0 };
+  // inds->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
+  // #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  // clang-format on
+  cvk_buffer_destroy(&inds->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_buffer_destroy(&inds->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&inds->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&inds->memory.vram, &gpu->device_logical, &gpu->instance.allocator);
+}
+
+
 static example_Pipeline example_pipeline_create (
   example_Bootstrap* const      gpu,
   example_Vertices const* const verts,
+  example_Indices const* const  inds,
   cvk_Shader* const             vert,
   cvk_Shader* const             frag
 ) {
   example_Pipeline result = (example_Pipeline){ 0 };
+
+  cvk_discard(inds);  // FIX: Remove
 
   //________________________________________________
   // TODO: cvk_pipeline_state_dynamic_create()
@@ -418,7 +506,8 @@ static Example example_create (
     .allocator      = &result.gpu.instance.allocator,
   });
   result.verts       = example_verts_create(&result.gpu, &result.sync.command_pool);
-  result.pipeline    = example_pipeline_create(&result.gpu, &result.verts, &result.shader.vert, &result.shader.frag);
+  result.inds        = example_inds_create(&result.gpu, &result.sync.command_pool);
+  result.pipeline    = example_pipeline_create(&result.gpu, &result.verts, &result.inds, &result.shader.vert, &result.shader.frag);
 
   result.device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
     .swapchain      = &result.gpu.device_swapchain,
@@ -434,6 +523,7 @@ static void example_destroy (
   Example* const example
 ) {
   cvk_device_logical_wait(&example->gpu.device_logical);
+  example_inds_destroy(&example->inds, &example->gpu);
   example_verts_destroy(&example->verts, &example->gpu);
   example_sync_destroy(&example->sync, &example->gpu.device_logical, &example->gpu.instance.allocator);
   cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
@@ -533,6 +623,7 @@ static void example_update (
   });  // clang-format on
   cvk_pipeline_graphics_command_bind(&example->pipeline.graphics, &example->sync.command_buffer[frameID]);
   cvk_buffer_vertex_command_bind(&example->verts.buffer.vram, &example->sync.command_buffer[frameID]);
+  cvk_buffer_index_command_bind(&example->inds.buffer.vram, &example->sync.command_buffer[frameID]);
   // clang-format off
   cvk_viewport_command_set(&(VkViewport){
     .width    = (float)example->gpu.device_swapchain.cfg.imageExtent.width,
@@ -544,7 +635,10 @@ static void example_update (
     .offset = (VkOffset2D){.x= 0, .y= 0},
     .extent = example->gpu.device_swapchain.cfg.imageExtent,
   }, &example->sync.command_buffer[frameID]);  // clang-format on
-  cvk_command_draw(&example->sync.command_buffer[frameID], &(cvk_command_draw_args){ 0 });
+  // clang-format off
+  cvk_command_draw_indexed(&example->sync.command_buffer[frameID], &(cvk_command_draw_indexed_args){
+    .indices_len = 6,
+  });  // clang-format on
   cvk_renderpass_command_end(&example->pipeline.renderpass, &example->sync.command_buffer[frameID]);
   cvk_command_buffer_end(&example->sync.command_buffer[frameID]);
 
