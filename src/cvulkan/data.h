@@ -35,11 +35,11 @@ typedef struct cvk_memory_create_args {
   VkDeviceSize                      size_alloc;
   VkDeviceSize                      size_data;
   cvk_Nullable VkDeviceSize const   offset;
-  cvk_Nullable cvk_Allocator* const allocator; ///< Can only be `NULL` when `.data` is `NULL`
+  cvk_Nullable cvk_Allocator* const allocator;  ///< Can only be `NULL` when `.data` is `NULL`
 } cvk_memory_create_args;
 cvk_Pure cvk_Memory cvk_memory_create (  // clang-format off
   cvk_memory_create_args const* const arg
-);  // clang-format on
+);                                              // clang-format on
 
 void cvk_memory_destroy ( // clang-format off
   cvk_Memory* const               memory,
@@ -95,17 +95,21 @@ void cvk_buffer_vertex_command_bind ( // clang-format off
   cvk_command_Buffer const* const command_buffer
 ); // clang-format on
 
+void cvk_buffer_index_command_bind ( // clang-format off
+  cvk_Buffer const* const         buffer,
+  cvk_command_Buffer const* const command_buffer
+); // clang-format on
+
 typedef struct cvk_buffer_copy_args {
-  cvk_command_Pool const* const  pool;
-  cvk_device_Logical const*const device_logical;
-  cvk_device_Queue const*const   device_queue;
+  cvk_command_Pool const* const   pool;
+  cvk_device_Logical const* const device_logical;
+  cvk_device_Queue const* const   device_queue;
 } cvk_buffer_copy_args;
 void cvk_buffer_copy ( // clang-format off
   cvk_Buffer const* const A,
   cvk_Buffer const* const B,
   cvk_buffer_copy_args const*const arg
 ); // clang-format on
-
 
 
 //______________________________________
