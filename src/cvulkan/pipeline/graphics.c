@@ -9,12 +9,15 @@
 
 cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
   cvk_pipeline_graphics_create_args const* const arg
-) {
+) {  // clang-format off
   cvk_pipeline_Graphics result = (cvk_pipeline_Graphics){
-    .ct         = NULL,
-    .layout     = cvk_pipeline_layout_create(arg->device_logical, arg->allocator),
-    .renderpass = (arg->renderpass) ? *arg->renderpass : (cvk_Renderpass){ .ct = NULL },
-  };
+    .ct                 = NULL,
+    .layout             = cvk_pipeline_layout_create(arg->layout ? arg->layout : &(cvk_pipeline_layout_create_args){
+      .device_logical   = arg->device_logical,
+      .allocator        = arg->allocator,
+    }),
+    .renderpass         = (arg->renderpass) ? *arg->renderpass : (cvk_Renderpass){ .ct = NULL },
+  }; // clang-format on
   result.cfg = (VkGraphicsPipelineCreateInfo){
     .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
     .pNext               = NULL,
