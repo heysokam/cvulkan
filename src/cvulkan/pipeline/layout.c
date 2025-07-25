@@ -6,8 +6,7 @@
 
 
 cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (
-  cvk_device_Logical const* const device_logical,
-  cvk_Allocator* const            allocator
+  cvk_pipeline_layout_create_args const* const arg
 ) {  // clang-format off
   cvk_pipeline_Layout result = (cvk_pipeline_Layout){
     .ct                     = NULL,
@@ -15,12 +14,12 @@ cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (
     .sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
     .pNext                  = NULL,
     .flags                  = (VkPipelineLayoutCreateFlags)0,  // TODO: INDEPENDENT_SETS extension
-    .setLayoutCount         = 0,                               // TODO: Configurable
-    .pSetLayouts            = NULL,                            // TODO: Configurable
+    .setLayoutCount         = arg->sets_len,
+    .pSetLayouts            = arg->sets_ptr,
     .pushConstantRangeCount = 0,                               // TODO: Configurable
     .pPushConstantRanges    = NULL,                            // TODO: Configurable
   }};
-  cvk_result_check(vkCreatePipelineLayout(device_logical->ct, &result.cfg, allocator->gpu, &result.ct),
+  cvk_result_check(vkCreatePipelineLayout(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create the Pipeline's Layout.");
   // clang-format on
   return result;
