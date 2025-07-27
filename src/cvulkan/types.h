@@ -420,6 +420,8 @@ typedef struct cvk_Memory {
   VkDeviceMemory       ct;
   VkMemoryAllocateInfo cfg;
   cvk_pointer          data;
+  cvk_bool             persistent;
+  char                 priv_pad[4];
 } cvk_Memory;
 
 typedef struct cvk_buffer_Memory {
