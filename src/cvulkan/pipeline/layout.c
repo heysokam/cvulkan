@@ -14,7 +14,7 @@ cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (
     .sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
     .pNext                  = NULL,
     .flags                  = (VkPipelineLayoutCreateFlags)0,  // TODO: INDEPENDENT_SETS extension
-    .setLayoutCount         = arg->sets_len,
+    .setLayoutCount         = (arg->sets_ptr && !arg->sets_len) ? 1 : arg->sets_len,
     .pSetLayouts            = arg->sets_ptr,
     .pushConstantRangeCount = 0,                               // TODO: Configurable
     .pPushConstantRanges    = NULL,                            // TODO: Configurable
@@ -32,6 +32,6 @@ void cvk_pipeline_layout_destroy (
   cvk_Allocator* const            allocator
 ) {
   layout->cfg = (VkPipelineLayoutCreateInfo){ 0 };
-  vkDestroyPipelineLayout(device_logical->ct, layout->ct, allocator->gpu);
+  if (layout->ct) vkDestroyPipelineLayout(device_logical->ct, layout->ct, allocator->gpu);
 }
 

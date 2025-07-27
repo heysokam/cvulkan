@@ -51,6 +51,7 @@ void cvk_scissor_command_set ( // clang-format off
 //____________________________
 typedef struct cvk_pipeline_layout_create_args {
   cvk_device_Logical const* const           device_logical;
+  char                                      priv_pad[4];
   cvk_Nullable uint32_t                     sets_len;
   cvk_Nullable VkDescriptorSetLayout const* sets_ptr;
   cvk_Allocator* const                      allocator;
