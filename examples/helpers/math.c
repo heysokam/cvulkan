@@ -21,3 +21,12 @@ typedef struct Vertex {
   Vec3 color;
 } Vertex;
 
+static double const PI  = 3.1415926535897932384626433;
+static double const TAU = 2 * PI;
+
+static double deg_to_rad (
+  double const deg
+) {
+  return deg * PI / 180;
+}
+
