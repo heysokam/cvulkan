@@ -59,7 +59,7 @@ void cvk_pipeline_graphics_destroy (
 ) {
   cvk_pipeline_layout_destroy(&pipeline->layout, device_logical, allocator);
   pipeline->cfg = (VkGraphicsPipelineCreateInfo){ 0 };
-  vkDestroyPipeline(device_logical->ct, pipeline->ct, allocator->gpu);
+  if (pipeline->ct) vkDestroyPipeline(device_logical->ct, pipeline->ct, allocator->gpu);
 }
 
 void cvk_pipeline_graphics_command_bind (
