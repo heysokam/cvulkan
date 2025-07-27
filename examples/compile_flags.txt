@@ -1,5 +1,4 @@
 -std=c2x
--I../bin/.lib/cdk/src
--I./bin/.lib/cdk/src
+-I../bin/.lib/linmath
 -I../src
 -I./src
