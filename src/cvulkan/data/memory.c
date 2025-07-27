@@ -11,6 +11,7 @@ cvk_Pure cvk_Memory cvk_memory_create (
   cvk_Memory result = (cvk_Memory){
     .ct                = NULL,
     .data              = arg->data,
+    .persistent        = arg->persistent,
     .cfg               = (VkMemoryAllocateInfo){
       .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
       .pNext           = NULL,
@@ -34,7 +35,7 @@ cvk_Pure cvk_Memory cvk_memory_create (
       /* src */ &(cvk_Slice){ arg->size_data, 1, arg->data },
       /* trg */ &(cvk_Slice){ arg->size_data, 1, result.data }
     );
-    vkUnmapMemory(arg->device_logical->ct, result.ct);
+    if (!result.persistent) vkUnmapMemory(arg->device_logical->ct, result.ct);
   }
   return result;
 }
@@ -46,6 +47,7 @@ void cvk_memory_destroy (
   cvk_Allocator const* const      allocator
 ) {
   memory->cfg = (VkMemoryAllocateInfo){ 0 };
+  if (memory->persistent) vkUnmapMemory(device_logical->ct, memory->ct);
   vkFreeMemory(device_logical->ct, memory->ct, allocator->gpu);
 }
 

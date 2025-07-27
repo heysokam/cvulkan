@@ -29,9 +29,9 @@ typedef VkMemoryPropertyFlags cvk_memory_Flags;
 
 typedef struct cvk_memory_create_args {
   cvk_device_Logical const* const   device_logical;
-  cvk_Nullable cvk_pointer const    data;  ///< {@link cvk_memory_create} Will automatically map+copy the memory to the GPU when not `NULL`
+  cvk_Nullable cvk_pointer const    data;        ///< {@link cvk_memory_create} Will automatically map+copy the memory to the GPU when not `NULL`
   uint32_t                          kind;
-  char                              priv_pad1[4];
+  cvk_Nullable cvk_bool const       persistent;  ///< The memory will remain mapped after creation.
   VkDeviceSize                      size_alloc;
   VkDeviceSize                      size_data;
   cvk_Nullable VkDeviceSize const   offset;
