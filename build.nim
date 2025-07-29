@@ -104,8 +104,10 @@ let triangle_hardcoded_vert = spirv( dir_shd/"triangle.vert", dir_shd/"triangle.
 let triangle_hardcoded_frag = spirv( dir_shd/"triangle.frag", dir_shd/"triangle.frag.c" )
 let triangle_buffered_vert  = spirv( dir_shd/"triangle_buffered.vert", dir_shd/"triangle_buffered.vert.c" )
 let triangle_buffered_frag  = spirv( dir_shd/"triangle_buffered.frag", dir_shd/"triangle_buffered.frag.c" )
-let wvp_vert  = spirv( dir_shd/"wvp.vert", dir_shd/"wvp.vert.c" )
-let wvp_frag  = spirv( dir_shd/"wvp.frag", dir_shd/"wvp.frag.c" )
+let wvp_vert                = spirv( dir_shd/"wvp.vert", dir_shd/"wvp.vert.c" )
+let wvp_frag                = spirv( dir_shd/"wvp.frag", dir_shd/"wvp.frag.c" )
+let texture_vert            = spirv( dir_shd/"texture.vert", dir_shd/"texture.vert.c" )
+let texture_frag            = spirv( dir_shd/"texture.frag", dir_shd/"texture.frag.c" )
 template example_shaders_compile=
   info "Compiling SPIRV Shaders for the examples ..."
   triangle_hardcoded_vert.run()
@@ -114,6 +116,8 @@ template example_shaders_compile=
   triangle_buffered_frag.run()
   wvp_vert.run()
   wvp_frag.run()
+  texture_vert.run()
+  texture_frag.run()
   info "Done Compiling SPIRV Shaders for the examples."
 
 
