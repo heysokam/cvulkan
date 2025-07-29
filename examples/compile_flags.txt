@@ -1,4 +1,6 @@
 -std=c2x
--I../bin/.lib/linmath
 -I../src
 -I./src
+
+-I../bin/.lib/linmath
+-I../bin/.lib/stb

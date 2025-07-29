@@ -27,6 +27,7 @@ extern unsigned int  examples_shaders_wvp_vert_spv_len;
 // Generic boilerplate shared by all Examples
 #include "./helpers/bootstrap.c"
 #include "./helpers/math.c"
+#include "./helpers/image.c"
 //______________________________________
 
 
