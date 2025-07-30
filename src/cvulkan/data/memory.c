@@ -51,3 +51,23 @@ void cvk_memory_destroy (
   vkFreeMemory(device_logical->ct, memory->ct, allocator->gpu);
 }
 
+
+cvk_Pure cvk_Optional_u32 cvk_memory_properties_type (
+  cvk_memory_Properties const* const memory,
+  cvk_device_Physical const* const   device_physical,
+  cvk_memory_Flags const             flags
+) {
+  for (uint32_t id = 0; id < device_physical->memory.memoryTypeCount; ++id) {
+    cvk_bool const sameType = memory->requirements.memoryTypeBits & 1 << id;
+    // clang-format off
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    cvk_bool const sameFlags = (device_physical->memory.memoryTypes[id].propertyFlags & (VkMemoryPropertyFlags)flags) == (VkMemoryPropertyFlags)flags;
+    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+    // // clang-format on
+    if (sameType && sameFlags) return id;
+  }
+  cvk_assert(cvk_false, "Failed to find a suitable memory type from the given Memory.Properties data.");
+  return cvk_Optional_u32_none;
+}
+

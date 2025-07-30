@@ -47,6 +47,12 @@ void cvk_memory_destroy ( // clang-format off
   cvk_Allocator const* const      allocator
 ); // clang-format on
 
+cvk_Pure cvk_Optional_u32 cvk_memory_properties_type ( // clang-format off
+  cvk_memory_Properties const* const memory,
+  cvk_device_Physical const* const   device_physical,
+  VkMemoryPropertyFlags const        flags
+); // clang-format on
+
 
 //______________________________________
 // @section Buffer
@@ -72,12 +78,6 @@ void cvk_buffer_destroy ( // clang-format off
   cvk_Buffer* const               buffer,
   cvk_device_Logical const* const device_logical,
   cvk_Allocator const* const      allocator
-); // clang-format on
-
-cvk_Pure cvk_Optional_u32 cvk_buffer_memoryType ( // clang-format off
-  cvk_Buffer const* const          buffer,
-  cvk_device_Physical const* const device_physical,
-  VkMemoryPropertyFlags const      flags
 ); // clang-format on
 
 typedef struct cvk_buffer_bind_args {
