@@ -45,10 +45,20 @@ typedef struct cvk_command_buffer_allocate_args {
 
 /// @note
 /// Command Buffers are deallocated automatically when their CommandPool is destroyed.
-/// The `.cfg` field will not be modified, unless zeroed by the caller.
 cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (  // clang-format off
   cvk_command_buffer_allocate_args const* const arg
 );  // clang-format on
+
+typedef struct cvk_command_buffer_free_args {
+  cvk_command_Pool const* const   command_pool;
+  cvk_device_Logical const* const device_logical;
+} cvk_command_buffer_free_args;
+
+void cvk_command_buffer_free (  // clang-format off
+  cvk_command_Buffer* const                 command_buffer,
+  cvk_command_buffer_free_args const* const arg
+);  // clang-format on
+
 
 typedef enum cvk_command_buffer_Usage {
   cvk_command_buffer_OneTimeSubmit      = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,

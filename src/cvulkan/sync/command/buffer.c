@@ -23,6 +23,16 @@ cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (
   return result;
 }
 
+
+void cvk_command_buffer_free (
+  cvk_command_Buffer* const                 command_buffer,
+  cvk_command_buffer_free_args const* const arg
+) {
+  command_buffer->cfg = (VkCommandBufferAllocateInfo){ 0 };
+  if (command_buffer->ct) vkFreeCommandBuffers(arg->device_logical->ct, arg->command_pool->ct, 1, &command_buffer->ct);
+}
+
+
 void cvk_command_buffer_begin2 (
   cvk_command_Buffer const* const            command_buffer,
   cvk_command_buffer_begin_args const* const arg
@@ -34,6 +44,7 @@ void cvk_command_buffer_begin2 (
     .pInheritanceInfo = arg->inheritance,
   }), "Failed to begin recording a Command Buffer");  // clang-format on
 }
+
 
 inline void cvk_command_buffer_begin (
   cvk_command_Buffer const* const command_buffer
