@@ -26,7 +26,7 @@ cvk_Pure cvk_Buffer cvk_buffer_create (
   cvk_result_check(vkCreateBuffer(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a GPU data Buffer.");  // clang-format on
   vkGetBufferMemoryRequirements(arg->device_logical->ct, result.ct, &result.memory.requirements);
-  result.memory.kind = cvk_buffer_memoryType(&result, arg->device_physical, arg->memory_flags);
+  result.memory.kind = cvk_memory_properties_type(&result.memory, arg->device_physical, arg->memory_flags);
   return result;
 }
 
@@ -40,27 +40,6 @@ void cvk_buffer_destroy (
   buffer->memory.requirements = (VkMemoryRequirements){ 0 };
   buffer->memory.kind         = cvk_Optional_u32_none;
   vkDestroyBuffer(device_logical->ct, buffer->ct, allocator->gpu);
-}
-
-
-cvk_Pure cvk_Optional_u32 cvk_buffer_memoryType (
-  cvk_Buffer const* const          buffer,
-  cvk_device_Physical const* const device_physical,
-  cvk_memory_Flags const           flags
-) {
-  cvk_Optional_u32 result = cvk_Optional_u32_none;
-  for (uint32_t id = 0; id < device_physical->memory.memoryTypeCount; ++id) {
-    cvk_bool const sameType = buffer->memory.requirements.memoryTypeBits & 1 << id;
-    // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-    cvk_bool const sameFlags = (device_physical->memory.memoryTypes[id].propertyFlags & (VkMemoryPropertyFlags)flags) == (VkMemoryPropertyFlags)flags;
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-    // // clang-format on
-    if (sameType && sameFlags) return id;
-  }
-  cvk_assert(cvk_false, "Failed to find a suitable memory type for a Buffer.");
-  return result;
 }
 
 

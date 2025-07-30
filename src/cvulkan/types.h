@@ -424,16 +424,16 @@ typedef struct cvk_Memory {
   char                 priv_pad[4];
 } cvk_Memory;
 
-typedef struct cvk_buffer_Memory {
+typedef struct cvk_memory_Properties {
   VkMemoryRequirements requirements;
   uint32_t             kind;
   char                 priv_pad[4];
-} cvk_buffer_Memory;
+} cvk_memory_Properties;
 
 typedef struct cvk_Buffer {
-  VkBuffer           ct;
-  VkBufferCreateInfo cfg;
-  cvk_buffer_Memory  memory;
+  VkBuffer              ct;
+  VkBufferCreateInfo    cfg;
+  cvk_memory_Properties memory;
 } cvk_Buffer;
 
 
