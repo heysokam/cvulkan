@@ -47,8 +47,8 @@ void cvk_memory_destroy (
   cvk_Allocator const* const      allocator
 ) {
   memory->cfg = (VkMemoryAllocateInfo){ 0 };
-  if (memory->persistent) vkUnmapMemory(device_logical->ct, memory->ct);
-  vkFreeMemory(device_logical->ct, memory->ct, allocator->gpu);
+  if (memory->persistent && memory->ct) vkUnmapMemory(device_logical->ct, memory->ct);
+  if (memory->ct) vkFreeMemory(device_logical->ct, memory->ct, allocator->gpu);
 }
 
 
