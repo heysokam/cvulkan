@@ -199,7 +199,7 @@ int main () {
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     command_buffer[id] = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
       .device_logical = &device_logical,
-      .pool           = &command_pool,
+      .command_pool   = &command_pool,
     });
     imageAvailable[id] = cvk_semaphore_create(&device_logical, &instance.allocator);
     framesPending[id]  = cvk_fence_create(&device_logical, /*signaled*/ cvk_true, &instance.allocator);

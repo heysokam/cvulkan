@@ -37,7 +37,7 @@ void cvk_command_pool_destroy ( // clang-format off
 
 typedef struct cvk_command_buffer_allocate_args {
   cvk_device_Logical const* const             device_logical;
-  cvk_command_Pool const* const               pool;
+  cvk_command_Pool const* const               command_pool;
   cvk_Nullable cvk_command_buffer_Level const level;  ///< Primary (0) is the default
   char                                        priv_pad[4];
   cvk_Nullable cvk_size const                 count;  ///< Will default to 1 when omitted.
