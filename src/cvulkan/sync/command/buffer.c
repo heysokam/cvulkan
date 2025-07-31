@@ -13,7 +13,7 @@ cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (
     .cfg                  = (VkCommandBufferAllocateInfo){
       .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
       .pNext              = NULL,
-      .commandPool        = arg->pool->ct,
+      .commandPool        = arg->command_pool->ct,
       .level              = (VkCommandBufferLevel)arg->level,
       .commandBufferCount = (arg->count) ? (uint32_t)arg->count : 1,
     },
