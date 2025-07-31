@@ -436,6 +436,11 @@ typedef struct cvk_Buffer {
   cvk_memory_Properties memory;
 } cvk_Buffer;
 
+typedef struct cvk_image_Data {
+  VkImage               ct;
+  VkImageCreateInfo     cfg;
+  cvk_memory_Properties memory;
+} cvk_image_Data;
 
 #endif  // H_cvulkan_types
 

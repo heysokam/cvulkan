@@ -245,8 +245,20 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [x] Creation: Customizable
 - [x] Bind
 - [x] Copy
+  - [x] Buffer to Buffer
 ## Memory
 - [x] Creation: Customizable
+## Image
+### Data   (aka VkImage)
+- [x] Creation: Customizable
+- [x] Bind
+- [x] Transition
+- [x] Copy
+  - [x] Buffer to Image
+### View
+- [ ] Creation: Customizable
+### Sampler
+- [ ] Creation: Customizable
 ```
 ```md
 # Memory Allocators

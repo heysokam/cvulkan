@@ -111,6 +111,77 @@ void cvk_buffer_command_copy ( // clang-format off
 
 
 //______________________________________
+// @section Image
+//____________________________
+typedef struct cvk_image_data_bind_args {
+  cvk_device_Logical const* const device_logical;
+  cvk_Memory const* const         memory;
+  cvk_Nullable VkDeviceSize const offset;
+} cvk_image_data_bind_args;
+void cvk_image_data_bind ( // clang-format off
+  cvk_image_Data const* const      image,
+  cvk_image_data_bind_args const* const arg
+); // clang-format on
+
+typedef struct cvk_image_data_create_args {
+  cvk_device_Physical const* const      device_physical;
+  cvk_device_Logical const* const       device_logical;
+  VkFormat const                        format;
+  VkImageUsageFlags const               usage;
+  cvk_memory_Flags const                memory_flags;
+  cvk_Nullable VkImageCreateFlags const flags;
+  cvk_Nullable VkImageType const        dimensions;  ///< Creates a 1D image when omitted or 0
+  cvk_Nullable uint32_t                 width;       ///< Will use 1 when omitted or 0
+  cvk_Nullable uint32_t                 height;      ///< Will use 1 when omitted or 0
+  cvk_Nullable uint32_t                 depth;       ///< Will use 1 when omitted or 0
+  cvk_Nullable VkSampleCountFlags const samples;     ///< Will use 1 when omitted or 0
+  cvk_Nullable VkImageTiling const      tiling;      ///< Optimal is the default (aka 0)
+  cvk_Nullable VkSharingMode const      sharing;     ///< Exclusive is the default (aka 0)
+  cvk_Nullable VkImageLayout const      layout;      ///< Undefined is the default (aka 0)
+  cvk_Nullable uint32_t const           mip_len;     ///< MipMap levels count. Will use 1 when omitted or 0
+  cvk_Nullable uint32_t const           layers_len;  ///< ArrayLayers count. Will use 1 when omitted or 0
+  cvk_Allocator const* const            allocator;
+} cvk_image_data_create_args;
+cvk_Pure cvk_image_Data cvk_image_data_create (  // clang-format off
+  cvk_image_data_create_args const* const arg
+);                                                   // clang-format on
+
+void cvk_image_data_destroy ( // clang-format off
+  cvk_image_Data* const           image_data,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator const* const      allocator
+); // clang-format on
+
+typedef struct cvk_image_data_transition_args {
+  cvk_command_Buffer const* const command_buffer;
+  VkAccessFlags const             access_src;
+  VkAccessFlags const             access_trg;
+  VkPipelineStageFlags const      stage_src;
+  VkPipelineStageFlags const      stage_trg;
+  VkImageLayout const             layout_old;
+  VkImageLayout const             layout_new;
+} cvk_image_data_transition_args;
+
+void cvk_image_data_transition ( // clang-format off
+  cvk_image_Data* const                       image_data,
+  cvk_image_data_transition_args const* const arg
+); // clang-format on
+
+typedef struct cvk_image_data_copy_args {
+  cvk_command_Buffer const* const command_buffer;
+  cvk_Nullable VkDeviceSize const offset_buffer;
+  cvk_Nullable VkOffset3D const   offset_image;
+  char                            priv_pad[4];
+} cvk_image_data_copy_args;
+
+void cvk_image_data_command_copy_fromBuffer (  // clang-format off
+  cvk_image_Data const* const           image_data,
+  cvk_Buffer const* const               buffer,
+  cvk_image_data_copy_args const* const arg
+);  // clang-format on
+
+
+//______________________________________
 // @section Single Header Support
 //____________________________
 #ifdef cvk_Implementation
@@ -119,6 +190,7 @@ void cvk_buffer_command_copy ( // clang-format off
 #ifdef cvk_Implementation_data
 #include "./data/buffer.c"
 #include "./data/memory.c"
+#include "./data/image.c"
 #endif
 
 
