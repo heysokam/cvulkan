@@ -101,11 +101,9 @@ void cvk_buffer_index_command_bind ( // clang-format off
 ); // clang-format on
 
 typedef struct cvk_buffer_copy_args {
-  cvk_command_Pool const* const   pool;
-  cvk_device_Logical const* const device_logical;
-  cvk_device_Queue const* const   device_queue;
+  cvk_command_Buffer const* const command_buffer;
 } cvk_buffer_copy_args;
-void cvk_buffer_copy ( // clang-format off
+void cvk_buffer_command_copy ( // clang-format off
   cvk_Buffer const* const A,
   cvk_Buffer const* const B,
   cvk_buffer_copy_args const*const arg

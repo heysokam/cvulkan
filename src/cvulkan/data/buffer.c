@@ -43,32 +43,15 @@ void cvk_buffer_destroy (
 }
 
 
-void cvk_buffer_copy (
+void cvk_buffer_command_copy (
   cvk_Buffer const* const           A,
   cvk_Buffer const* const           B,
   cvk_buffer_copy_args const* const arg
 ) {  // clang-format off
-  cvk_command_Buffer command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
-    .device_logical = arg->device_logical,
-    .pool           = arg->pool,
-  });
-  cvk_command_buffer_begin2(&command_buffer, &(cvk_command_buffer_begin_args){
-    .flags = cvk_command_buffer_OneTimeSubmit,
-  });
-
-  vkCmdCopyBuffer(command_buffer.ct, A->ct, B->ct, 1, &(VkBufferCopy){
+  vkCmdCopyBuffer(arg->command_buffer->ct, A->ct, B->ct, 1, &(VkBufferCopy){
     .size = A->cfg.size
   });
-
-  cvk_command_buffer_end(&command_buffer);
-  cvk_device_queue_submit(arg->device_queue, &(cvk_device_queue_submit_args){
-    .command_buffer = &command_buffer,
-  });
-  cvk_device_queue_wait(arg->device_queue);
-  cvk_command_buffer_free(&command_buffer, &(cvk_command_buffer_free_args){
-    .device_logical = arg->device_logical,
-    .command_pool   = arg->pool,
-  });  // clang-format on
+  // clang-format on
 }
 
 
