@@ -111,7 +111,7 @@ void cvk_buffer_command_copy ( // clang-format off
 
 
 //______________________________________
-// @section Image
+// @section Image.Data
 //____________________________
 typedef struct cvk_image_data_bind_args {
   cvk_device_Logical const* const device_logical;
@@ -126,6 +126,7 @@ void cvk_image_data_bind ( // clang-format off
 typedef struct cvk_image_data_create_args {
   cvk_device_Physical const* const      device_physical;
   cvk_device_Logical const* const       device_logical;
+  cvk_Allocator const* const            allocator;
   VkFormat const                        format;
   VkImageUsageFlags const               usage;
   cvk_memory_Flags const                memory_flags;
@@ -140,7 +141,6 @@ typedef struct cvk_image_data_create_args {
   cvk_Nullable VkImageLayout const      layout;      ///< Undefined is the default (aka 0)
   cvk_Nullable uint32_t const           mip_len;     ///< MipMap levels count. Will use 1 when omitted or 0
   cvk_Nullable uint32_t const           layers_len;  ///< ArrayLayers count. Will use 1 when omitted or 0
-  cvk_Allocator const* const            allocator;
 } cvk_image_data_create_args;
 cvk_Pure cvk_image_Data cvk_image_data_create (  // clang-format off
   cvk_image_data_create_args const* const arg
@@ -180,6 +180,26 @@ void cvk_image_data_command_copy_fromBuffer (  // clang-format off
   cvk_image_data_copy_args const* const arg
 );  // clang-format on
 
+
+//______________________________________
+// @section Image.View
+//____________________________
+
+typedef struct cvk_image_view_create_args {
+  cvk_image_Data const* const     image_data;
+  cvk_device_Logical const* const device_logical;
+  cvk_Allocator const* const      allocator;
+} cvk_image_view_create_args;
+
+cvk_Pure cvk_image_View cvk_image_view_create (  // clang-format off
+  cvk_image_view_create_args const* const arg
+);  // clang-format on
+
+void cvk_image_view_destroy (  // clang-format off
+  cvk_image_View* const           image_view,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
+);  // clang-format on
 
 //______________________________________
 // @section Single Header Support
