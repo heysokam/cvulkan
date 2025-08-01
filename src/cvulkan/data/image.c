@@ -2,6 +2,7 @@
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
 #include "../result.h"
+#include "../math.h"
 #include "../data.h"
 
 
@@ -162,4 +163,49 @@ void cvk_image_view_destroy (
   image_view->cfg = (VkImageViewCreateInfo){ 0 };
   if (image_view->ct) vkDestroyImageView(device_logical->ct, image_view->ct, allocator->gpu);
 }
+
+
+cvk_Pure cvk_image_Sampler cvk_image_sampler_create (
+  cvk_image_sampler_create_args const* const arg
+) {  // clang-format off
+  cvk_image_Sampler result = (cvk_image_Sampler){
+    .ct                        = NULL,
+    .cfg                       = (VkSamplerCreateInfo){
+      .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+      .pNext                   = NULL,
+      .flags                   = (VkSamplerCreateFlags)arg->flags,
+      .magFilter               = arg->filter_mag,
+      .minFilter               = arg->filter_min,
+      .mipmapMode              = arg->mip_mode,
+      .addressModeU            = arg->address_U,
+      .addressModeV            = arg->address_V,
+      .addressModeW            = arg->address_W,
+      .mipLodBias              = arg->mip_lodBias,
+      .anisotropyEnable        = arg->anisotropy_enabled ? VK_TRUE : VK_FALSE,
+      .maxAnisotropy           = (arg->anisotropy_enabled && arg->anisotropy_max == 0.0f)
+        ? arg->device_physical->properties.limits.maxSamplerAnisotropy
+        : cvk_clamp_f32(arg->anisotropy_max, 1.0f, arg->device_physical->properties.limits.maxSamplerAnisotropy),
+      .compareEnable           = arg->compare_enabled ? VK_TRUE : VK_FALSE,
+      .compareOp               = arg->compare_op,
+      .minLod                  = arg->lod_min,
+      .maxLod                  = arg->lod_max,
+      .borderColor             = arg->border_color,
+      .unnormalizedCoordinates = arg->unnormalized ? VK_TRUE : VK_FALSE,
+    },
+  };
+  cvk_result_check(vkCreateSampler(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+    "Failed to create an Image.Sampler context.");  // clang-format on
+  return result;
+}
+
+
+void cvk_image_sampler_destroy (
+  cvk_image_Sampler* const        image_sampler,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
+) {
+  image_sampler->cfg = (VkSamplerCreateInfo){ 0 };
+  if (image_sampler->ct) vkDestroySampler(device_logical->ct, image_sampler->ct, allocator->gpu);
+}
+
 
