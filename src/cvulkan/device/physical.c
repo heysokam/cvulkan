@@ -10,10 +10,17 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ) {
-  // WARN: The .properties field is not populated yet when this function is called
+  // WARN: The .properties field is not yet populated when this function is called
   VkPhysicalDeviceProperties properties = (VkPhysicalDeviceProperties){ 0 };
   vkGetPhysicalDeviceProperties(device->ct, &properties);
   cvk_bool const is_discrete = properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+
+  // WARN: The .features field is not yet populated when this function is called
+  VkPhysicalDeviceFeatures features = (VkPhysicalDeviceFeatures){ 0 };
+  vkGetPhysicalDeviceFeatures(device->ct, &features);
+  cvk_bool const supports_anisotropy = features.samplerAnisotropy == VK_TRUE;
+
+  cvk_bool const supports_features = supports_anisotropy;
 
   cvk_QueueFamilies queueFamilies = cvk_device_queue_families_create(device, surface, allocator);
   cvk_bool const    has_graphics  = cvk_Optional_u32_hasValue(queueFamilies.graphics);
@@ -34,7 +41,7 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
   return  // clang-format off
     is_discrete
     && has_graphics && has_present
-    && supports_extensions && supports_swapchain
+    && supports_features && supports_extensions && supports_swapchain
     ;  // clang-format on
 }  //:: cvk_device_physical_isSuitable_default
 
@@ -85,7 +92,8 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
   // Validate
   cvk_assert(cvk_Optional_u32_hasValue(result.id), "Failed to find a Physical Device (GPU) suitable for Vulkan.");
   cvk_assert(result.ct != VK_NULL_HANDLE, "Failed to find a Physical Device (GPU) suitable for Vulkan.");
-  // Get the Properties of the device
+  // Get the Features & Properties of the device
+  vkGetPhysicalDeviceFeatures(result.ct, &result.features);
   vkGetPhysicalDeviceProperties(result.ct, &result.properties);
   vkGetPhysicalDeviceMemoryProperties(result.ct, &result.memory);
   // Return the result

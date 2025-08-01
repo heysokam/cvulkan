@@ -184,9 +184,11 @@ typedef struct cvk_device_swapchain_Support {
 typedef struct cvk_device_Physical {
   VkPhysicalDevice                 ct;
   cvk_Optional_u32                 id;                ///< Identifier that represents its position in the devices list at the time of initialization
-  char                             priv_pad[4];       //
+  char                             priv_pad1[4];
   cvk_QueueFamilies                queueFamilies;     ///< QueueFamilies available on this device
-  cvk_device_swapchain_Support     swapchainSupport;  ///< Swapchain Support features on this device
+  cvk_device_swapchain_Support     swapchainSupport;  ///< Swapchain Support Features of this device
+  char                             priv_pad2[4];
+  VkPhysicalDeviceFeatures         features;          ///< General Features supported by this device
   VkPhysicalDeviceProperties       properties;        ///< General Properties of this device
   VkPhysicalDeviceMemoryProperties memory;            ///< Memory Properties of this device
 } cvk_device_Physical;
@@ -202,7 +204,7 @@ typedef struct cvk_device_physical_List {
 } cvk_device_physical_List;
 
 
-/// @warning The .properties field is not populated yet when this function is called
+/// @warning The `.properties` and `.features` fields are not populated yet when this function is called
 typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
