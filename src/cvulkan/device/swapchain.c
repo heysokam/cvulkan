@@ -189,10 +189,7 @@ cvk_Pure VkImageView cvk_device_swapchain_image_view_create (
   cvk_device_Swapchain const* const                        swapchain,
   cvk_device_swapchain_image_view_create_args const* const arg
 ) {
-  VkImageView result = NULL;
-  // clang-format off
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  VkImageView result = NULL;  // clang-format off
   cvk_result_check(vkCreateImageView(arg->device_logical->ct, &(VkImageViewCreateInfo){
     .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
     .pNext            = NULL,
@@ -208,11 +205,10 @@ cvk_Pure VkImageView cvk_device_swapchain_image_view_create (
       .baseArrayLayer = 0,
       .layerCount     = 1,
     }}, arg->allocator->gpu, &result),
-    "Failed to retrieve one of the ImageViews used by the Swapchain.");
-  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-  // clang-format on
+    "Failed to retrieve one of the ImageViews used by the Swapchain.");  // clang-format on
   return result;
 }
+
 
 cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create (
   cvk_device_Swapchain const* const swapchain,
