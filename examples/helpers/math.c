@@ -14,10 +14,15 @@ typedef vec2   Vec2;
 typedef vec3   Vec3;
 typedef mat4x4 Mat4;
 
-typedef enum AxisID { X, Y, Z, W, R = X, G = Y, B = Z, A = W } AxisID;
+typedef enum AxisID { // clang-format off
+  X, Y, Z, W,
+  R= X, G= Y, B= Z, A= W,
+  U= X, V= Y
+} AxisID; // clang-format on
 
 typedef struct Vertex {
   Vec2 pos;
+  Vec2 uv;
   Vec3 color;
 } Vertex;
 
