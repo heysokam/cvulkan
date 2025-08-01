@@ -449,5 +449,12 @@ typedef struct cvk_image_View {
   VkImageView           ct;
   VkImageViewCreateInfo cfg;
 } cvk_image_View;
+
+typedef struct cvk_image_Sampler {
+  VkSampler           ct;
+  VkSamplerCreateInfo cfg;
+} cvk_image_Sampler;
+
+
 #endif  // H_cvulkan_types
 
