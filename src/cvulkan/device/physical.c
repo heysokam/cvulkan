@@ -10,6 +10,7 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ) {
+  // WARN: The .properties field is not populated yet when this function is called
   VkPhysicalDeviceProperties properties = (VkPhysicalDeviceProperties){ 0 };
   vkGetPhysicalDeviceProperties(device->ct, &properties);
   cvk_bool const is_discrete = properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
@@ -84,7 +85,8 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
   // Validate
   cvk_assert(cvk_Optional_u32_hasValue(result.id), "Failed to find a Physical Device (GPU) suitable for Vulkan.");
   cvk_assert(result.ct != VK_NULL_HANDLE, "Failed to find a Physical Device (GPU) suitable for Vulkan.");
-  // Get the Memory Properties of the device
+  // Get the Properties of the device
+  vkGetPhysicalDeviceProperties(result.ct, &result.properties);
   vkGetPhysicalDeviceMemoryProperties(result.ct, &result.memory);
   // Return the result
   return result;

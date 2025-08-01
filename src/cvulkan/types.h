@@ -187,6 +187,7 @@ typedef struct cvk_device_Physical {
   char                             priv_pad[4];       //
   cvk_QueueFamilies                queueFamilies;     ///< QueueFamilies available on this device
   cvk_device_swapchain_Support     swapchainSupport;  ///< Swapchain Support features on this device
+  VkPhysicalDeviceProperties       properties;        ///< General Properties of this device
   VkPhysicalDeviceMemoryProperties memory;            ///< Memory Properties of this device
 } cvk_device_Physical;
 /// @description
@@ -200,6 +201,8 @@ typedef struct cvk_device_physical_List {
   VkPhysicalDevice*     ptr;
 } cvk_device_physical_List;
 
+
+/// @warning The .properties field is not populated yet when this function is called
 typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
