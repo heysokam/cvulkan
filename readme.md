@@ -256,7 +256,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 - [x] Copy
   - [x] Buffer to Image
 ### View
-- [ ] Creation: Customizable
+- [x] Creation: Customizable
 ### Sampler
 - [ ] Creation: Customizable
 ```

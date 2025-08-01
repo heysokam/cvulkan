@@ -71,7 +71,7 @@ void cvk_image_data_transition (
     /* commandBuffer            */ arg->command_buffer->ct,
     /* srcStageMask             */ arg->stage_src,  // FIX: Setup depending on the transition
     /* dstStageMask             */ arg->stage_trg,  // FIX: Setup depending on the transition
-    /* dependencyFlags          */ 0,  // TODO: Configurable (eg: by_region flag)
+    /* dependencyFlags          */ 0,               // TODO: Configurable (eg: by_region flag)
     /* memoryBarrierCount       */ 0,
     /* pMemoryBarriers          */ NULL,
     /* bufferMemoryBarrierCount */ 0,
@@ -123,5 +123,43 @@ void cvk_image_data_command_copy_fromBuffer (
       .imageExtent       = image_data->cfg.extent,
     } //:: pRegions
   );  // clang-format on
+}
+
+
+cvk_Pure cvk_image_View cvk_image_view_create (
+  cvk_image_view_create_args const* const arg
+) {  // clang-format off
+  cvk_image_View result = (cvk_image_View){
+    .ct                 = NULL,
+    .cfg                = (VkImageViewCreateInfo){
+      .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+      .pNext            = NULL,
+      .flags            = (VkImageViewCreateFlags)0, // TODO: Configurable
+      .image            = arg->image_data->ct,
+      .viewType         = VK_IMAGE_VIEW_TYPE_2D,     // TODO: Configurable
+      .format           = arg->image_data->cfg.format,
+      .components       = (VkComponentMapping){ .r = 0, .g = 0, .b = 0, .a = 0 }, // 0 == Swizzle.Identity
+      .subresourceRange = (VkImageSubresourceRange){
+        .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT, // TODO: Configurable
+        .baseMipLevel   = 0,                         // TODO: Configurable
+        .levelCount     = 1,                         // TODO: Configurable
+        .baseArrayLayer = 0,                         // TODO: Configurable
+        .layerCount     = 1,                         // TODO: Configurable
+      }, //:: subresourceRange
+    }, //:: cfg
+  };
+  cvk_result_check(vkCreateImageView(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+    "Failed to create an Image.View for an Image.Data handle.");  // clang-format on
+  return result;
+}
+
+
+void cvk_image_view_destroy (
+  cvk_image_View* const           image_view,
+  cvk_device_Logical const* const device_logical,
+  cvk_Allocator* const            allocator
+) {
+  image_view->cfg = (VkImageViewCreateInfo){ 0 };
+  if (image_view->ct) vkDestroyImageView(device_logical->ct, image_view->ct, allocator->gpu);
 }
 

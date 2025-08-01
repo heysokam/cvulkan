@@ -445,5 +445,9 @@ typedef struct cvk_image_Data {
   cvk_memory_Properties memory;
 } cvk_image_Data;
 
+typedef struct cvk_image_View {
+  VkImageView           ct;
+  VkImageViewCreateInfo cfg;
+} cvk_image_View;
 #endif  // H_cvulkan_types
 
