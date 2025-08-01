@@ -17,6 +17,14 @@ cvk_Pure uint32_t cvk_clamp_u32 (uint32_t const val, uint32_t const m, uint32_t 
 
 
 //______________________________________
+// @section f32 helpers
+//____________________________
+cvk_Pure float cvk_min_f32 (float const val, float const m);
+cvk_Pure float cvk_max_f32 (float const val, float const M);
+cvk_Pure float cvk_clamp_f32 (float const val, float const m, float const M);
+
+
+//______________________________________
 // @section Single Header Support
 //____________________________
 #ifdef cvk_Implementation
