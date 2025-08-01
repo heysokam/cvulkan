@@ -282,8 +282,9 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
   allocator->cpu.free(&allocator->cpu, &views);
 
   // Assign the allocated image list (cvk_Slice data) to the result.images list
-  result.len = data.len;
-  result.ptr = (cvk_device_swapchain_Image*)data.ptr;
+  result.itemsize = sizeof(cvk_device_swapchain_Image);
+  result.len      = data.len;
+  result.ptr      = (cvk_device_swapchain_Image*)data.ptr;
   return result;
 }
 
