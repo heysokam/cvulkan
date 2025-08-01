@@ -13,13 +13,13 @@
 
 //______________________________________
 // SpirV shaders used by this example
-extern unsigned char examples_shaders_wvp_frag_spv[];
-extern unsigned int  examples_shaders_wvp_frag_spv_len;
-#include "./shaders/wvp.frag.c"
+extern unsigned char examples_shaders_texture_frag_spv[];
+extern unsigned int  examples_shaders_texture_frag_spv_len;
+#include "./shaders/texture.frag.c"
 //____________________________
-extern unsigned char examples_shaders_wvp_vert_spv[];
-extern unsigned int  examples_shaders_wvp_vert_spv_len;
-#include "./shaders/wvp.vert.c"
+extern unsigned char examples_shaders_texture_vert_spv[];
+extern unsigned int  examples_shaders_texture_vert_spv_len;
+#include "./shaders/texture.vert.c"
 //______________________________________
 
 
@@ -55,7 +55,7 @@ typedef struct example_Memory {
 typedef struct example_Vertices {
   example_Buffer                    buffer;
   VkVertexInputBindingDescription   binding;
-  VkVertexInputAttributeDescription attributes[2];
+  VkVertexInputAttributeDescription attributes[3];
   char                              priv_pad[4];
   example_Memory                    memory;
 } example_Vertices;
@@ -77,17 +77,30 @@ typedef struct example_WVP {
   cvk_Memory       memory;
 } example_WVP;
 
+typedef struct example_Texture {
+  cvk_image_Data    data;
+  cvk_Memory        memory;
+  cvk_image_View    view;
+  cvk_image_Sampler sampler;
+  stbi_uc*          pixels;
+  int               width;
+  int               height;
+  int               channels;
+  char              priv_pad[4];
+  VkDeviceSize      size;
+} example_Texture;
+
 
 typedef struct example_descriptors_Layout {
   VkDescriptorSetLayout           ct;
   VkDescriptorSetLayoutCreateInfo cfg;
-  VkDescriptorSetLayoutBinding    binding;
+  VkDescriptorSetLayoutBinding    bindings[2];
 } example_descriptors_Layout;
 
 typedef struct example_descriptors_Pool {
   VkDescriptorPool           ct;
   VkDescriptorPoolCreateInfo cfg;
-  VkDescriptorPoolSize       size;
+  VkDescriptorPoolSize       sizes[2];
 } example_descriptors_Pool;
 
 typedef struct example_Descriptors {
@@ -97,7 +110,9 @@ typedef struct example_Descriptors {
   VkDescriptorSetLayout       sets_layouts[example_frames_Len];
   VkDescriptorSetAllocateInfo sets_cfg;
   VkDescriptorSet             sets_ptr[example_frames_Len];
+  VkWriteDescriptorSet        writes_ptr[2];  // @note Number of uniforms
   VkDescriptorBufferInfo      buffer_cfg[example_frames_Len];
+  VkDescriptorImageInfo       texture_cfg[example_frames_Len];
 } example_Descriptors;
 
 typedef struct Example {
@@ -114,6 +129,7 @@ typedef struct Example {
   example_Vertices     verts;
   example_Indices      inds;
   example_WVP          wvp[example_frames_Len];
+  example_Texture      texture;
   example_Descriptors  descriptors;
   ctime_Time           time;
 } Example;
@@ -138,17 +154,17 @@ static VkVertexInputBindingDescription cvk_vertex_binding_description (
 
 
 static example_Vertices example_verts_create (
-  example_Bootstrap* const      gpu,
-  cvk_command_Pool const* const command_pool
+  example_Bootstrap* const  gpu,
+  example_Sync const* const sync
 ) {
   example_Vertices result       = (example_Vertices){ 0 };
   uint32_t const   verts_len    = 4;
   Vertex           verts_ptr[4] = {
     // clang-format off
-    [0]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}},
-    [1]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}},
-    [2]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}},
-    [3]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}},
+    [0]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}, .uv= {[U]= 1.0f, [V]= 0.0f}},
+    [1]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}, .uv= {[U]= 0.0f, [V]= 0.0f}},
+    [2]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}, .uv= {[U]= 0.0f, [V]= 1.0f}},
+    [3]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}, .uv= {[U]= 1.0f, [V]= 1.0f}},
   };
   result.buffer.ram = cvk_buffer_create(&(cvk_buffer_create_args){
     .device_physical = &gpu->device_physical,
@@ -189,17 +205,41 @@ static example_Vertices example_verts_create (
     .device_logical = &gpu->device_logical,
     .memory         = &result.memory.vram,
   });
-  cvk_buffer_copy(&result.buffer.ram, &result.buffer.vram, &(cvk_buffer_copy_args){
+
+  // Copy the RAM buffer data to the VRAM buffer synchronously
+  // clang-format off
+  cvk_command_Buffer command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
     .device_logical = &gpu->device_logical,
-    .device_queue   = &gpu->device_queue,
-    .pool           = command_pool,
-  });  // clang-format on
+    .command_pool   = &sync->command_pool,
+  });
+  cvk_command_buffer_begin2(&command_buffer, &(cvk_command_buffer_begin_args){
+    .flags = cvk_command_buffer_OneTimeSubmit,
+  });
+  //__________________
+
+  cvk_buffer_command_copy(&result.buffer.ram, &result.buffer.vram, &(cvk_buffer_copy_args){
+    .command_buffer = &command_buffer,
+  });
+
+  //__________________
+  cvk_command_buffer_end(&command_buffer);
+  cvk_device_queue_submit(&gpu->device_queue, &(cvk_device_queue_submit_args){
+    .command_buffer = &command_buffer,
+  });
+  cvk_device_queue_wait(&gpu->device_queue);
+  cvk_command_buffer_free(&command_buffer, &(cvk_command_buffer_free_args){
+    .device_logical = &gpu->device_logical,
+    .command_pool   = &sync->command_pool,
+  });
+  // clang-format on
+
   result.binding = cvk_vertex_binding_description(0, sizeof(Vertex), cvk_false);
   // clang-format off
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   result.attributes[0] = (VkVertexInputAttributeDescription){ 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, pos) };
   result.attributes[1] = (VkVertexInputAttributeDescription){ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) };
+  result.attributes[2] = (VkVertexInputAttributeDescription){ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) };
   #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   // clang-format on
   return result;
@@ -216,6 +256,7 @@ static void example_verts_destroy (
   #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   verts->attributes[0] = (VkVertexInputAttributeDescription){ 0 };
   verts->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
+  verts->attributes[2] = (VkVertexInputAttributeDescription){ 0 };
   #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   // clang-format on
   cvk_buffer_destroy(&verts->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
@@ -226,8 +267,8 @@ static void example_verts_destroy (
 
 
 static example_Indices example_inds_create (
-  example_Bootstrap* const      gpu,
-  cvk_command_Pool const* const command_pool
+  example_Bootstrap* const  gpu,
+  example_Sync const* const sync
 ) {
   example_Indices result = (example_Indices){ 0 };
 
@@ -273,11 +314,33 @@ static example_Indices example_inds_create (
     .device_logical = &gpu->device_logical,
     .memory         = &result.memory.vram,
   });
-  cvk_buffer_copy(&result.buffer.ram, &result.buffer.vram, &(cvk_buffer_copy_args){
+
+  // Copy the RAM buffer data to the VRAM buffer synchronously
+  // clang-format off
+  cvk_command_Buffer command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
     .device_logical = &gpu->device_logical,
-    .device_queue   = &gpu->device_queue,
-    .pool           = command_pool,
-  });  // clang-format on
+    .command_pool   = &sync->command_pool,
+  });
+  cvk_command_buffer_begin2(&command_buffer, &(cvk_command_buffer_begin_args){
+    .flags = cvk_command_buffer_OneTimeSubmit,
+  });
+  //__________________
+
+  cvk_buffer_command_copy(&result.buffer.ram, &result.buffer.vram, &(cvk_buffer_copy_args){
+    .command_buffer = &command_buffer,
+  });
+
+  //__________________
+  cvk_command_buffer_end(&command_buffer);
+  cvk_device_queue_submit(&gpu->device_queue, &(cvk_device_queue_submit_args){
+    .command_buffer = &command_buffer,
+  });
+  cvk_device_queue_wait(&gpu->device_queue);
+  cvk_command_buffer_free(&command_buffer, &(cvk_command_buffer_free_args){
+    .device_logical = &gpu->device_logical,
+    .command_pool   = &sync->command_pool,
+  });
+  // clang-format on
 
   return result;
 }
@@ -286,14 +349,6 @@ static void example_inds_destroy (
   example_Indices* const   inds,
   example_Bootstrap* const gpu
 ) {
-  // inds->binding = (VkVertexInputBindingDescription){ 0 };
-  // clang-format off
-  // #pragma GCC diagnostic push
-  // #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-  // inds->attributes[0] = (VkVertexInputAttributeDescription){ 0 };
-  // inds->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
-  // #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-  // clang-format on
   cvk_buffer_destroy(&inds->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
   cvk_buffer_destroy(&inds->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
   cvk_memory_destroy(&inds->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
@@ -301,20 +356,19 @@ static void example_inds_destroy (
 }
 
 static example_Descriptors example_descriptors_create (
-  example_Bootstrap* const gpu,
-  example_WVP const        wvp[static example_frames_Len]
+  example_Bootstrap* const     gpu,
+  example_WVP const            wvp[static example_frames_Len],
+  example_Texture const* const texture
 ) {
   example_Descriptors result = (example_Descriptors){ 0 };
+
+  cvk_discard(texture);  // FIX: Remove
 
   //________________________________________________
   // TODO: cvk_descriptor_pool_create
   // clang-format off
   result.pool = (example_descriptors_Pool){
     .ct                = NULL,
-    .size              = (VkDescriptorPoolSize){
-      .type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, // TODO: Configurable & Custom Enum
-      .descriptorCount = example_frames_Len,                // TODO: Configurable
-    },
     .cfg               = (VkDescriptorPoolCreateInfo){
       .sType           = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
       .pNext           = NULL,
@@ -324,27 +378,54 @@ static example_Descriptors example_descriptors_create (
       .pPoolSizes      = NULL,
     },
   };
-  result.pool.cfg.poolSizeCount = 1;
-  result.pool.cfg.pPoolSizes    = &result.pool.size;
-  cvk_result_check(vkCreateDescriptorPool(gpu->device_logical.ct, &result.pool.cfg, gpu->instance.allocator.gpu, &result.pool.ct),
-    "Failed to create a Descriptor.Pool context.");  // clang-format on
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  result.pool.sizes[0] = (VkDescriptorPoolSize){
+    .type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, // TODO: Configurable & Custom Enum
+    .descriptorCount = example_frames_Len,                // TODO: Configurable
+  };
+  result.pool.sizes[1] = (VkDescriptorPoolSize){
+    .type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, // TODO: Configurable & Custom Enum
+    .descriptorCount = example_frames_Len,                        // TODO: Configurable
+  };
+  #pragma GCC diagnostic pop
+  // clang-format on
+  result.pool.cfg.poolSizeCount = 2;
+  result.pool.cfg.pPoolSizes    = result.pool.sizes;
+  cvk_result_check(
+    vkCreateDescriptorPool(gpu->device_logical.ct, &result.pool.cfg, gpu->instance.allocator.gpu, &result.pool.ct),
+    "Failed to create a Descriptor.Pool context."
+  );  // clang-format on
 
   //________________________________________________
   // TODO: cvk_descriptor_layout_create
   // clang-format off
-  result.layout.binding = (VkDescriptorSetLayoutBinding){
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  result.layout.bindings[0] = (VkDescriptorSetLayoutBinding){
     .binding            = 0,
     .descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, // TODO: Configurable & Custom Enum
     .descriptorCount    = 1,
     .stageFlags         = VK_SHADER_STAGE_VERTEX_BIT,        // TODO: Configurable & Custom Enum
     .pImmutableSamplers = NULL,                              // TODO: Image Sampling
-  };  // clang-format on
+  };
+  result.layout.bindings[1] = (VkDescriptorSetLayoutBinding){
+    .binding            = 1,
+    .descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, // TODO: Configurable & Custom Enum
+    .descriptorCount    = 1,
+    .stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT,      // TODO: Configurable & Custom Enum
+    .pImmutableSamplers = NULL,                              // TODO: Image Sampling
+  };
+  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  // clang-format on
+
   result.layout.cfg = (VkDescriptorSetLayoutCreateInfo){
     .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
     .pNext        = NULL,
     .flags        = (VkDescriptorSetLayoutCreateFlags)0,  // TODO: Customizable (eg: Update-after-Bind)
-    .bindingCount = 1,
-    .pBindings    = &result.layout.binding,
+    .bindingCount = 2,
+    .pBindings    = result.layout.bindings,
   };  // clang-format off
   cvk_result_check(vkCreateDescriptorSetLayout(gpu->device_logical.ct, &result.layout.cfg, gpu->instance.allocator.gpu, &result.layout.ct),
     "Failed to create a Descriptor.Layout context.");
@@ -379,21 +460,39 @@ static example_Descriptors example_descriptors_create (
       .offset = 0,
       .range  = sizeof(example_wvp_Data),
     };
+    result.texture_cfg[id] = (VkDescriptorImageInfo){
+      .sampler     = texture->sampler.ct,
+      .imageView   = texture->view.ct,
+      .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+    };
+    result.writes_ptr[0] = (VkWriteDescriptorSet){
+      .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+      .pNext            = NULL,
+      .dstSet           = result.sets_ptr[id],
+      .dstBinding       = 0,
+      .dstArrayElement  = 0,
+      .descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+      .descriptorCount  = 1,
+      .pBufferInfo      = &result.buffer_cfg[id], // TODO: Configurable
+      .pImageInfo       = NULL,                   // TODO: Configurable
+      .pTexelBufferView = NULL,                   // TODO: Configurable
+    };
+    result.writes_ptr[1] = (VkWriteDescriptorSet){
+      .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+      .pNext            = NULL,
+      .dstSet           = result.sets_ptr[id],
+      .dstBinding       = 1,
+      .dstArrayElement  = 0,
+      .descriptorType   = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+      .descriptorCount  = 1,
+      .pBufferInfo      = NULL,                    // TODO: Configurable
+      .pImageInfo       = &result.texture_cfg[id], // TODO: Configurable
+      .pTexelBufferView = NULL,                    // TODO: Configurable
+    };
     vkUpdateDescriptorSets(
       /* device               */ gpu->device_logical.ct,
-      /* descriptorWriteCount */ 1,
-      /* pDescriptorWrites    */ &(VkWriteDescriptorSet){
-        .sType                 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-        .pNext                 = NULL,
-        .dstSet                = result.sets_ptr[id],
-        .dstBinding            = 0,
-        .dstArrayElement       = 0,
-        .descriptorType        = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        .descriptorCount       = 1,
-        .pBufferInfo           = &result.buffer_cfg[id], // TODO: Configurable
-        .pImageInfo            = NULL,                   // TODO: Configurable
-        .pTexelBufferView      = NULL,                   // TODO: Configurable
-      },
+      /* descriptorWriteCount */ 2,
+      /* pDescriptorWrites    */ result.writes_ptr,
       /* descriptorCopyCount  */ 0,
       /* pDescriptorCopies    */ NULL
     );
@@ -410,13 +509,25 @@ static void example_descriptors_destroy (
 ) {
   //________________________________________________
   // TODO: cvk_descriptor_pool_destroy
-  descriptors->pool.cfg  = (VkDescriptorPoolCreateInfo){ 0 };
-  descriptors->pool.size = (VkDescriptorPoolSize){ 0 };
+  descriptors->pool.cfg = (VkDescriptorPoolCreateInfo){ 0 };
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  descriptors->pool.sizes[0] = (VkDescriptorPoolSize){ 0 };
+  descriptors->pool.sizes[1] = (VkDescriptorPoolSize){ 0 };
+  #pragma GCC diagnostic pop
+  // clang-format on
   if (descriptors->pool.ct) vkDestroyDescriptorPool(gpu->device_logical.ct, descriptors->pool.ct, gpu->instance.allocator.gpu);
   //________________________________________________
   // TODO: cvk_descriptor_layout_destroy
-  descriptors->layout.binding = (VkDescriptorSetLayoutBinding){ 0 };
-  descriptors->layout.cfg     = (VkDescriptorSetLayoutCreateInfo){ 0 };
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  descriptors->layout.bindings[0] = (VkDescriptorSetLayoutBinding){ 0 };
+  descriptors->layout.bindings[1] = (VkDescriptorSetLayoutBinding){ 0 };
+  #pragma GCC diagnostic pop
+  // clang-format on
+  descriptors->layout.cfg = (VkDescriptorSetLayoutCreateInfo){ 0 };
   if (descriptors->layout.ct) vkDestroyDescriptorSetLayout(gpu->device_logical.ct, descriptors->layout.ct, gpu->instance.allocator.gpu);
 }
 
@@ -498,6 +609,160 @@ static void example_wvp_update (
 }
 
 
+static example_Texture example_texture_create (
+  example_Bootstrap* const  gpu,
+  example_Sync const* const sync,
+  cvk_String const          path
+) {
+  example_Texture result = (example_Texture){ 0 };
+
+  result.pixels = stbi_load(path, &result.width, &result.height, &result.channels, STBI_rgb_alpha);
+  cvk_assert(result.pixels, "Couldn't load the example image from the given path.");
+  result.size = (uint32_t)result.width * (uint32_t)result.height * (uint32_t)STBI_rgb_alpha;
+
+  // RAM data (temporary, only during creation)
+  cvk_Buffer ram_buffer = cvk_buffer_create(&(cvk_buffer_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .usage           = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    .size            = result.size,
+    .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
+    .allocator       = &gpu->instance.allocator,
+  });
+  cvk_Memory ram_memory = cvk_memory_create(&(cvk_memory_create_args){
+    .device_logical = &gpu->device_logical,
+    .data           = (void*)result.pixels,
+    .kind           = ram_buffer.memory.kind,
+    .size_alloc     = ram_buffer.memory.requirements.size,
+    .size_data      = ram_buffer.cfg.size,
+    .allocator      = &gpu->instance.allocator,
+  });  // clang-format off
+  cvk_buffer_bind(&ram_buffer, &(cvk_buffer_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &ram_memory,
+  });  // clang-format on
+
+  // VRAM data
+  // clang-format off
+  result.data = cvk_image_data_create(&(cvk_image_data_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .dimensions      = VK_IMAGE_TYPE_2D,
+    .width           = (uint32_t)result.width,
+    .height          = (uint32_t)result.height,
+    .format          = VK_FORMAT_R8G8B8A8_SRGB,
+    .samples         = VK_SAMPLE_COUNT_1_BIT,     // @note: Default value, can be omitted
+    .tiling          = VK_IMAGE_TILING_OPTIMAL,   // @note: Default value, can be omitted
+    .memory_flags    = cvk_memory_DeviceLocal,
+    .usage           = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+    .sharing         = VK_SHARING_MODE_EXCLUSIVE, // @note: Default value, can be omitted
+    .layout          = VK_IMAGE_LAYOUT_UNDEFINED, // @note: Default value, can be omitted
+    .allocator       = &gpu->instance.allocator,
+  });
+  result.memory = cvk_memory_create(&(cvk_memory_create_args){
+    .device_logical = &gpu->device_logical,
+    .kind           = result.data.memory.kind,
+    .size_alloc     = result.data.memory.requirements.size,
+    .size_data      = ram_buffer.cfg.size,
+    .allocator      = &gpu->instance.allocator,
+  });
+  cvk_image_data_bind(&result.data, &(cvk_image_data_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory,
+  });  // clang-format on
+
+
+  //________________________________________________
+  // TODO: cvk_image_data_copy
+  // Sync data (temporary, only during creation)
+  cvk_command_Buffer command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
+    .device_logical = &gpu->device_logical,
+    .command_pool   = &sync->command_pool,
+  });
+
+  // Submit the Image.upload operation
+  // clang-format off
+  cvk_command_buffer_begin2(&command_buffer, &(cvk_command_buffer_begin_args){
+    .flags = cvk_command_buffer_OneTimeSubmit,
+  });  // clang-format on
+  //__________________
+
+  // NOTE: Remember: `.access_src= VK_ACCESS_HOST_WRITE_BIT` for explicit access before command buffer submission
+  // clang-format off
+  cvk_image_data_transition(&result.data, &(cvk_image_data_transition_args){
+    .layout_old     = VK_IMAGE_LAYOUT_UNDEFINED,
+    .layout_new     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    .access_src     = 0,
+    .access_trg     = VK_ACCESS_TRANSFER_WRITE_BIT,
+    .stage_src      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+    .stage_trg      = VK_PIPELINE_STAGE_TRANSFER_BIT,
+    .command_buffer = &command_buffer,
+  });
+  cvk_image_data_command_copy_fromBuffer(&result.data, &ram_buffer, &(cvk_image_data_copy_args){
+    .command_buffer = &command_buffer,
+  });
+  cvk_image_data_transition(&result.data, &(cvk_image_data_transition_args){
+    .layout_old     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    .layout_new     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+    .access_src     = VK_ACCESS_TRANSFER_WRITE_BIT,
+    .access_trg     = VK_ACCESS_SHADER_READ_BIT,
+    .stage_src      = VK_PIPELINE_STAGE_TRANSFER_BIT,
+    .stage_trg      = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+    .command_buffer = &command_buffer,
+  });  // clang-format on
+
+  //__________________
+  cvk_command_buffer_end(&command_buffer);  // clang-format off
+  cvk_device_queue_submit(&gpu->device_queue, &(cvk_device_queue_submit_args){
+    .command_buffer = &command_buffer,
+  });  // clang-format on
+  cvk_device_queue_wait(&gpu->device_queue);
+
+  // Cleanup temporary RAM & Sync data
+  // clang-format off
+  cvk_command_buffer_free(&command_buffer, &(cvk_command_buffer_free_args){
+    .device_logical = &gpu->device_logical,
+    .command_pool   = &sync->command_pool,
+  });  // clang-format on
+  cvk_buffer_destroy(&ram_buffer, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&ram_memory, &gpu->device_logical, &gpu->instance.allocator);
+  //________________________________________________
+
+  result.view = cvk_image_view_create(&(cvk_image_view_create_args){
+    .image_data     = &result.data,
+    .device_logical = &gpu->device_logical,
+    .allocator      = &gpu->instance.allocator,
+  });
+
+  result.sampler = cvk_image_sampler_create(&(cvk_image_sampler_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .allocator       = &gpu->instance.allocator,
+    .filter_min      = VK_FILTER_LINEAR,
+    .filter_mag      = VK_FILTER_LINEAR,
+    .border_color    = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+    .mip_mode        = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+    // .anisotropy_enabled = cvk_true,  // TODO: Device.Feature: Anisotropy
+  });
+
+  return result;
+}
+
+static void example_texture_destroy (
+  example_Texture* const   texture,
+  example_Bootstrap* const gpu
+) {
+  stbi_image_free(texture->pixels);
+  texture->width    = 0;
+  texture->height   = 0;
+  texture->channels = 0;
+  cvk_memory_destroy(&texture->memory, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_image_sampler_destroy(&texture->sampler, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_image_view_destroy(&texture->view, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_image_data_destroy(&texture->data, &gpu->device_logical, &gpu->instance.allocator);
+}
+
+
 static example_Pipeline example_pipeline_create (
   example_Bootstrap* const         gpu,
   example_Vertices const* const    verts,
@@ -532,7 +797,7 @@ static example_Pipeline example_pipeline_create (
     .flags                           = /* Vk.Spec -> Reserved for future use */ (VkPipelineVertexInputStateCreateFlags)0,
     .vertexBindingDescriptionCount   = 1,                  // TODO: Configurable
     .pVertexBindingDescriptions      = &verts->binding,    // TODO: Configurable
-    .vertexAttributeDescriptionCount = 2,                  // TODO: Configurable
+    .vertexAttributeDescriptionCount = 3,                  // TODO: Configurable
     .pVertexAttributeDescriptions    = verts->attributes,  // TODO: Configurable
   };
 
@@ -700,7 +965,7 @@ static cvk_Pure example_Sync example_sync_create (
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     result.command_buffer[id] = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
       .device_logical = &gpu->device_logical,
-      .pool           = &result.command_pool,
+      .command_pool   = &result.command_pool,
     });
     result.imageAvailable[id] = cvk_semaphore_create(&gpu->device_logical, &gpu->instance.allocator);
     result.framesPending[id]  = cvk_fence_create(&gpu->device_logical, /*signaled*/ cvk_true, &gpu->instance.allocator);
@@ -748,15 +1013,16 @@ static Example example_create (
     .code           = frag,
     .allocator      = &result.gpu.instance.allocator,
   });
-  result.verts       = example_verts_create(&result.gpu, &result.sync.command_pool);
-  result.inds        = example_inds_create(&result.gpu, &result.sync.command_pool);
+  result.verts       = example_verts_create(&result.gpu, &result.sync);
+  result.inds        = example_inds_create(&result.gpu, &result.sync);
   for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     result.wvp[id] = example_wvp_create(&result.gpu);
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
-  result.descriptors = example_descriptors_create(&result.gpu, result.wvp);
+  result.texture     = example_texture_create(&result.gpu, &result.sync, "examples/images/lovecraft1.jpg");
+  result.descriptors = example_descriptors_create(&result.gpu, result.wvp, &result.texture);
 
   result.pipeline = example_pipeline_create(
     /* gpu   */ &result.gpu,
@@ -787,6 +1053,7 @@ static void example_destroy (
     example_wvp_destroy(&example->wvp[id], &example->gpu);
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
+  example_texture_destroy(&example->texture, &example->gpu);
   example_descriptors_destroy(&example->descriptors, &example->gpu);
   example_inds_destroy(&example->inds, &example->gpu);
   example_verts_destroy(&example->verts, &example->gpu);
@@ -979,8 +1246,8 @@ int main () {
   // Initialize: Example Data
   Example example = example_create(
     /* system */ &system,  // clang-format off
-    /* vert   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_wvp_vert_spv, .len = examples_shaders_wvp_vert_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) },
-    /* frag   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_wvp_frag_spv, .len = examples_shaders_wvp_frag_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) }
+    /* vert   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_texture_vert_spv, .len = examples_shaders_texture_vert_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) },
+    /* frag   */ &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_texture_frag_spv, .len = examples_shaders_texture_frag_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) }
   );  // clang-format on
   glfwSetWindowUserPointer(system.window.ct, (void*)&example);
 

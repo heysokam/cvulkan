@@ -258,7 +258,7 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 ### View
 - [x] Creation: Customizable
 ### Sampler
-- [ ] Creation: Customizable
+- [x] Creation: Customizable
 ```
 ```md
 # Memory Allocators
