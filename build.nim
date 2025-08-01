@@ -124,7 +124,8 @@ template example_shaders_compile=
 #_______________________________________
 # @section Examples: Dependencies
 #_____________________________
-const linmath = Dependency.new("linmath", "https://github.com/datenwolf/linmath.h", "")
+# const linmath = Dependency.new("linmath", "https://github.com/datenwolf/linmath.h", "")
+const cglm    = Dependency.new("cglm",    "https://github.com/recp/cglm",           "include/cglm")
 const stb     = Dependency.new("stb",     "https://github.com/nothings/stb",        "")
 
 
@@ -135,7 +136,7 @@ const examples_flags = Flags(
   cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation-unknown-command"],
   ld: @["-lvulkan", "-lglfw"])
 confy.cfg.dirs.src = dir_examples
-let example_wip = Program.new("wip.c",           flags= examples_flags, deps= @[linmath, stb])
+let example_wip = Program.new("wip.c",           flags= examples_flags, deps= @[cglm, stb])
 let example_001 = Program.new("001.instance.c",  flags= examples_flags)
 let example_002 = Program.new("002.bootstrap.c", flags= examples_flags)
 let example_003 = Program.new("003.triangle.c",  flags= examples_flags)

@@ -72,9 +72,10 @@ typedef struct example_wvp_Data {
 } example_wvp_Data;
 
 typedef struct example_WVP {
-  example_wvp_Data data;
   cvk_Buffer       buffer;
   cvk_Memory       memory;
+  char             priv_pad[8];
+  example_wvp_Data data;
 } example_WVP;
 
 typedef struct example_Texture {
@@ -125,13 +126,15 @@ typedef struct Example {
   cvk_framebuffer_List device_framebuffers;
   example_Sync         sync;
   cvk_bool             resized;
-  char                 priv_pad[4];
+  char                 priv_pad1[4];
   example_Vertices     verts;
   example_Indices      inds;
+  char                 priv_pad2[24];
   example_WVP          wvp[example_frames_Len];
   example_Texture      texture;
   example_Descriptors  descriptors;
   ctime_Time           time;
+  char                 priv_pad3[16];
 } Example;
 
 
@@ -587,9 +590,9 @@ static void example_wvp_update (
 ) {
   // clang-format off
   double time_elapsed = (double)(ctime_nsec(time) - time->start) / 1000000000;
-  mat4x4 mat4_identity; mat4x4_identity(mat4_identity);
+  Mat4 mat4_identity; mat4x4_identity(mat4_identity);
   // clang-format on
-  mat4x4_rotate_Y(wvp->data.world, mat4_identity, (float)(deg_to_rad(90) * time_elapsed));
+  mat4x4_rotate_Z(wvp->data.world, mat4_identity, (float)(deg_to_rad(90) * time_elapsed));
   Vec3 eye    = { [X] = 2.0f, [Y] = 2.0f, [Z] = 2.0f };
   Vec3 center = { [X] = 0.0f, [Y] = 0.0f, [Z] = 0.0f };
   Vec3 up     = { [X] = 0.0f, [Y] = 0.0f, [Z] = 1.0f };
@@ -602,7 +605,7 @@ static void example_wvp_update (
   // clang-format off
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-  wvp->data.projection[1][1] *= -1;  // Convert OpenGL Y axis for Vulkan
+  wvp->data.projection[1][1] *= -1;  // Convert OpenGL Y axis for Vulkan. (possibly: LH-cw to RH-ccw)
   #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   // clang-format on
   example_wvp_upload(wvp, gpu);

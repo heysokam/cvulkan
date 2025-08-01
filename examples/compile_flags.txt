@@ -3,4 +3,5 @@
 -I./src
 
 -I../bin/.lib/linmath
+-I../bin/.lib/cglm
 -I../bin/.lib/stb
