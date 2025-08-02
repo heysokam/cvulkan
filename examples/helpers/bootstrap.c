@@ -71,7 +71,7 @@ static example_Bootstrap example_bootstrap_create (
     .surface              = result.surface,
     .size                 = window_size,
     .allocator            = &result.instance.allocator,
-  });  // clang-format on
+  });                           // clang-format on
   return result;
 }
 
@@ -85,5 +85,39 @@ static void example_bootstrap_destroy (
   cvk_device_physical_destroy(&gpu->device_physical, &gpu->instance.allocator);
   example_bootstrap_surface_destroy(gpu->instance.ct, gpu->surface, gpu->instance.allocator.gpu);
   cvk_instance_destroy(&gpu->instance);
+}
+
+
+static cvk_Pure cvk_command_Buffer example_command_buffer_begin_onetime (
+  cvk_command_Pool const* const command_pool,
+  example_Bootstrap* const      gpu
+) {
+  cvk_command_Buffer result = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
+    .device_logical = &gpu->device_logical,
+    .command_pool   = command_pool,
+  });
+  // clang-format off
+  cvk_command_buffer_begin2(&result, &(cvk_command_buffer_begin_args){
+    .flags = cvk_command_buffer_OneTimeSubmit,
+  });  // clang-format on
+  return result;
+}
+
+
+static void example_command_buffer_end_onetime (
+  cvk_command_Buffer* const     command_buffer,
+  cvk_command_Pool const* const command_pool,
+  example_Bootstrap* const      gpu
+) {
+  cvk_command_buffer_end(command_buffer);  // clang-format off
+  cvk_device_queue_submit(&gpu->device_queue, &(cvk_device_queue_submit_args){
+    .command_buffer = command_buffer,
+  });  // clang-format on
+  cvk_device_queue_wait(&gpu->device_queue);
+  // clang-format off
+  cvk_command_buffer_free(command_buffer, &(cvk_command_buffer_free_args){
+    .device_logical = &gpu->device_logical,
+    .command_pool   = command_pool,
+  });  // clang-format on
 }
 
