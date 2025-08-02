@@ -153,16 +153,18 @@ void cvk_image_data_destroy ( // clang-format off
 ); // clang-format on
 
 typedef struct cvk_image_data_transition_args {
-  cvk_command_Buffer const* const command_buffer;
-  VkAccessFlags const             access_src;
-  VkAccessFlags const             access_trg;
-  VkPipelineStageFlags const      stage_src;
-  VkPipelineStageFlags const      stage_trg;
-  VkImageLayout const             layout_old;
-  VkImageLayout const             layout_new;
+  cvk_command_Buffer const* const       command_buffer;
+  VkAccessFlags const                   access_src;
+  VkAccessFlags const                   access_trg;
+  VkPipelineStageFlags const            stage_src;
+  VkPipelineStageFlags const            stage_trg;
+  VkImageLayout const                   layout_old;
+  VkImageLayout const                   layout_new;
+  cvk_Nullable VkImageAspectFlags const aspect;  ///< Defaults to Color (aka. `1`) when omitted   (spec forbids `0`)
+  char                                  priv_pad[4];
 } cvk_image_data_transition_args;
 
-void cvk_image_data_transition ( // clang-format off
+void cvk_image_data_command_transition ( // clang-format off
   cvk_image_Data* const                       image_data,
   cvk_image_data_transition_args const* const arg
 ); // clang-format on
