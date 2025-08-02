@@ -63,7 +63,7 @@ void cvk_image_data_bind (
 }
 
 
-void cvk_image_data_transition (
+void cvk_image_data_command_transition (
   cvk_image_Data* const                       image_data,
   cvk_image_data_transition_args const* const arg
 ) {
@@ -89,11 +89,11 @@ void cvk_image_data_transition (
       .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
       .image               = image_data->ct,
       .subresourceRange    = (VkImageSubresourceRange){
-        .aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT,  // TODO: Configurable
-        .baseMipLevel      = 0,                          // TODO: Configurable
-        .levelCount        = 1,                          // TODO: Configurable
-        .baseArrayLayer    = 0,                          // TODO: Configurable
-        .layerCount        = 1,                          // TODO: Configurable
+        .aspectMask        = (!arg->aspect) ? VK_IMAGE_ASPECT_COLOR_BIT : arg->aspect,
+        .baseMipLevel      = 0,  // TODO: Configurable
+        .levelCount        = 1,  // TODO: Configurable
+        .baseArrayLayer    = 0,  // TODO: Configurable
+        .layerCount        = 1,  // TODO: Configurable
       }, //:: subresourceRange
     } //:: pImageMemoryBarriers
   );  // clang-format on
