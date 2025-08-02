@@ -141,7 +141,7 @@ cvk_Pure cvk_image_View cvk_image_view_create (
       .format           = arg->image_data->cfg.format,
       .components       = (VkComponentMapping){ .r = 0, .g = 0, .b = 0, .a = 0 }, // 0 == Swizzle.Identity
       .subresourceRange = (VkImageSubresourceRange){
-        .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT, // TODO: Configurable
+        .aspectMask     = (!arg->aspect) ? VK_IMAGE_ASPECT_COLOR_BIT : arg->aspect,
         .baseMipLevel   = 0,                         // TODO: Configurable
         .levelCount     = 1,                         // TODO: Configurable
         .baseArrayLayer = 0,                         // TODO: Configurable

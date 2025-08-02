@@ -186,9 +186,11 @@ void cvk_image_data_command_copy_fromBuffer (  // clang-format off
 //____________________________
 
 typedef struct cvk_image_view_create_args {
-  cvk_image_Data const* const     image_data;
-  cvk_device_Logical const* const device_logical;
-  cvk_Allocator const* const      allocator;
+  cvk_image_Data const* const           image_data;
+  cvk_device_Logical const* const       device_logical;
+  cvk_Allocator const* const            allocator;
+  cvk_Nullable VkImageAspectFlags const aspect;  ///< Defaults to Color (aka. `1`) when omitted   (spec forbids `0`)
+  char                                  priv_pad[4];
 } cvk_image_view_create_args;
 
 cvk_Pure cvk_image_View cvk_image_view_create (  // clang-format off
