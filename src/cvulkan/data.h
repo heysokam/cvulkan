@@ -213,26 +213,27 @@ typedef struct cvk_image_sampler_create_args {
   cvk_device_Logical const* const         device_logical;
   cvk_Allocator* const                    allocator;
   cvk_Nullable VkSamplerCreateFlags const flags;
-  cvk_Nullable VkFilter const             filter_min;      ///< Default (aka. 0) is Nearest
-  cvk_Nullable VkFilter const             filter_mag;      ///< Default (aka. 0) is Nearest
-  cvk_Nullable VkSamplerMipmapMode const  mip_mode;        ///< Default (aka. 0) is Nearest
+  cvk_Nullable VkFilter const             filter_min;  ///< Default (aka. 0) is Nearest
+  cvk_Nullable VkFilter const             filter_mag;  ///< Default (aka. 0) is Nearest
+  cvk_Nullable VkSamplerMipmapMode const  mip_mode;    ///< Default (aka. 0) is Nearest
   cvk_Nullable float const                mip_lodBias;
-  cvk_Nullable VkSamplerAddressMode const address_U;       ///< Default (aka. 0) is Repeat
-  cvk_Nullable VkSamplerAddressMode const address_V;       ///< Default (aka. 0) is Repeat
-  cvk_Nullable VkSamplerAddressMode const address_W;       ///< Default (aka. 0) is Repeat
+  cvk_Nullable VkSamplerAddressMode const address_U;   ///< Default (aka. 0) is Repeat
+  cvk_Nullable VkSamplerAddressMode const address_V;   ///< Default (aka. 0) is Repeat
+  cvk_Nullable VkSamplerAddressMode const address_W;   ///< Default (aka. 0) is Repeat
   cvk_Nullable cvk_bool const             anisotropy_enabled;
-  cvk_Nullable float const                anisotropy_max;  ///< Default `.device_physical->properties.limits.maxSamplerAnisotropy` when omitted (aka. 0.0f) and `anisotropy_enabled`. Clamped to range `[1.0 .. .device_physical->properties.limits.maxSamplerAnisotropy]`
-  cvk_Nullable cvk_bool const             compare_enabled;
-  cvk_Nullable VkCompareOp const          compare_op;      ///< Default (aka. 0) is Never
-  cvk_Nullable float const                lod_min;
-  cvk_Nullable float const                lod_max;
-  cvk_Nullable VkBorderColor const        border_color;    ///< Default (aka. 0) is Float.Transparent.Black
-  cvk_Nullable cvk_bool const             unnormalized;    ///< Default (aka. 0) is normalized (aka. 0..1 sampling range)
+  cvk_Nullable float const
+    anisotropy_max;  ///< Default `.device_physical->properties.limits.maxSamplerAnisotropy` when omitted (aka. 0.0f) and `anisotropy_enabled`. Clamped to range `[1.0 .. .device_physical->properties.limits.maxSamplerAnisotropy]`
+  cvk_Nullable cvk_bool const      compare_enabled;
+  cvk_Nullable VkCompareOp const   compare_op;    ///< Default (aka. 0) is Never
+  cvk_Nullable float const         lod_min;
+  cvk_Nullable float const         lod_max;
+  cvk_Nullable VkBorderColor const border_color;  ///< Default (aka. 0) is Float.Transparent.Black
+  cvk_Nullable cvk_bool const      unnormalized;  ///< Default (aka. 0) is normalized (aka. 0..1 sampling range)
 } cvk_image_sampler_create_args;
 
 cvk_Pure cvk_image_Sampler cvk_image_sampler_create (  // clang-format off
   cvk_image_sampler_create_args const* const arg
-);  // clang-format on
+);                                                // clang-format on
 
 void cvk_image_sampler_destroy ( // clang-format off
   cvk_image_Sampler* const        image_sampler,
