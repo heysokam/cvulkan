@@ -167,6 +167,23 @@ cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
 }
 
 
+cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_cfg (
+  cvk_device_Swapchain const* const swapchain
+) {  // clang-format off
+  return (VkAttachmentDescription){
+    .flags          = (VkAttachmentDescriptionFlags)0,  // TODO: MAY_ALIAS
+    .format         = swapchain->cfg.imageFormat,
+    .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+    .finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+    .samples        = VK_SAMPLE_COUNT_1_BIT,             // TODO: Configurable for multisampling
+    .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,       // TODO: Configurable. Current: Clear to black before drawing
+    .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,      // TODO: Configurable. Current: Allow reading the rendered contents from memory
+    .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,   // TODO: Configurable for stencil setups
+    .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,  // TODO: Configurable for stencil setups
+  };  // clang-format on
+}
+
+
 void cvk_device_swapchain_image_list_destroy (
   cvk_device_swapchain_image_List* const images,
   cvk_device_Logical* const              device_logical,
@@ -302,6 +319,7 @@ cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (
     ),
     .images = (cvk_device_swapchain_image_List){ 0 },
   };  // clang-format off
+  result.attachment_cfg = cvk_device_swapchain_attachment_cfg(&result);
   cvk_result_check(vkCreateSwapchainKHR(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create the device's Swapchain context.");  // clang-format on
   // Get the swapchain images

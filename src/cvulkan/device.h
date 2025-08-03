@@ -204,6 +204,10 @@ cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
   cvk_Allocator* const             allocator
 );
 
+cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_cfg (  // clang-format off
+  cvk_device_Swapchain const* const swapchain
+);  // clang-format on
+
 typedef struct cvk_device_swapchain_image_view_create_args {
   cvk_device_Logical const* const device_logical;
   VkImage const                   image;

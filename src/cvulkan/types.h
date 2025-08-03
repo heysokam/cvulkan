@@ -272,6 +272,8 @@ typedef struct cvk_device_Swapchain {
   VkSwapchainKHR                  ct;
   VkSwapchainCreateInfoKHR        cfg;
   cvk_device_swapchain_image_List images;
+  VkAttachmentDescription         attachment_cfg;
+  char                            priv_pad[4];
 } cvk_device_Swapchain;
 
 
