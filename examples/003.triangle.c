@@ -121,10 +121,11 @@ int main () {
   //________________________________________________
   // Initialize: Triangle Pipeline: RenderPass
   cvk_Renderpass pipeline_renderpass = cvk_renderpass_create(&(cvk_renderpass_create_args){
-    .device_logical = &device_logical,
-    .swapchain      = &device_swapchain,
-    .allocator      = &instance.allocator,
+    .device_logical     = &device_logical,
+    .allocator          = &instance.allocator,
+    .attachment_cfg_ptr = &device_swapchain.attachment_cfg, // Single attachment for the swapchain image
   });
+
 
   //________________________________________________
   // Initialize: Triangle Pipeline: Stages
@@ -260,7 +261,7 @@ int main () {
       .offset = (VkOffset2D){.x= 0, .y= 0},
       .extent = device_swapchain.cfg.imageExtent,
     }, &command_buffer[frameID]);  // clang-format on
-    cvk_command_draw(&command_buffer[frameID], &(cvk_command_draw_args){0});
+    cvk_command_draw(&command_buffer[frameID], &(cvk_command_draw_args){ 0 });
     cvk_renderpass_command_end(&pipeline_renderpass, &command_buffer[frameID]);
     cvk_command_buffer_end(&command_buffer[frameID]);
 
