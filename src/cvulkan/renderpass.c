@@ -14,20 +14,8 @@ cvk_Pure cvk_Renderpass cvk_renderpass_create (
     .sType                     = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
     .pNext                     = NULL,
     .flags                     = (VkRenderPassCreateFlags)0,  // TODO: TRANSFORM_BIT_QCOM extension
-    // TODO: Configurable Color Attachments
-    // Single color buffer attachment for one of the images of the Swapchain.
-    .attachmentCount           = 1,
-    .pAttachments              = &(VkAttachmentDescription){
-      .flags                   = (VkAttachmentDescriptionFlags)0,  // TODO: MAY_ALIAS
-      .format                  = arg->swapchain->cfg.imageFormat,
-      .initialLayout           = VK_IMAGE_LAYOUT_UNDEFINED,
-      .finalLayout             = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-      .samples                 = VK_SAMPLE_COUNT_1_BIT,             // TODO: Configurable for multisampling
-      .loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR,       // TODO: Configurable. Current: Clear to black before drawing
-      .storeOp                 = VK_ATTACHMENT_STORE_OP_STORE,      // TODO: Configurable. Current: Allow reading the rendered contents from memory
-      .stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE,   // TODO: Configurable for stencil setups
-      .stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE,  // TODO: Configurable for stencil setups
-    },
+    .attachmentCount           = (!arg->attachment_cfg_len && arg->attachment_cfg_ptr) ? 1 : (uint32_t )arg->attachment_cfg_len,
+    .pAttachments              = arg->attachment_cfg_ptr,
     // TODO: Configurable Subpasses
     // Single subpass for the color buffer attachment of the swapchain images
     .subpassCount              = 1,
@@ -43,11 +31,11 @@ cvk_Pure cvk_Renderpass cvk_renderpass_create (
       },
       // TODO: Configurable
       .inputAttachmentCount    = 0,
-      .pInputAttachments       = NULL, // Read from a shader
+      .pInputAttachments       = NULL, // Read from a shader. Seems mostly for mobile: https://www.saschawillems.de/blog/2018/07/19/vulkan-input-attachments-and-sub-passes/
       .preserveAttachmentCount = 0,
       .pPreserveAttachments    = NULL, // Not used by this subpass, but must be preserved
       .pResolveAttachments     = NULL, // For Multisampling
-      .pDepthStencilAttachment = NULL, // Depth and Stencil data
+      .pDepthStencilAttachment = arg->depthStencil, // Depth and Stencil data
     },
     // FIX: Remove hardcoded subpass dependency configuration
     //    : Alternative: Change `waitStages` for `imageAvailable` Semaphore to `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT`

@@ -22,9 +22,11 @@
 //____________________________
 
 typedef struct cvk_renderpass_create_args {
-  cvk_device_Logical const* const   device_logical;
-  cvk_device_Swapchain const* const swapchain;
-  cvk_Allocator* const              allocator;
+  cvk_device_Logical const* const                 device_logical;
+  cvk_Allocator* const                            allocator;
+  cvk_Nullable cvk_size const                     attachment_cfg_len;  ///< Will treat `.ptr` as single-item when `.len` is omitted and `.ptr` is not null
+  VkAttachmentDescription const* const            attachment_cfg_ptr;
+  cvk_Nullable VkAttachmentReference const* const depthStencil;
 } cvk_renderpass_create_args;
 
 cvk_Pure cvk_Renderpass cvk_renderpass_create (  // clang-format off
