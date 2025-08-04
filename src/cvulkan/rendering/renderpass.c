@@ -1,7 +1,7 @@
 //:___________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
-#include "./result.h"
+#include "../result.h"
 #include "./renderpass.h"
 
 
@@ -43,10 +43,12 @@ cvk_Pure cvk_Renderpass cvk_renderpass_create (
     .pDependencies             = &(VkSubpassDependency){
       .srcSubpass              = VK_SUBPASS_EXTERNAL,
       .dstSubpass              = 0,
-      .srcStageMask            = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-      .dstStageMask            = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+      // FIX: Broken. Hardcoded stages/access!
+      // TODO: Configurable.
+      .srcStageMask            = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+      .dstStageMask            = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
       .srcAccessMask           = (VkAccessFlags)0,
-      .dstAccessMask           = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+      .dstAccessMask           = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
       .dependencyFlags         = (VkDependencyFlags)0,
     },
   }; //:: result.cfg

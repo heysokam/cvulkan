@@ -2,19 +2,11 @@
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
 //! @fileoverview Vulkan Renderpass: Types & Tools
-//!
-//! @important
-//!  cvulkan prioritizes Dynamic Rendering and vulkan 1.3+,
-//!  which makes this section completely unnecessary for normal use.
-//!  This API is here for completion (and supporting tile-based GPUs)
-//!  In short:
-//!  Please reach out and open an issue on GitHub
-//!  if there is something missing in this section that you need.
-//____________________________________________________________________|
-#ifndef H_cvulkan_renderpass
-#define H_cvulkan_renderpass
-#include "./base.h"
-#include "./types.h"
+//_________________________________________________|
+#ifndef H_cvulkan_rendering_renderpass
+#define H_cvulkan_rendering_renderpass
+#include "../base.h"
+#include "../types.h"
 
 
 //______________________________________
@@ -59,7 +51,7 @@ void cvk_renderpass_command_end ( // clang-format off
 //______________________________________
 // @section Single Header Support
 //____________________________
-#ifdef cvk_Implementation
+#if defined cvk_Implementation || defined cvk_Implementation_rendering_static
 #define cvk_Implementation_renderpass
 #endif
 #ifdef cvk_Implementation_renderpass
@@ -67,5 +59,5 @@ void cvk_renderpass_command_end ( // clang-format off
 #endif
 
 
-#endif  // H_cvulkan_renderpass
+#endif  // H_cvulkan_rendering_renderpass
 

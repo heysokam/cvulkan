@@ -18,8 +18,7 @@
 #include "./device.h"
 #include "./shader.h"
 #include "./data.h"
-#include "./renderpass.h"
-#include "./framebuffer.h"
+#include "./rendering.h"
 #include "./pipeline.h"
 #include "./sync.h"
 #endif  // H_cvulkan_core

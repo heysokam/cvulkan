@@ -2,23 +2,15 @@
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
 //! @fileoverview Vulkan Framebuffer: Types & Tools
-//!
-//! @important
-//!  cvulkan prioritizes Dynamic Rendering and vulkan 1.3+,
-//!  which makes this section completely unnecessary for normal use.
-//!  This API is here for completion (and supporting tile-based GPUs)
-//!  In short:
-//!  Please reach out and open an issue on GitHub
-//!  if there is something missing in this section that you need.
-//____________________________________________________________________|
-#ifndef H_cvulkan_framebuffer
-#define H_cvulkan_framebuffer
-#include "./base.h"
-#include "./types.h"
+//__________________________________________________|
+#ifndef H_cvulkan_rendering_framebuffer
+#define H_cvulkan_rendering_framebuffer
+#include "../base.h"
+#include "../types.h"
 
 
 //______________________________________
-// @section Framebuffer: Context
+// @section Framebuffer
 //____________________________
 
 void cvk_framebuffer_list_destroy ( // clang-format off
@@ -52,7 +44,7 @@ void cvk_framebuffer_destroy ( // clang-format off
 //______________________________________
 // @section Single Header Support
 //____________________________
-#ifdef cvk_Implementation
+#if defined cvk_Implementation || defined cvk_Implementation_rendering_static
 #define cvk_Implementation_framebuffer
 #endif
 #ifdef cvk_Implementation_framebuffer
@@ -60,5 +52,5 @@ void cvk_framebuffer_destroy ( // clang-format off
 #endif
 
 
-#endif  // H_cvulkan_framebuffer
+#endif  // H_cvulkan_rendering_framebuffer
 
