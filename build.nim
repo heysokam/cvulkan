@@ -23,6 +23,7 @@ const dir_helpers  = dir_examples/"helpers"
 const dir_shd      = dir_examples/"shaders"
 let   dir_local    = os.absolutePath(".")
 # Files
+const file_cvulkan     = dir_cvk/"cvulkan.h"
 const file_ffi_base    = dir_ffi_base/"impl.c"
 const file_ffi_zig     = dir_ffi_zig/"src"/"cvulkan.zig"
 const file_ffi_nim_api = dir_ffi_nim/"src"/"cvulkan"/"api.nim"
@@ -75,7 +76,7 @@ proc gen_nim=
 #_____________________________
 proc gen_zig=
   info "Generating the cvulkan bindings for zig with translate-c ..."
-  sh confy.cfg.zig.bin, "translate-c", "-I/usr/include", file_ffi_base, ">", file_ffi_zig
+  sh confy.cfg.zig.bin, "translate-c", "-I/usr/include", file_cvulkan, ">", file_ffi_zig
   info "Done creating the zig bindings."
 
 
