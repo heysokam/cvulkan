@@ -125,9 +125,8 @@ template example_shaders_compile=
 #_______________________________________
 # @section Examples: Dependencies
 #_____________________________
-# const linmath = Dependency.new("linmath", "https://github.com/datenwolf/linmath.h", "")
-const cglm    = Dependency.new("cglm",    "https://github.com/recp/cglm",           "include/cglm")
-const stb     = Dependency.new("stb",     "https://github.com/nothings/stb",        "")
+const cglm = Dependency.new("cglm", "https://github.com/recp/cglm",             "include/cglm")
+const stb  = Dependency.new("stb",  "https://github.com/nothings/stb",          "")
 
 
 #_______________________________________
