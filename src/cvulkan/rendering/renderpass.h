@@ -32,10 +32,12 @@ void cvk_renderpass_destroy ( // clang-format off
 ); // clang-format on
 
 typedef struct cvk_renderpass_command_begin_args {
-  cvk_command_Buffer const* const command_buffer;
-  cvk_Framebuffer const* const    framebuffer;
-  VkOffset2D const                offset;
-  cvk_Size2D const                extent;
+  cvk_command_Buffer const* const        command_buffer;
+  cvk_Framebuffer const* const           framebuffer;
+  VkOffset2D const                       offset;
+  cvk_Size2D const                       extent;
+  cvk_Nullable cvk_size const            clear_len;  ///< Default `1` when omitted or `.clear_ptr` is null
+  cvk_Nullable VkClearValue const* const clear_ptr;  ///< Default `{0.222, 0.333, 0.444, 1}` when omitted
 } cvk_renderpass_command_begin_args;
 void cvk_renderpass_command_begin ( // clang-format off
   cvk_Renderpass const* const                    renderpass,

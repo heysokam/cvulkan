@@ -78,8 +78,8 @@ void cvk_renderpass_command_begin (
     .renderPass      = renderpass->ct,
     .framebuffer     = arg->framebuffer->ct,
     .renderArea      = { .offset = arg->offset, .extent = arg->extent },
-    .clearValueCount = 1,
-    .pClearValues    = &(VkClearValue){ .color = { .float32 = { [0] = 0.222f, [1] = 0.333f, [2] = 0.444f, [3] = 1.0f } } },
+    .clearValueCount = (!arg->clear_len || !arg->clear_ptr) ? 1 : (uint32_t)arg->clear_len,
+    .pClearValues    = (arg->clear_ptr) ? arg->clear_ptr : &(VkClearValue){ .color = { .float32 = { [0] = 0.222f, [1] = 0.333f, [2] = 0.444f, [3] = 1.0f } } },
   }, VK_SUBPASS_CONTENTS_INLINE);  // clang-format on
 }
 
