@@ -30,11 +30,17 @@ extern unsigned int  examples_shaders_texture_vert_spv_len;
 #include "./helpers/image.c"
 //______________________________________
 
-
+typedef struct example_Framebuffers {
+  cvk_framebuffer_List list;
+  // @note Must be a 2D array. We need one attachment pointer for each Swapchain.Image
+  cvk_Slice /* VkImageView[][] */ attachments;  ///< Slice of VkImageView[N]
+} example_Framebuffers;
 typedef struct example_Pipeline {
   cvk_pipeline_Graphics           graphics;
   VkPipelineShaderStageCreateInfo stages[2];
   cvk_Renderpass                  renderpass;
+  VkAttachmentDescription         attachment_cfg[2];
+  VkAttachmentReference           depthStencil;
 } example_Pipeline;
 enum { example_frames_Len = 2 };
 typedef struct example_Sync {
@@ -91,6 +97,14 @@ typedef struct example_Texture {
   VkDeviceSize      size;
 } example_Texture;
 
+typedef struct example_Depth {
+  cvk_image_Data          data;
+  cvk_Memory              memory;
+  cvk_image_View          view;
+  VkAttachmentDescription attachment_cfg;
+  char                    priv_pad[4];
+} example_Depth;
+
 
 typedef struct example_descriptors_Layout {
   VkDescriptorSetLayout           ct;
@@ -123,18 +137,17 @@ typedef struct Example {
     cvk_Shader frag;
   } shader;
   example_Pipeline     pipeline;
-  cvk_framebuffer_List device_framebuffers;
+  example_Framebuffers device_framebuffers;
   example_Sync         sync;
   cvk_bool             resized;
   char                 priv_pad1[4];
   example_Vertices     verts;
   example_Indices      inds;
-  char                 priv_pad2[24];
   example_WVP          wvp[example_frames_Len];
   example_Texture      texture;
+  example_Depth        depth;
   example_Descriptors  descriptors;
   ctime_Time           time;
-  char                 priv_pad3[16];
 } Example;
 
 
@@ -161,13 +174,19 @@ static example_Vertices example_verts_create (
   example_Sync const* const sync
 ) {
   example_Vertices result       = (example_Vertices){ 0 };
-  uint32_t const   verts_len    = 4;
-  Vertex           verts_ptr[4] = {
+  uint32_t const   verts_len    = 8;
+  Vertex           verts_ptr[8] = {
     // clang-format off
-    [0]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}, .uv= {[U]= 1.0f, [V]= 0.0f}},
-    [1]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}, .uv= {[U]= 0.0f, [V]= 0.0f}},
-    [2]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}, .uv= {[U]= 0.0f, [V]= 1.0f}},
-    [3]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}, .uv= {[U]= 1.0f, [V]= 1.0f}},
+    // Quad1
+    [0]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f, [Z]= 0.0f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}, .uv= {[U]= 1.0f, [V]= 0.0f}},
+    [1]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f, [Z]= 0.0f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}, .uv= {[U]= 0.0f, [V]= 0.0f}},
+    [2]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f, [Z]= 0.0f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}, .uv= {[U]= 0.0f, [V]= 1.0f}},
+    [3]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f, [Z]= 0.0f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}, .uv= {[U]= 1.0f, [V]= 1.0f}},
+    // Quad2
+    [4]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f, [Z]= -0.5f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}, .uv= {[U]= 1.0f, [V]= 0.0f}},
+    [5]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f, [Z]= -0.5f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}, .uv= {[U]= 0.0f, [V]= 0.0f}},
+    [6]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f, [Z]= -0.5f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}, .uv= {[U]= 0.0f, [V]= 1.0f}},
+    [7]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f, [Z]= -0.5f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}, .uv= {[U]= 1.0f, [V]= 1.0f}},
   };
   result.buffer.ram = cvk_buffer_create(&(cvk_buffer_create_args){
     .device_physical = &gpu->device_physical,
@@ -240,7 +259,7 @@ static example_Vertices example_verts_create (
   // clang-format off
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-  result.attributes[0] = (VkVertexInputAttributeDescription){ 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, pos) };
+  result.attributes[0] = (VkVertexInputAttributeDescription){ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos) };
   result.attributes[1] = (VkVertexInputAttributeDescription){ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) };
   result.attributes[2] = (VkVertexInputAttributeDescription){ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) };
   #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
@@ -275,8 +294,11 @@ static example_Indices example_inds_create (
 ) {
   example_Indices result = (example_Indices){ 0 };
 
-  uint32_t const inds_len    = 6;
-  uint16_t       inds_ptr[6] = { /* tri0 */ 0, 1, 2, /* tri1 */ 2, 3, 0 };
+  uint32_t const inds_len     = 12;
+  uint16_t       inds_ptr[12] = {
+    /* tri0 */ 0, 1, 2, /* tri1 */ 2, 3, 0,
+    /* tri2 */ 4, 5, 6, /* tri3 */ 6, 7, 4,
+  };
 
   result.buffer.ram  = cvk_buffer_create(&(cvk_buffer_create_args){
      .device_physical = &gpu->device_physical,
@@ -678,21 +700,13 @@ static example_Texture example_texture_create (
   //________________________________________________
   // TODO: cvk_image_data_copy
   // Sync data (temporary, only during creation)
-  cvk_command_Buffer command_buffer = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
-    .device_logical = &gpu->device_logical,
-    .command_pool   = &sync->command_pool,
-  });
-
-  // Submit the Image.upload operation
-  // clang-format off
-  cvk_command_buffer_begin2(&command_buffer, &(cvk_command_buffer_begin_args){
-    .flags = cvk_command_buffer_OneTimeSubmit,
-  });  // clang-format on
+  cvk_command_Buffer command_buffer = example_command_buffer_begin_onetime(&sync->command_pool, gpu);
   //__________________
 
+  // Submit the Image.upload operation
   // NOTE: Remember: `.access_src= VK_ACCESS_HOST_WRITE_BIT` for explicit access before command buffer submission
   // clang-format off
-  cvk_image_data_transition(&result.data, &(cvk_image_data_transition_args){
+  cvk_image_data_command_transition(&result.data, &(cvk_image_data_transition_args){
     .layout_old     = VK_IMAGE_LAYOUT_UNDEFINED,
     .layout_new     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
     .access_src     = 0,
@@ -704,7 +718,7 @@ static example_Texture example_texture_create (
   cvk_image_data_command_copy_fromBuffer(&result.data, &ram_buffer, &(cvk_image_data_copy_args){
     .command_buffer = &command_buffer,
   });
-  cvk_image_data_transition(&result.data, &(cvk_image_data_transition_args){
+  cvk_image_data_command_transition(&result.data, &(cvk_image_data_transition_args){
     .layout_old     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
     .layout_new     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
     .access_src     = VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -715,21 +729,10 @@ static example_Texture example_texture_create (
   });  // clang-format on
 
   //__________________
-  cvk_command_buffer_end(&command_buffer);  // clang-format off
-  cvk_device_queue_submit(&gpu->device_queue, &(cvk_device_queue_submit_args){
-    .command_buffer = &command_buffer,
-  });  // clang-format on
-  cvk_device_queue_wait(&gpu->device_queue);
-
   // Cleanup temporary RAM & Sync data
-  // clang-format off
-  cvk_command_buffer_free(&command_buffer, &(cvk_command_buffer_free_args){
-    .device_logical = &gpu->device_logical,
-    .command_pool   = &sync->command_pool,
-  });  // clang-format on
+  example_command_buffer_end_onetime(&command_buffer, &sync->command_pool, gpu);
   cvk_buffer_destroy(&ram_buffer, &gpu->device_logical, &gpu->instance.allocator);
   cvk_memory_destroy(&ram_memory, &gpu->device_logical, &gpu->instance.allocator);
-  //________________________________________________
 
   result.view = cvk_image_view_create(&(cvk_image_view_create_args){
     .image_data     = &result.data,
@@ -766,10 +769,157 @@ static void example_texture_destroy (
 }
 
 
+static VkAttachmentDescription example_depth_attachment_cfg (
+  VkFormat const format
+) {
+  return (VkAttachmentDescription){
+    .flags          = (VkAttachmentDescriptionFlags)0,
+    .format         = format,
+    .samples        = VK_SAMPLE_COUNT_1_BIT,
+    .loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+    .storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    .initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+    .finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+  };
+}
+
+static example_Depth example_depth_create (
+  example_Bootstrap* const  gpu,
+  example_Sync const* const sync
+) {
+  example_Depth result = (example_Depth){ 0 };
+
+  // FIX: Pick the best Depth format available for the device);
+  result.attachment_cfg = example_depth_attachment_cfg(VK_FORMAT_D32_SFLOAT);
+
+  // clang-format off
+  result.data = cvk_image_data_create(&(cvk_image_data_create_args){
+    .device_physical = &gpu->device_physical,
+    .device_logical  = &gpu->device_logical,
+    .allocator       = &gpu->instance.allocator,
+    .dimensions      = VK_IMAGE_TYPE_2D,
+    .width           = gpu->device_swapchain.cfg.imageExtent.width,
+    .height          = gpu->device_swapchain.cfg.imageExtent.height,
+    .format          = result.attachment_cfg.format,
+    .usage           = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+    .memory_flags    = cvk_memory_DeviceLocal,
+  });
+  result.memory = cvk_memory_create(&(cvk_memory_create_args){
+    .device_logical = &gpu->device_logical,
+    .kind           = result.data.memory.kind,
+    .size_alloc     = result.data.memory.requirements.size,
+    .size_data      = sizeof(uint32_t) * result.data.cfg.extent.width * result.data.cfg.extent.height * result.data.cfg.extent.depth,
+    .allocator      = &gpu->instance.allocator,
+  });
+  cvk_image_data_bind(&result.data, &(cvk_image_data_bind_args){
+    .device_logical = &gpu->device_logical,
+    .memory         = &result.memory,
+  });
+  result.view = cvk_image_view_create(&(cvk_image_view_create_args){
+    .device_logical = &gpu->device_logical,
+    .allocator      = &gpu->instance.allocator,
+    .image_data     = &result.data,
+    .aspect         = VK_IMAGE_ASPECT_DEPTH_BIT,
+  });  // clang-format on
+
+  // clang-format off
+  cvk_command_Buffer command_buffer = example_command_buffer_begin_onetime(&sync->command_pool, gpu);
+  cvk_image_data_command_transition(&result.data, &(cvk_image_data_transition_args){
+    .command_buffer = &command_buffer,
+    .layout_old     = VK_IMAGE_LAYOUT_UNDEFINED,
+    .layout_new     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    .access_src     = 0,
+    .access_trg     = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+    .stage_src      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+    .stage_trg      = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+    .aspect         = VK_IMAGE_ASPECT_DEPTH_BIT,  // TODO: Add stencil bit when Depth.Format requires it
+  });   // clang-format on
+  example_command_buffer_end_onetime(&command_buffer, &sync->command_pool, gpu);
+
+  return result;
+}
+
+static void example_depth_destroy (
+  example_Depth* const     depth,
+  example_Bootstrap* const gpu
+) {
+  depth->attachment_cfg = (VkAttachmentDescription){ 0 };
+  cvk_image_view_destroy(&depth->view, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&depth->memory, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_image_data_destroy(&depth->data, &gpu->device_logical, &gpu->instance.allocator);
+}
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+// NOTE:
+// The double allocation in this function is idiotic.
+// But we need one Framebuffer for each Swapchain.Image      _(known at runtime)_,
+// and multiple Framebuffer.Attachments for each :facepalm:  _(could be arrays, but the above forbids it)_,
+// so there is no way around it :( The API without dynamic rendering is a mess.
+static example_Framebuffers example_rendering_framebuffers_create (
+  example_Bootstrap* const    gpu,
+  example_Depth const* const  depth,
+  cvk_Renderpass const* const renderpass
+) {
+  // clang-format off
+  example_Framebuffers result = (example_Framebuffers){
+    .list       = (cvk_framebuffer_List){
+      .len      = gpu->device_swapchain.images.len,
+      .itemsize = sizeof(cvk_Framebuffer),
+      .ptr      = NULL,
+    },
+    .attachments = (cvk_Slice){ .len= gpu->device_swapchain.images.len },
+  };  // clang-format on
+
+  // Create the outer part of the VkImageView[][2]
+  result.attachments = gpu->instance.allocator.cpu.allocZ(&gpu->instance.allocator.cpu, result.attachments.len, sizeof(cvk_Slice));
+  for (cvk_size id = 0; id < result.attachments.len; ++id) {
+    // .len=2 -> Swapchain.Image.View, Depth.View
+    ((cvk_Slice*)result.attachments.ptr)[id] = gpu->instance.allocator.cpu.allocZ(&gpu->instance.allocator.cpu, 2, sizeof(cvk_Slice));
+  }
+
+  // Create the inner part of the VkImageView[][2]
+  cvk_Slice framebuffers_tempdata = gpu->instance.allocator.cpu.allocZ(&gpu->instance.allocator.cpu, result.list.len, result.list.itemsize);
+  result.list.ptr                 = (cvk_Framebuffer*)framebuffers_tempdata.ptr;
+  for (cvk_size id = 0; id < result.list.len; ++id) {  // clang-format off
+    ((VkImageView*)((cvk_Slice*)result.attachments.ptr)[id].ptr)[0] = gpu->device_swapchain.images.ptr[id].view;
+    ((VkImageView*)((cvk_Slice*)result.attachments.ptr)[id].ptr)[1] = depth->view.ct;
+    result.list.ptr[id] = cvk_framebuffer_create(&(cvk_framebuffer_create_args){
+      .device_logical  = &gpu->device_logical,
+      .allocator       = &gpu->instance.allocator,
+      .renderpass      = renderpass,
+      .size            = &gpu->device_swapchain.cfg.imageExtent,
+      .attachments_len = ((cvk_Slice*)result.attachments.ptr)[id].len,
+      .attachments_ptr = ((cvk_Slice*)result.attachments.ptr)[id].ptr,
+    });  // clang-format on
+  }
+  return result;
+}
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+static void example_rendering_framebuffers_destroy (
+  example_Framebuffers* const device_framebuffers,
+  example_Bootstrap* const    gpu
+) {
+  for (cvk_size id = 0; id < device_framebuffers->attachments.len; ++id) {
+    gpu->instance.allocator.cpu.free(&gpu->instance.allocator.cpu, &((cvk_Slice*)device_framebuffers->attachments.ptr)[id]);
+  }
+  gpu->instance.allocator.cpu.free(&gpu->instance.allocator.cpu, &device_framebuffers->attachments);
+  cvk_framebuffer_list_destroy(&device_framebuffers->list, &gpu->device_logical, &gpu->instance.allocator);
+}
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+
+
 static example_Pipeline example_pipeline_create (
   example_Bootstrap* const         gpu,
   example_Vertices const* const    verts,
   example_Indices const* const     inds,
+  example_Depth const* const       depth,
   example_Descriptors const* const sets,
   cvk_Shader* const                vert,
   cvk_Shader* const                frag
@@ -892,18 +1042,50 @@ static example_Pipeline example_pipeline_create (
 
   //________________________________________________
   // TODO: cvk_pipeline_state_depthStencil_create()
-  //     : NULL, disabled
-  // VkPipelineDepthStencilStateCreateInfo depthStencil = (VkPipelineDepthStencilStateCreateInfo){ 0 };
-  VkPipelineDepthStencilStateCreateInfo* state_depthStencil = NULL;
-  //________________________________________________
-  // TODO: cvk_pipeline_state_tessellation_create()
-  VkPipelineTessellationStateCreateInfo* state_tessellation = NULL;
+  // clang-format off
+  VkPipelineDepthStencilStateCreateInfo state_depthStencil = (VkPipelineDepthStencilStateCreateInfo){
+    .sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+    .pNext                 = NULL,
+    .flags                 = (VkPipelineDepthStencilStateCreateFlags)0,
+    .depthTestEnable       = VK_TRUE,
+    .depthWriteEnable      = VK_TRUE,
+    .depthCompareOp        = VK_COMPARE_OP_LESS,
+    .depthBoundsTestEnable = VK_FALSE,
+    .minDepthBounds        = 0.0f,
+    .maxDepthBounds        = 1.0f,
+    // Disabled Stencil
+    .stencilTestEnable     = VK_FALSE,
+    .front                 = (VkStencilOpState){ 0 },
+    .back                  = (VkStencilOpState){ 0 },
+  };  // clang-format on
 
   //________________________________________________
+  // TODO: cvk_pipeline_state_tessellation_create()
+  //     : NULL, disabled
+  VkPipelineTessellationStateCreateInfo* state_tessellation = NULL;
+  //________________________________________________
+
+
+  //________________________________________________
+  // clang-format off
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  result.attachment_cfg[0] = gpu->device_swapchain.attachment_cfg;
+  result.attachment_cfg[1] = depth->attachment_cfg;
+  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  // clang-format on
+  //__________________
+  result.depthStencil = (VkAttachmentReference){
+    .attachment = 1,
+    .layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+  };
+  //__________________
   result.renderpass = cvk_renderpass_create(&(cvk_renderpass_create_args){
-    .device_logical = &gpu->device_logical,
-    .swapchain      = &gpu->device_swapchain,
-    .allocator      = &gpu->instance.allocator,
+    .device_logical     = &gpu->device_logical,
+    .allocator          = &gpu->instance.allocator,
+    .attachment_cfg_len = 2,
+    .attachment_cfg_ptr = result.attachment_cfg,
+    .depthStencil       = &result.depthStencil,
   });
 
   // clang-format off
@@ -922,7 +1104,7 @@ static example_Pipeline example_pipeline_create (
     .state_viewport      = &state_viewport,
     .state_rasterization = &state_rasterization,
     .state_multisample   = &state_multisample,
-    .state_depthStencil  = state_depthStencil,
+    .state_depthStencil  = &state_depthStencil,
     .state_colorBlend    = &state_colorBlend,
     .state_dynamic       = &state_dynamic,
     .renderpass          = &result.renderpass,
@@ -1025,23 +1207,20 @@ static Example example_create (
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
   result.texture     = example_texture_create(&result.gpu, &result.sync, "examples/images/lovecraft1.jpg");
+  result.depth       = example_depth_create(&result.gpu, &result.sync);
   result.descriptors = example_descriptors_create(&result.gpu, result.wvp, &result.texture);
 
   result.pipeline = example_pipeline_create(
     /* gpu   */ &result.gpu,
     /* verts */ &result.verts,
     /* inds  */ &result.inds,
+    /*depth  */ &result.depth,
     /* sets  */ &result.descriptors,
     /* vert  */ &result.shader.vert,
     /* frag  */ &result.shader.frag
   );
 
-  result.device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
-    .swapchain      = &result.gpu.device_swapchain,
-    .device_logical = &result.gpu.device_logical,
-    .renderpass     = &result.pipeline.renderpass,
-    .allocator      = &result.gpu.instance.allocator,
-  });
+  result.device_framebuffers = example_rendering_framebuffers_create(&result.gpu, &result.depth, &result.pipeline.renderpass);
   return result;
 }
 
@@ -1050,18 +1229,19 @@ static void example_destroy (
   Example* const example
 ) {
   cvk_device_logical_wait(&example->gpu.device_logical);
+  example_depth_destroy(&example->depth, &example->gpu);
+  example_texture_destroy(&example->texture, &example->gpu);
   for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     example_wvp_destroy(&example->wvp[id], &example->gpu);
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
-  example_texture_destroy(&example->texture, &example->gpu);
-  example_descriptors_destroy(&example->descriptors, &example->gpu);
   example_inds_destroy(&example->inds, &example->gpu);
   example_verts_destroy(&example->verts, &example->gpu);
+  example_descriptors_destroy(&example->descriptors, &example->gpu);
   example_sync_destroy(&example->sync, &example->gpu.device_logical, &example->gpu.instance.allocator);
-  cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
+  example_rendering_framebuffers_destroy(&example->device_framebuffers, &example->gpu);
   example_pipeline_destroy(&example->pipeline, &example->gpu.device_logical, &example->gpu.instance.allocator);
   cvk_shader_destroy(&example->gpu.device_logical, &example->shader.frag, &example->gpu.instance.allocator);
   cvk_shader_destroy(&example->gpu.device_logical, &example->shader.vert, &example->gpu.instance.allocator);
@@ -1077,6 +1257,10 @@ static void example_swapchain_recreate (
   // FIX:
   // Resizing is broken.
   // Something about the Queue and Semaphores is not quite correct
+  //________________________________________________
+  // TODO:
+  // The resolution of the Depth buffer should change when the window size changes
+  // See the bottom bullet point at: https://vulkan-tutorial.com/en/Depth_buffering
   //__________________________________________________________________
   // Get the new size
   int newSize_width  = 0;
@@ -1089,18 +1273,13 @@ static void example_swapchain_recreate (
   }
   // Recreate the data
   example->gpu.device_swapchain.cfg.imageExtent = (cvk_Size2D){ .width = (uint32_t)newSize_width, .height = (uint32_t)newSize_height };
-  cvk_framebuffer_list_destroy(&example->device_framebuffers, &example->gpu.device_logical, &example->gpu.instance.allocator);
+  cvk_framebuffer_list_destroy(&example->device_framebuffers.list, &example->gpu.device_logical, &example->gpu.instance.allocator);
   // clang-format off
   cvk_device_swapchain_recreate(&example->gpu.device_swapchain, &(cvk_device_swapchain_recreate_args){
     .device_logical = &example->gpu.device_logical,
     .allocator      = &example->gpu.instance.allocator,
   });  // clang-format on
-  example->device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
-    .swapchain      = &example->gpu.device_swapchain,
-    .device_logical = &example->gpu.device_logical,
-    .renderpass     = &example->pipeline.renderpass,
-    .allocator      = &example->gpu.instance.allocator,
-  });
+  example->device_framebuffers = example_rendering_framebuffers_create(&example->gpu, &example->depth, &example->pipeline.renderpass);
 }
 
 
@@ -1156,11 +1335,17 @@ static void example_update (
   //______________________________________
   // 3. Record the Command Buffer
   cvk_command_buffer_reset(&example->sync.command_buffer[frameID], /* releaseResources */ cvk_false);
-  cvk_command_buffer_begin(&example->sync.command_buffer[frameID]);  // clang-format off
+  cvk_command_buffer_begin(&example->sync.command_buffer[frameID]);
+  VkClearValue const clear_values[2] = {
+    [0] = (VkClearValue){ .color = { .float32 = { [0] = 0.222f, [1] = 0.333f, [2] = 0.444f, [3] = 1.0f } } },
+    [1] = (VkClearValue){ .depthStencil = { .depth = 1.0f, .stencil = 0 } },
+  };  // clang-format off
   cvk_renderpass_command_begin(&example->pipeline.renderpass, &(cvk_renderpass_command_begin_args){
     .command_buffer = &example->sync.command_buffer[frameID],
-    .framebuffer    = &example->device_framebuffers.ptr[imageID],
+    .framebuffer    = &example->device_framebuffers.list.ptr[imageID],
     .extent         = example->gpu.device_swapchain.cfg.imageExtent,
+    .clear_len      = 2,
+    .clear_ptr      = clear_values,
   });  // clang-format on
   cvk_pipeline_graphics_command_bind(&example->pipeline.graphics, &example->sync.command_buffer[frameID]);
   cvk_buffer_vertex_command_bind(&example->verts.buffer.vram, &example->sync.command_buffer[frameID]);
@@ -1192,7 +1377,7 @@ static void example_update (
   //_____________________________________________
   // clang-format off
   cvk_command_draw_indexed(&example->sync.command_buffer[frameID], &(cvk_command_draw_indexed_args){
-    .indices_len = 6,
+    .indices_len = 12,
   });  // clang-format on
   cvk_renderpass_command_end(&example->pipeline.renderpass, &example->sync.command_buffer[frameID]);
   cvk_command_buffer_end(&example->sync.command_buffer[frameID]);
