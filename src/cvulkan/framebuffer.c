@@ -17,7 +17,7 @@ cvk_Pure cvk_Framebuffer cvk_framebuffer_create (
       .renderPass        = arg->renderpass->ct,
       .width             = arg->size->width,
       .height            = arg->size->height,
-      .attachmentCount   = (uint32_t)arg->attachments_len,
+      .attachmentCount   = (!arg->attachments_len && arg->attachments_ptr) ? 1 : (uint32_t)arg->attachments_len,
       .pAttachments      = arg->attachments_ptr,
       .layers            = 1, // TODO: Does this need configurability ??
     },

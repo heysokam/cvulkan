@@ -31,7 +31,7 @@ typedef struct cvk_framebuffer_create_args {
   cvk_device_Logical const* const             device_logical;
   cvk_Renderpass const* const                 renderpass;
   cvk_Size2D const* const                     size;
-  cvk_size const                              attachments_len;
+  cvk_Nullable cvk_size const                 attachments_len;  ///< When omittied (aka. `0`), will treat `.attachments_ptr` as a pointer to one
   VkImageView const* const                    attachments_ptr;
   cvk_Nullable VkFramebufferCreateFlags const flags;
   char                                        priv_pad[4];
