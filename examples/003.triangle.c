@@ -175,12 +175,22 @@ int main () {
 
   //________________________________________________
   // Initialize: Triangle Framebuffers
-  cvk_framebuffer_List device_framebuffers = cvk_device_swapchain_framebuffers_create(&(cvk_device_swapchain_framebuffers_create_args){
-    .swapchain      = &device_swapchain,
-    .device_logical = &device_logical,
-    .renderpass     = &pipeline_renderpass,
-    .allocator      = &instance.allocator,
-  });
+  cvk_framebuffer_List device_framebuffers = (cvk_framebuffer_List){
+    .len      = device_swapchain.images.len,
+    .itemsize = sizeof(cvk_Framebuffer),
+    .ptr      = NULL,
+  };
+  cvk_Slice framebuffers_tempdata = instance.allocator.cpu.allocZ(&instance.allocator.cpu, device_framebuffers.len, device_framebuffers.itemsize);
+  device_framebuffers.ptr = (cvk_Framebuffer*)framebuffers_tempdata.ptr;
+  for (cvk_size id = 0; id < device_framebuffers.len; ++id) {
+    device_framebuffers.ptr[id] = cvk_framebuffer_create(&(cvk_framebuffer_create_args){
+      .device_logical  = &device_logical,
+      .allocator       = &instance.allocator,
+      .renderpass      = &pipeline_renderpass,
+      .size            = &device_swapchain.cfg.imageExtent,
+      .attachments_ptr = &device_swapchain.images.ptr[id].view,  // Single attachment for the Swapchain.Image.View
+    });
+  }
 
 
   //________________________________________________
@@ -196,15 +206,12 @@ int main () {
   cvk_Semaphore      imageAvailable[example_frames_Len];
   cvk_Fence          framesPending[example_frames_Len];
   for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     command_buffer[id] = cvk_command_buffer_allocate(&(cvk_command_buffer_allocate_args){
       .device_logical = &device_logical,
       .command_pool   = &command_pool,
     });
     imageAvailable[id] = cvk_semaphore_create(&device_logical, &instance.allocator);
     framesPending[id]  = cvk_fence_create(&device_logical, /*signaled*/ cvk_true, &instance.allocator);
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
 
 
@@ -214,8 +221,6 @@ int main () {
   while (!csys_close(&system)) {
     csys_update(&system);  // Update Window+Input
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     //____________________________
     // Frame Overview:
     // 1. Wait for the previous frame to finish
@@ -283,8 +288,6 @@ int main () {
     //______________________________________
     // 6. Advance to next frame
     frameID = (frameID + 1) % example_frames_Len;
-
-#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }
 
 
@@ -293,11 +296,8 @@ int main () {
   cvk_device_logical_wait(&device_logical);
   // Destroy example.Sync
   for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     cvk_semaphore_destroy(&imageAvailable[id], &device_logical, &instance.allocator);
     cvk_fence_destroy(&framesPending[id], &device_logical, &instance.allocator);
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
   cvk_command_pool_destroy(&command_pool, &device_logical, &instance.allocator);
   // Destroy example.Pipeline
