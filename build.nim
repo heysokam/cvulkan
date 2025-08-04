@@ -133,10 +133,13 @@ const stb     = Dependency.new("stb",     "https://github.com/nothings/stb",    
 # @section Examples
 #_____________________________
 const examples_flags = Flags(
-  cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation-unknown-command"],
+  cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation-unknown-command", "-Wno-unsafe-buffer-usage"],
   ld: @["-lvulkan", "-lglfw"])
+const wip_flags = Flags(
+  cc: examples_flags.cc & @["-Wunsafe-buffer-usage"],
+  ld: examples_flags.ld)
 confy.cfg.dirs.src = dir_examples
-let example_wip = Program.new("wip.c",           flags= examples_flags, deps= @[cglm, stb])
+let example_wip = Program.new("wip.c",           flags=      wip_flags, deps= @[cglm, stb])
 let example_001 = Program.new("001.instance.c",  flags= examples_flags)
 let example_002 = Program.new("002.bootstrap.c", flags= examples_flags)
 let example_003 = Program.new("003.triangle.c",  flags= examples_flags)
