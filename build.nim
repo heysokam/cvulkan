@@ -23,11 +23,9 @@ const dir_helpers  = dir_examples/"helpers"
 const dir_shd      = dir_examples/"shaders"
 let   dir_local    = os.absolutePath(".")
 # Files
-const file_cvulkan     = dir_cvk/"cvulkan.h"
-const file_ffi_base    = dir_ffi_base/"impl.c"
-const file_ffi_zig     = dir_ffi_zig/"src"/"cvulkan.zig"
-const file_ffi_nim_api = dir_ffi_nim/"src"/"cvulkan"/"api.nim"
-const file_ffi_nim_raw = dir_ffi_nim/"src"/"cvulkan"/"raw.nim"
+const file_cvulkan = dir_cvk/"cvulkan.h"
+const file_ffi_zig = dir_ffi_zig/"src"/"cvulkan.zig"
+const file_ffi_nim = dir_ffi_nim/"src"/"cvulkan"/"raw.nim"
 
 
 
@@ -62,12 +60,7 @@ proc gen_nim=
     cfg   = cfg,
     ) #:: Program.new( ... )
   confy.build gen
-  writeFile( file_ffi_nim_api, readFile(file_ffi_nim_api).replace(dir_local, ".") )
-  #___________________
-  info "Generating the raw cvulkan bindings for nim with Futhark ..."
-  gen.src[0] = confy.cfg.dirs.src/"gen_raw.nim"
-  confy.build gen
-  writeFile( file_ffi_nim_raw, readFile(file_ffi_nim_raw).replace(dir_local, ".") )
+  writeFile( file_ffi_nim, readFile(file_ffi_nim).replace(dir_local, ".") )
   #___________________
   info "Done creating the nim bindings."
 
