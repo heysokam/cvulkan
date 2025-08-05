@@ -1,0 +1,7 @@
+newmtl MaterialName
+Ka 1.0 1.0 1.0      # Ambient color
+Kd 1.0 1.0 1.0      # Diffuse color
+Ks 1.0 1.0 1.0      # Specular color
+Ns 0                # Shininess
+d  1.0              # Dissolve (transparency)
+map_Kd texture.png  # Diffuse texture map
