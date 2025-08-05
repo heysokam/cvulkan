@@ -5,3 +5,4 @@
 -I../bin/.lib/cglm
 -I../bin/.lib/stb
 -I../bin/.lib/obj
+-I../bin/.lib/cgltf

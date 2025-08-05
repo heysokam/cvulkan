@@ -125,9 +125,10 @@ template example_shaders_compile=
 #_______________________________________
 # @section Examples: Dependencies
 #_____________________________
-const cglm = Dependency.new("cglm", "https://github.com/recp/cglm",             "include/cglm")
-const stb  = Dependency.new("stb",  "https://github.com/nothings/stb",          "")
-const obj  = Dependency.new("obj",  "https://github.com/syoyo/tinyobjloader-c", "")
+const cglm  = Dependency.new("cglm",  "https://github.com/recp/cglm",             "include/cglm")
+const stb   = Dependency.new("stb",   "https://github.com/nothings/stb",          "")
+const obj   = Dependency.new("obj",   "https://github.com/syoyo/tinyobjloader-c", "")
+const cgltf = Dependency.new("cgltf", "https://github.com/jkuhlmann/cgltf",       "")
 
 
 #_______________________________________
@@ -140,7 +141,7 @@ const wip_flags = Flags(
   cc: examples_flags.cc & @["-Wunsafe-buffer-usage"],
   ld: examples_flags.ld)
 confy.cfg.dirs.src = dir_examples
-let example_wip = Program.new("wip.c",           flags=      wip_flags, deps= @[cglm, stb, obj])
+let example_wip = Program.new("wip.c",           flags=      wip_flags, deps= @[cglm, stb, cgltf])
 let example_001 = Program.new("001.instance.c",  flags= examples_flags)
 let example_002 = Program.new("002.bootstrap.c", flags= examples_flags)
 let example_003 = Program.new("003.triangle.c",  flags= examples_flags)
