@@ -3,18 +3,9 @@
 //:___________________________________________________________
 //! @fileoverview Math helper code for the examples
 //__________________________________________________|
-/*
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdouble-promotion"
-#pragma GCC diagnostic ignored "-Wimplicit-float-conversion"
-#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-#include <linmath.h>
-#pragma GCC diagnostic pop  // -Wdouble-promotion -Wimplicit-float-conversion -Wunsafe-buffer-usage
+#ifndef H_examples_helpers_math
+#define H_examples_helpers_math
 
-typedef vec2   Vec2;
-typedef vec3   Vec3;
-typedef mat4x4 Mat4;
-*/
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreserved-macro-identifier"
@@ -52,12 +43,9 @@ typedef struct Vertex {
   Vec3 color;
 } Vertex;
 
-static double const PI  = 3.1415926535897932384626433;
-static double const TAU = 2 * PI;
+extern double const PI;
+extern double const TAU;
+double              deg_to_rad (double const deg);
 
-static double deg_to_rad (
-  double const deg
-) {
-  return deg * PI / 180;
-}
+#endif // H_examples_helpers_math
 
