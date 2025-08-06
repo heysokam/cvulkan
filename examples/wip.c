@@ -26,8 +26,10 @@ extern unsigned int  examples_shaders_texture_vert_spv_len;
 //______________________________________
 // Generic boilerplate shared by all Examples
 #include "./helpers/bootstrap.c"
-#include "./helpers/math.c"
+#include "./helpers/cmath.h"
+#include "./helpers/cmath.c"
 #include "./helpers/image.c"
+#include "./helpers/model.c"
 //______________________________________
 
 typedef struct example_Framebuffers {
@@ -58,20 +60,6 @@ typedef struct example_Memory {
   cvk_Memory ram;
   cvk_Memory vram;
 } example_Memory;
-typedef struct example_Vertices {
-  example_Buffer                    buffer;
-  VkVertexInputBindingDescription   binding;
-  VkVertexInputAttributeDescription attributes[3];
-  char                              priv_pad[4];
-  example_Memory                    memory;
-} example_Vertices;
-typedef struct example_Indices {
-  // @note
-  // There is no need to keep the staging buffer around.
-  // Keeping it until app termination just for simplicity of the code
-  example_Memory memory;
-  example_Buffer buffer;
-} example_Indices;
 
 typedef struct example_wvp_Data {
   Mat4 world, view, projection;
@@ -96,6 +84,28 @@ typedef struct example_Texture {
   char              priv_pad[4];
   VkDeviceSize      size;
 } example_Texture;
+
+typedef struct example_Vertices {
+  example_Buffer                    buffer;
+  VkVertexInputBindingDescription   binding;
+  VkVertexInputAttributeDescription attributes[3];
+  char                              priv_pad[4];
+  example_Memory                    memory;
+  cvk_Slice /* Vertex[]   */        data;
+} example_Vertices;
+typedef struct example_Indices {
+  // @note
+  // There is no need to keep the staging buffer around.
+  // Keeping it until app termination just for simplicity of the code
+  example_Buffer             buffer;
+  example_Memory             memory;
+  cvk_Slice /* uint32_t[] */ data;
+} example_Indices;
+typedef struct example_Geometry {
+  example_Vertices vertices;
+  example_Indices  indices;
+  cgltf_data*      gltf;
+} example_Geometry;
 
 typedef struct example_Depth {
   cvk_image_Data          data;
@@ -140,11 +150,10 @@ typedef struct Example {
   example_Framebuffers device_framebuffers;
   example_Sync         sync;
   cvk_bool             resized;
-  char                 priv_pad1[4];
-  example_Vertices     verts;
-  example_Indices      inds;
+  char                 priv_pad1[12];
   example_WVP          wvp[example_frames_Len];
   example_Texture      texture;
+  example_Geometry     geometry;
   example_Depth        depth;
   example_Descriptors  descriptors;
   ctime_Time           time;
@@ -171,46 +180,40 @@ static VkVertexInputBindingDescription cvk_vertex_binding_description (
 
 static example_Vertices example_verts_create (
   example_Bootstrap* const  gpu,
-  example_Sync const* const sync
+  example_Sync const* const sync,
+  cgltf_data const* const   gltf
 ) {
-  example_Vertices result       = (example_Vertices){ 0 };
-  uint32_t const   verts_len    = 8;
-  Vertex           verts_ptr[8] = {
-    // clang-format off
-    // Quad1
-    [0]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f, [Z]= 0.0f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}, .uv= {[U]= 1.0f, [V]= 0.0f}},
-    [1]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f, [Z]= 0.0f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}, .uv= {[U]= 0.0f, [V]= 0.0f}},
-    [2]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f, [Z]= 0.0f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}, .uv= {[U]= 0.0f, [V]= 1.0f}},
-    [3]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f, [Z]= 0.0f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}, .uv= {[U]= 1.0f, [V]= 1.0f}},
-    // Quad2
-    [4]= (Vertex){.pos= {[X]= -0.5f, [Y]= -0.5f, [Z]= -0.5f}, .color= {[R]= 1.0f, [G]= 0.0f, [B]= 0.0f}, .uv= {[U]= 1.0f, [V]= 0.0f}},
-    [5]= (Vertex){.pos= {[X]=  0.5f, [Y]= -0.5f, [Z]= -0.5f}, .color= {[R]= 0.0f, [G]= 1.0f, [B]= 0.0f}, .uv= {[U]= 0.0f, [V]= 0.0f}},
-    [6]= (Vertex){.pos= {[X]=  0.5f, [Y]=  0.5f, [Z]= -0.5f}, .color= {[R]= 0.0f, [G]= 0.0f, [B]= 1.0f}, .uv= {[U]= 0.0f, [V]= 1.0f}},
-    [7]= (Vertex){.pos= {[X]= -0.5f, [Y]=  0.5f, [Z]= -0.5f}, .color= {[R]= 1.0f, [G]= 1.0f, [B]= 1.0f}, .uv= {[U]= 1.0f, [V]= 1.0f}},
-  };
-  result.buffer.ram = cvk_buffer_create(&(cvk_buffer_create_args){
-    .device_physical = &gpu->device_physical,
-    .device_logical  = &gpu->device_logical,
-    .usage           = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-    .size            = sizeof(verts_ptr[0]) * verts_len,
-    .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
-    .allocator       = &gpu->instance.allocator,
+  example_Vertices result = (example_Vertices){ 0 };
+
+  // Get the GLTF data
+  result.data = (cvk_Slice){ .itemsize = sizeof(Vertex) };
+  gltf_get_attribute(gltf, "POSITION", &result.data);
+  gltf_get_attribute(gltf, "TEXCOORD_0", &result.data);
+
+  // Create the GPU/CPU handles
+  result.buffer.ram  = cvk_buffer_create(&(cvk_buffer_create_args){
+     .device_physical = &gpu->device_physical,
+     .device_logical  = &gpu->device_logical,
+     .usage           = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+     .size            = result.data.itemsize * result.data.len,
+     .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
+     .allocator       = &gpu->instance.allocator,
   });
   result.buffer.vram = cvk_buffer_create(&(cvk_buffer_create_args){
     .device_physical = &gpu->device_physical,
     .device_logical  = &gpu->device_logical,
     .usage           = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    .size            = sizeof(verts_ptr[0]) * verts_len,
+    .size            = result.data.itemsize * result.data.len,
     .memory_flags    = cvk_memory_DeviceLocal,
     .allocator       = &gpu->instance.allocator,
   });
-  result.memory.ram = cvk_memory_create(&(cvk_memory_create_args){
-    .device_logical = &gpu->device_logical,
-    .data           = (void*)verts_ptr,
-    .kind           = result.buffer.ram.memory.kind,
-    .size_alloc     = result.buffer.ram.memory.requirements.size,
-    .size_data      = result.buffer.ram.cfg.size,
-    .allocator      = &gpu->instance.allocator,
+  result.memory.ram  = cvk_memory_create(&(cvk_memory_create_args){
+     .device_logical = &gpu->device_logical,
+     .data           = result.data.ptr,
+     .kind           = result.buffer.ram.memory.kind,
+     .size_alloc     = result.buffer.ram.memory.requirements.size,
+     .size_data      = result.buffer.ram.cfg.size,
+     .allocator      = &gpu->instance.allocator,
   });
   result.memory.vram = cvk_memory_create(&(cvk_memory_create_args){
     .device_logical = &gpu->device_logical,
@@ -219,14 +222,20 @@ static example_Vertices example_verts_create (
     .size_data      = result.buffer.vram.cfg.size,
     .allocator      = &gpu->instance.allocator,
   });
-  cvk_buffer_bind(&result.buffer.ram, &(cvk_buffer_bind_args){
-    .device_logical = &gpu->device_logical,
-    .memory         = &result.memory.ram,
-  });
-  cvk_buffer_bind(&result.buffer.vram, &(cvk_buffer_bind_args){
-    .device_logical = &gpu->device_logical,
-    .memory         = &result.memory.vram,
-  });
+  cvk_buffer_bind(
+    &result.buffer.ram,
+    &(cvk_buffer_bind_args){
+      .device_logical = &gpu->device_logical,
+      .memory         = &result.memory.ram,
+    }
+  );
+  cvk_buffer_bind(
+    &result.buffer.vram,
+    &(cvk_buffer_bind_args){
+      .device_logical = &gpu->device_logical,
+      .memory         = &result.memory.vram,
+    }
+  );
 
   // Copy the RAM buffer data to the VRAM buffer synchronously
   // clang-format off
@@ -267,44 +276,44 @@ static example_Vertices example_verts_create (
   return result;
 }
 
-
 static void example_verts_destroy (
-  example_Vertices* const  verts,
+  example_Vertices* const  vertices,
   example_Bootstrap* const gpu
 ) {
-  verts->binding = (VkVertexInputBindingDescription){ 0 };
+  gpu->instance.allocator.cpu.free(&gpu->instance.allocator.cpu, &vertices->data);
+  vertices->binding = (VkVertexInputBindingDescription){ 0 };
   // clang-format off
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-  verts->attributes[0] = (VkVertexInputAttributeDescription){ 0 };
-  verts->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
-  verts->attributes[2] = (VkVertexInputAttributeDescription){ 0 };
+  vertices->attributes[0] = (VkVertexInputAttributeDescription){ 0 };
+  vertices->attributes[1] = (VkVertexInputAttributeDescription){ 0 };
+  vertices->attributes[2] = (VkVertexInputAttributeDescription){ 0 };
   #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   // clang-format on
-  cvk_buffer_destroy(&verts->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_buffer_destroy(&verts->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_memory_destroy(&verts->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_memory_destroy(&verts->memory.vram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_buffer_destroy(&vertices->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_buffer_destroy(&vertices->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&vertices->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&vertices->memory.vram, &gpu->device_logical, &gpu->instance.allocator);
 }
 
 
 static example_Indices example_inds_create (
   example_Bootstrap* const  gpu,
-  example_Sync const* const sync
+  example_Sync const* const sync,
+  cgltf_data const* const   gltf
 ) {
   example_Indices result = (example_Indices){ 0 };
 
-  uint32_t const inds_len     = 12;
-  uint16_t       inds_ptr[12] = {
-    /* tri0 */ 0, 1, 2, /* tri1 */ 2, 3, 0,
-    /* tri2 */ 4, 5, 6, /* tri3 */ 6, 7, 4,
-  };
+  // Get the GLTF data
+  result.data = (cvk_Slice){ .itemsize = sizeof(uint16_t) };
+  gltf_get_indices(gltf, &result.data);
 
+  // Create the GPU/CPU handles
   result.buffer.ram  = cvk_buffer_create(&(cvk_buffer_create_args){
      .device_physical = &gpu->device_physical,
      .device_logical  = &gpu->device_logical,
      .usage           = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-     .size            = sizeof(inds_ptr[0]) * inds_len,
+     .size            = result.data.itemsize * result.data.len,
      .memory_flags    = cvk_memory_HostVisible | cvk_memory_HostCoherent,
      .allocator       = &gpu->instance.allocator,
   });
@@ -312,13 +321,13 @@ static example_Indices example_inds_create (
     .device_physical = &gpu->device_physical,
     .device_logical  = &gpu->device_logical,
     .usage           = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-    .size            = sizeof(inds_ptr[0]) * inds_len,
+    .size            = result.data.itemsize * result.data.len,
     .memory_flags    = cvk_memory_DeviceLocal,
     .allocator       = &gpu->instance.allocator,
   });
   result.memory.ram  = cvk_memory_create(&(cvk_memory_create_args){
      .device_logical = &gpu->device_logical,
-     .data           = (void*)inds_ptr,
+     .data           = result.data.ptr,
      .kind           = result.buffer.ram.memory.kind,
      .size_alloc     = result.buffer.ram.memory.requirements.size,
      .size_data      = result.buffer.ram.cfg.size,
@@ -371,14 +380,55 @@ static example_Indices example_inds_create (
 }
 
 static void example_inds_destroy (
-  example_Indices* const   inds,
+  example_Indices* const   indices,
   example_Bootstrap* const gpu
 ) {
-  cvk_buffer_destroy(&inds->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_buffer_destroy(&inds->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_memory_destroy(&inds->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
-  cvk_memory_destroy(&inds->memory.vram, &gpu->device_logical, &gpu->instance.allocator);
+  gpu->instance.allocator.cpu.free(&gpu->instance.allocator.cpu, &indices->data);
+  cvk_buffer_destroy(&indices->buffer.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_buffer_destroy(&indices->buffer.vram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&indices->memory.ram, &gpu->device_logical, &gpu->instance.allocator);
+  cvk_memory_destroy(&indices->memory.vram, &gpu->device_logical, &gpu->instance.allocator);
 }
+
+
+static example_Geometry example_geometry_create (
+  example_Bootstrap* const  gpu,
+  example_Sync const* const sync,
+  cvk_String const          path
+) {
+  // FIX: Remove
+  cvk_discard(gpu);
+
+  example_Geometry result = (example_Geometry){ 0 };
+
+  // Read the GLTF file data
+  cgltf_options gltf_options = (cgltf_options){ 0 };
+  // clang-format off
+  cgltf_result_check(cgltf_parse_file(&gltf_options, path, &result.gltf),
+    "Failed to load the geometry from the target .glb file");
+  cgltf_result_check(cgltf_load_buffers(&gltf_options, result.gltf, path),
+    "Failed to load the buffers data from the target .glb file.");
+  cgltf_result_check(cgltf_validate(result.gltf),
+    "Failed to validate the data from the target .glb file.");
+  // clang-format on
+
+  // Populate the Vertices/Indices data
+  result.vertices = example_verts_create(gpu, sync, result.gltf);
+  result.indices  = example_inds_create(gpu, sync, result.gltf);
+
+  // Return the result
+  return result;
+}
+
+static void example_geometry_destroy (
+  example_Geometry* const  geometry,
+  example_Bootstrap* const gpu
+) {
+  example_verts_destroy(&geometry->vertices, gpu);
+  example_inds_destroy(&geometry->indices, gpu);
+  cgltf_free(geometry->gltf);
+}
+
 
 static example_Descriptors example_descriptors_create (
   example_Bootstrap* const     gpu,
@@ -1108,7 +1158,7 @@ static example_Pipeline example_pipeline_create (
     .state_colorBlend    = &state_colorBlend,
     .state_dynamic       = &state_dynamic,
     .renderpass          = &result.renderpass,
-    .stages              = &(cvk_pipeline_shaderStage_List){ .ptr = result.stages, .len = 2 },  // clang-format off
+    .stages              = &(cvk_pipeline_shaderStage_List){ .ptr = result.stages, .len = 2 }, // clang-format off
     .layout              = &(cvk_pipeline_layout_create_args){
       .device_logical    = &gpu->device_logical,
       .sets_ptr          = &sets->layout.ct,
@@ -1198,23 +1248,22 @@ static Example example_create (
     .code           = frag,
     .allocator      = &result.gpu.instance.allocator,
   });
-  result.verts       = example_verts_create(&result.gpu, &result.sync);
-  result.inds        = example_inds_create(&result.gpu, &result.sync);
   for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     result.wvp[id] = example_wvp_create(&result.gpu);
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
-  result.texture     = example_texture_create(&result.gpu, &result.sync, "examples/images/lovecraft1.jpg");
+  result.texture     = example_texture_create(&result.gpu, &result.sync, "examples/models/box_textured/CesiumLogoFlat.png");
+  result.geometry    = example_geometry_create(&result.gpu, &result.sync, "examples/models/box_textured/geometry.gltf");
   result.depth       = example_depth_create(&result.gpu, &result.sync);
   result.descriptors = example_descriptors_create(&result.gpu, result.wvp, &result.texture);
 
   result.pipeline = example_pipeline_create(
     /* gpu   */ &result.gpu,
-    /* verts */ &result.verts,
-    /* inds  */ &result.inds,
-    /*depth  */ &result.depth,
+    /* verts */ &result.geometry.vertices,
+    /* inds  */ &result.geometry.indices,
+    /* depth */ &result.depth,
     /* sets  */ &result.descriptors,
     /* vert  */ &result.shader.vert,
     /* frag  */ &result.shader.frag
@@ -1230,6 +1279,7 @@ static void example_destroy (
 ) {
   cvk_device_logical_wait(&example->gpu.device_logical);
   example_depth_destroy(&example->depth, &example->gpu);
+  example_geometry_destroy(&example->geometry, &example->gpu);
   example_texture_destroy(&example->texture, &example->gpu);
   for (cvk_size id = 0; id < example_frames_Len; ++id) {  // clang-format off
     #pragma GCC diagnostic push
@@ -1237,8 +1287,6 @@ static void example_destroy (
     example_wvp_destroy(&example->wvp[id], &example->gpu);
     #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
   }  // clang-format on
-  example_inds_destroy(&example->inds, &example->gpu);
-  example_verts_destroy(&example->verts, &example->gpu);
   example_descriptors_destroy(&example->descriptors, &example->gpu);
   example_sync_destroy(&example->sync, &example->gpu.device_logical, &example->gpu.instance.allocator);
   example_rendering_framebuffers_destroy(&example->device_framebuffers, &example->gpu);
@@ -1348,8 +1396,8 @@ static void example_update (
     .clear_ptr      = clear_values,
   });  // clang-format on
   cvk_pipeline_graphics_command_bind(&example->pipeline.graphics, &example->sync.command_buffer[frameID]);
-  cvk_buffer_vertex_command_bind(&example->verts.buffer.vram, &example->sync.command_buffer[frameID]);
-  cvk_buffer_index_command_bind(&example->inds.buffer.vram, &example->sync.command_buffer[frameID]);
+  cvk_buffer_vertex_command_bind(&example->geometry.vertices.buffer.vram, &example->sync.command_buffer[frameID]);
+  cvk_buffer_index_command_bind(&example->geometry.indices.buffer.vram, &example->sync.command_buffer[frameID]);
   // clang-format off
   cvk_viewport_command_set(&(VkViewport){
     .width    = (float)example->gpu.device_swapchain.cfg.imageExtent.width,
@@ -1377,7 +1425,7 @@ static void example_update (
   //_____________________________________________
   // clang-format off
   cvk_command_draw_indexed(&example->sync.command_buffer[frameID], &(cvk_command_draw_indexed_args){
-    .indices_len = 12,
+    .indices_len = (uint32_t)example->geometry.indices.data.len,
   });  // clang-format on
   cvk_renderpass_command_end(&example->pipeline.renderpass, &example->sync.command_buffer[frameID]);
   cvk_command_buffer_end(&example->sync.command_buffer[frameID]);
