@@ -2,17 +2,23 @@
 `cvulkan` is a Pure C library of helpers to make Vulkan more comfortable to use  
 by reducing the redundant boilerplate required by the API.  
 
-## Current Status
-See the @[TODO & Done](#todo--done) section for an up-to-date list of features pending and done.  
-Current state of the library can get you up to par with `vk-bootstrap` _(aka: up to Swapchain creation)_.  
-You can see an example of the bootstrapping code in the @[bootstrap](./examples/002.bootstrap.c) example file.  
+_(Think `vk-bootstrap`, but with Modern C and a touch of `wgpu-native` instead)_  
+
 
 ## How to
 > TODO: Write a simple howto intro.  
 > Reference the @[examples](./examples/) folder in the meantime.  
+> Current state of the library can render a fully textured GLTF model.  
 
-Current state of the library can get you up to par with `vk-bootstrap` _(aka: up to Swapchain creation)_.  
-You can see an example of this in the @[bootstrap](./examples/002.bootstrap.c) example file.  
+`cvulkan` focuses exclusively on ergonomics & helper code.  
+The goal is to fully respect Vulkan concepts and constructs,  
+with little to none abstraction.  
+
+At any time, you'll be able to drop the `cvulkan` API  
+and write standard Vulkan using the Vulkan specification as normal.  
+
+### Bootstrapping
+You can see an example of how bootstrapping works in the @[bootstrap](./examples/002.bootstrap.c) example file.  
 Bootstrapping includes:  
 - Instance  
 - Validation Layers  
@@ -25,7 +31,7 @@ Bootstrapping includes:
 - Swapchain.ImageViews  
 
 ### Surface Creation
-`cvulkan` is completely system-agnostic.  
+`cvulkan` is completely windowing-system agnostic.  
 The `cvulkan` functions take a `VkSurfaceKHR` as input.  
 How you request that handle is _up to you_ to decide.  
 
@@ -34,12 +40,55 @@ But this library is **NOT** tied to GLFW in any way.
 You could use SDL, SFML, or any other method of your choosing.  
 
 
+## TODO & Done
+Current state of the library can render a fully textured GLTF model.  
+You can see an example of the bootstrapping code in the @[bootstrap](./examples/002.bootstrap.c) example file.  
+
+Up-to-date list of features pending and done:
+
+| Version | Focus                             | Status    | File            |
+|---------|-----------------------------------|-----------|-----------------|
+|  0.1.0  | Instance, Validation & Helpers    | 🔄 Review | [doc/todo.0.1.0.md](doc/todo.0.1.0.md)    |
+|  0.2.0  | Physical Device Selection         | 🔄 Review | [doc/todo.0.2.0.md](doc/todo.0.2.0.md)    |
+|  0.3.0  | Logical Device                    | 🔄 Review | [doc/todo.0.3.0.md](doc/todo.0.3.0.md)    |
+|  0.4.0  | Device Queue                      | 🔄 Review | [doc/todo.0.4.0.md](doc/todo.0.4.0.md)    |
+|  0.5.0  | Surface & Swapchain               | 🔄 Review | [doc/todo.0.5.0.md](doc/todo.0.5.0.md)    |
+|  0.6.0  | Shaders                           | 🔄 Review | [doc/todo.0.6.0.md](doc/todo.0.6.0.md)    |
+|  0.7.0  | Static Rendering Elements         | 🔄 Review | [doc/todo.0.7.0.md](doc/todo.0.7.0.md)    |
+|  0.8.0  | Synchronization Structures        | 🔄 Review | [doc/todo.0.8.0.md](doc/todo.0.8.0.md)    |
+|  0.9.0  | Graphics Pipeline                 | 🔄 Review | [doc/todo.0.9.0.md](doc/todo.0.9.0.md)    |
+| 0.10.0  | Buffers                           | 🔄 Review | [doc/todo.0.10.0.md](doc/todo.0.10.0.md)  |
+| 0.11.0  | Images & Textures                 | 🔄 Review | [doc/todo.0.11.0.md](doc/todo.0.11.0.md)  |
+| 0.12.0  | Compute Pipeline                  | 📋 TODO   | [doc/todo.0.12.0.md](doc/todo.0.12.0.md)  |
+| 0.13.0  | Dynamic Rendering                 | 📋 TODO   | [doc/todo.0.13.0.md](doc/todo.0.13.0.md)  |
+| 0.14.0  | Descriptor Indexing _(bindless)_  | 📋 TODO   | [doc/todo.0.14.0.md](doc/todo.0.14.0.md)  |
+| 0.15.0  | Synchonization 2                  | 📋 TODO   | [doc/todo.0.15.0.md](doc/todo.0.15.0.md)  |
+|  ?.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
+|  ?.?.?  | Cross-Language FFI                | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
+|  1.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)    |
+|  ?.?.?  | Unlikely/Experimental/Backlog     | (N/A)     | [doc/todo.unlikely.md](doc/todo.unlikely.md) |
+
+```md
+# Legend
+- 🔄 Review : Existing work, ready to review and polish
+- 📋 TODO   : New features to implement
+- ️✅ Done   : Completed task
+- 🎯 Target : Production release
+```
+
+
 ## Buildsystem
 > @note  
 > You can completely ignore this library's buildsystem for your app.  
 > Read the [License & Usage](#license--usage) section, add the files into your project, and good to go.  
 
 This library offers support for both Multifile and Single Compilation Unit (SCU).  
+
+
+### Dependency: C stdlib  _(optional)_
+This project depends only on the C standard library.  
+This is only by default. Every usage of stdlib **can be overriden**.  
+Any C stdlib usage is contained within the [<cvulkan/base.h>](./src/cvulkan/base.h) header file.  
 
 
 ### Multifile
@@ -62,17 +111,14 @@ and that file will become the `cvulkan` implementation that the compiler will bu
 
 > @note  
 > Every header has its own `cvk_Implementation_*` sub-flag,  
-> which behaves in the same way as the top-level `cvk_Implementation` flag,  
-> but only for the contents of that one specific file.  
+> that affects only the contents of that one specific file.  
 > `cvk_Implementation` is just an ergonomic way of adding the switches for all files, all at once.  
 
 ```c
 // yourapp.c
 #define cvk_Implementation
 #include <cvulkan.h>
-int main() {
-  cvk_print("Hello %s!", cvk_config_Name);
-}
+/* ... Use cvulkan here ... */
 ```
 
 ### Build Flags
@@ -86,31 +132,6 @@ and it compiles perfectly with both sanitization active and the strictest set of
 eg: `-Wall -Wextra -Werror -Wpedantic -pedantic-errors -fsanitize=all`
 
 You'll need to add `-lvulkan` to your list of link flags to make the Vulkan symbols available.  
-
-
-### Dependency: C stdlib
-This project depends only on the C standard library.  
-This is only by default, as every usage of stdlib **can be overriden**.  
-Every stdlib usage is contained within the [<cvulkan/base.h>](./src/cvulkan/base.h) header file.  
-
-
-### License & Usage
-This project is covered under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
-
-#### MPL in layman terms
-The [MPL v2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) is a per-file weak copyleft license.  
-
-This means that you _can_ use this project in a closed source application,  
-without any need to build the code into a dynamic library in order to link with it.  
-_(ie: like you would need to do with LGPL)_
-
-It is also NOT a viral license.  
-You are only liable to publish and/or contribute back the code for the specific files **that you modified**.  
-So, if you don't modify anything, you can use it _(and relicense it)_ into your app almost as if it was MIT/BSD.  
-
-The MPL is a not-so-well-known license.  
-Please read the MPL FAQ before using this library:
-https://www.mozilla.org/en-US/MPL/2.0/FAQ/
 
 
 ### Examples
@@ -139,147 +160,21 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 > _SVO causes tremendous amount of inconsistencies when creating a systematic naming convention._  
 
 
-## TODO & Done
-```md
-# VkResult
-- [x] toString
-- [x] check
-- [x] assert
-```
-```md
-# VkInstance
-- [x] Minimal creation
-- [x] Application Info
-- [x] Validation Layers
-- [x] Debug Messenger
-- [ ] Extensions
-  - [x] Minimal
-  - [ ] Custom
-```
-```md
-# VkSurfaceKHR
-- [x] Accept a Surface handle from the user
-- [x] Destroy helper for naming consistency
-```
-```md
-# Device
-- [ ] Extensions
-  - [x] Minimal
-  - [ ] Custom
-- [ ] Features
-## Physical
-- [x] Minimal creation
-      Using `isSuitable` and surface support
-- [ ] Suitability
-  - [x] Boolean: Overridable `device_physical_isSuitable` function
-        Returns true/false for whether the device is valid or not
-  - [ ] Ranked : Overridable `device_physical_rank` function
-        Track scores and pick the best
-## Queue
-- [x] Minimal creation (1 graphics+present Q)
-- [ ] Arbitrary Queue creation (multi-queue)
-      Needs support on the device.logical function
-- [x] Wait
-## Logical
-- [x] Minimal creation
-- [ ] Support Multi-Queue creation
-## Swapchain
-- [x] Context creation
-- [x] Swapchain.Images Request
-- [x] Swapchain.ImageViews Request
-- [ ] Swapchain.recreate // Almost done.  FIX: Triggers a validation error on recreation.
-```
-```md
-# Shaders
-- [x] Single-stage
-- [x] Multi-stage
-      ref: https://www.leadwerks.com/community/blogs/entry/2403-single-file-spir-v-shaders-for-vulkan/
-      note: Currently Untested, but should work
-```
-```md
-# Pipeline
-## State
-- [x] Minimal Creation
-- [ ] Customizable Options
-- [ ] Sane Defaults when `NULL`
-## Layout
-- [x] Minimal Creation
-- [ ] Customizable Options
-## Context: Graphics
-- [x] Minimal Creation: Single Pipeline
-- [ ] Customizable Options
-- [ ] Sane Defaults when `NULL`
-- [ ] Multi-pipeline
-```
-```md
-# Framebuffer & Renderpass
-## Framebuffer
-- [x] Minimal Creation
-- [ ] Customizable Options
-## Renderpass
-- [x] Minimal Creation
-- [ ] Customizable Options
-```
-```md
-# Synchronization Structures
-## Command Pool
-- [x] Minimal Creation
-- [ ] Customizable Options
-## Command Buffer
-- [x] Allocate: Customizable
-- [x] Begin
-  - [x] Minimal
-  - [x] Customizable
-- [x] End
-- [x] Reset
-## Semaphore
-- [x] Creation (has no options)
-## Fence
-- [x] Creation: Customizable
-- [x] Wait
-- [x] Reset
-```
-```md
-# Data
-## Buffer
-- [x] Creation: Customizable
-- [x] Bind
-- [x] Copy
-  - [x] Buffer to Buffer
-## Memory
-- [x] Creation: Customizable
-## Image
-### Data   (aka VkImage)
-- [x] Creation: Customizable
-- [x] Bind
-- [x] Transition
-- [x] Copy
-  - [x] Buffer to Image
-### View
-- [x] Creation: Customizable
-### Sampler
-- [x] Creation: Customizable
-```
-```md
-# Memory Allocators
-- [x] Minimal creation (cpu:stdlib, gpu:null)
-## CPU
-- [x] Custom Allocator Support
-- [x] stdlib: malloc -> alloc
-- [x] stdlib: calloc -> allocZ
-- [x] stdlib: free   -> free
-- [x] stdlib: memcpy -> copy
-- [x] stdlib: ??     -> duplicate
-- [ ] stdlib: memset -> set
-- [ ] stdlib: ??     -> resize
-## GPU
-- [x] Custom Allocator Support
-- [x] NULL Allocator
-- [ ] Pure C Replacement for VMA
-## Docs
-- [ ] How to use the API
-- [ ] Philosophy: Bring your own Allocator (Zig-inspired)
-- [ ] Slices and Slice-like objects
-```
+## License & Usage
+This project is covered under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
 
+### MPL in layman terms
+The [MPL v2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) is a per-file weak copyleft license.  
+
+This means that you _can_ use this project in a closed source application,  
+without any need to build the code into a dynamic library in order to link with it.  
+_(ie: like you would need to do with LGPL)_
+
+It is also NOT a viral license.  
+You are only liable to publish and/or contribute back the code for the specific files **that you modified**.  
+So, if you don't modify anything, you can use it _(and relicense it)_ into your app almost as if it was MIT/BSD.  
+
+The MPL is a not-so-well-known license.  
+Please read the MPL FAQ before using this library:
+https://www.mozilla.org/en-US/MPL/2.0/FAQ/
 
