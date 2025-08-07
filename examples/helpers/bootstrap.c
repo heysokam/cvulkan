@@ -88,7 +88,12 @@ static void example_bootstrap_destroy (
 }
 
 
-static cvk_Pure cvk_command_Buffer example_command_buffer_begin_onetime (
+cvk_Pure cvk_command_Buffer example_command_buffer_begin_onetime ( // clang-format off
+  cvk_command_Pool const* const command_pool,
+  example_Bootstrap* const      gpu
+); // clang-format on
+
+cvk_Pure cvk_command_Buffer example_command_buffer_begin_onetime (
   cvk_command_Pool const* const command_pool,
   example_Bootstrap* const      gpu
 ) {
@@ -104,7 +109,13 @@ static cvk_Pure cvk_command_Buffer example_command_buffer_begin_onetime (
 }
 
 
-static void example_command_buffer_end_onetime (
+void example_command_buffer_end_onetime ( // clang-format off
+  cvk_command_Buffer* const     command_buffer,
+  cvk_command_Pool const* const command_pool,
+  example_Bootstrap* const      gpu
+); // clang-format on
+
+void example_command_buffer_end_onetime (
   cvk_command_Buffer* const     command_buffer,
   cvk_command_Pool const* const command_pool,
   example_Bootstrap* const      gpu
