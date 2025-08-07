@@ -53,4 +53,6 @@ Must be avoided:
 - `DebugUtilsMessenger` -> `Debug`
 - `Device`              -> `Device.Logical`
 - `PhysicalDevice`      -> `Device.Physical`
+- `Swapchain`           -> `Device.Swapchain`
+- `Queue`               -> `Device.Queue`
 
