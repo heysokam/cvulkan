@@ -134,10 +134,15 @@ const wip_flags = Flags(
   cc: examples_flags.cc & @["-Wunsafe-buffer-usage"],
   ld: examples_flags.ld)
 confy.cfg.dirs.src = dir_examples
-let example_wip = Program.new("wip.c",           flags=      wip_flags, deps= @[cglm, stb, cgltf])
-let example_001 = Program.new("001.instance.c",  flags= examples_flags)
-let example_002 = Program.new("002.bootstrap.c", flags= examples_flags)
-let example_003 = Program.new("003.triangle.c",  flags= examples_flags)
+let example_wip = Program.new("wip.c",                      flags=      wip_flags, deps= @[cglm, stb, cgltf])
+let example_001 = Program.new("001.instance.c",             flags= examples_flags)
+let example_002 = Program.new("002.bootstrap.c",            flags= examples_flags)
+let example_003 = Program.new("003.clear_color.c",          flags= examples_flags)
+let example_004 = Program.new("004.clear_image.c",          flags= examples_flags)
+let example_005 = Program.new("005.triangle_compute.c",     flags= examples_flags)
+let example_006 = Program.new("006.triangle_static.c",      flags= examples_flags)
+let example_007 = Program.new("007.triangle_dynamic.c",     flags= examples_flags)
+let example_008 = Program.new("008.triangle_fullscreen.c",  flags= examples_flags)
 
 
 #_______________________________________
@@ -147,7 +152,12 @@ when isMainModule:
   example_shaders_compile
   example_001.build.run
   example_002.build.run
-  example_003.build.run
+  # example_003.build.run
+  # example_004.build.run
+  # example_005.build.run
+  example_006.build.run
+  # example_007.build.run
+  # example_008.build.run
   example_wip.build.run
   # gen_zig()
   # gen_nim()

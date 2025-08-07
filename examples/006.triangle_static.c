@@ -1,8 +1,10 @@
 //:___________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  CC0-1.0  :
 //:___________________________________________________________
-//! @fileoverview Single function Triangle using cvulkan.
-//________________________________________________________|
+//! @fileoverview
+//! Single function Triangle using cvulkan.
+//! Uses the old Framebuffer+Renderpass API, without Dynamic Rendering.
+//_____________________________________________________________________|
 // @deps cdk
 #define GLFW_INCLUDE_VULKAN
 #define csys_Implementation
