@@ -163,18 +163,14 @@ This library follows [SOV](https://en.wikipedia.org/wiki/Subject%E2%80%93object%
 ## License & Usage
 This project is covered under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
 
-### MPL in layman terms
 The [MPL v2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) is a per-file weak copyleft license.  
 
-This means that you _can_ use this project in a closed source application,  
-without any need to build the code into a dynamic library in order to link with it.  
-_(ie: like you would need to do with LGPL)_
-
-It is also NOT a viral license.  
-You are only liable to publish and/or contribute back the code for the specific files **that you modified**.  
-So, if you don't modify anything, you can use it _(and relicense it)_ into your app almost as if it was MIT/BSD.  
+Just like with MIT, you _can_ use this project in a closed source application,  
+without the license spreading to your own files, or having to build the code into a dynamic library.  
+_(ie: like GPL/LGPL would require)_  
+If you don't modify anything, you can use _(and relicense)_ the code into your app as if it was MIT/BSD.  
 
 The MPL is a not-so-well-known license.  
-Please read the MPL FAQ before using this library:
-https://www.mozilla.org/en-US/MPL/2.0/FAQ/
+Please read their [FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) if you were not aware of its existence.  
 
+This project is covered under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
