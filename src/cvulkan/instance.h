@@ -27,14 +27,11 @@ cvk_Pure VkInstanceCreateInfo cvk_instance_options_create ( // clang-format off
 // @section Instance: Create/Destroy
 //____________________________
 typedef struct cvk_instance_create_args {
-  cvk_Nullable cvk_Allocator* const                         allocator;       ///< Will use the default allocator when null
-  cvk_Nullable cvk_Slice const                              layers;          ///< Will use the cvk required layers when (0,NULL)
-  cvk_Nullable cvk_Slice const                              extensions;      ///< Will use the cvk required extensions when (0,NULL)
-  cvk_Nullable cvk_Version const                            app_version;     ///< Accepts a value of 0
-  cvk_Nullable cvk_Version const                            engine_version;  ///< Accepts a value of 0
-  cvk_Nullable cvk_String const                             app_name;        ///< Accepts a null value
-  cvk_Nullable cvk_String const                             engine_name;     ///< Accepts a null value
-  cvk_Nullable cvk_validation_Options const* const          validation;      ///< Will configure debug messenger and validation layers with defaults when null
+  cvk_Nullable cvk_Allocator* const                         allocator;    ///< Will use the default allocator when null
+  cvk_Nullable cvk_Slice const                              layers;       ///< Will use the cvk required layers when (0,NULL)
+  cvk_Nullable cvk_Slice const                              extensions;   ///< Will use the cvk required extensions when (0,NULL)
+  cvk_Nullable VkApplicationInfo const* const               application;  ///< Will use `cvk_application_defaults()` when omitted (aka nulll)
+  cvk_Nullable cvk_validation_Options const* const          validation;   ///< Will configure debug messenger and validation layers with defaults when null
   cvk_Nullable cvk_Fn_extensions_Instance_getRequired const extensions_getRequired;  ///< Will use cvk_extensions_Instance_getRequired when null
 } cvk_instance_create_args;
 cvk_Pure cvk_Instance cvk_instance_create (cvk_instance_create_args const* const arg);

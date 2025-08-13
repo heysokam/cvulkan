@@ -89,16 +89,10 @@ cvk_Pure cvk_Instance cvk_instance_create (
   cvk_instance_create_args const* const arg
 ) {
   cvk_Instance result = (cvk_Instance){ 0 };
-  // Create allocator
-  result.allocator = (arg->allocator) ? *arg->allocator : cvk_Allocator_defaults();
-  // Create appinfo
-  result.application                    = cvk_Application_defaults();
-  result.application.pApplicationName   = arg->app_name;
-  result.application.applicationVersion = arg->app_version;
-  result.application.pEngineName        = arg->engine_name;
-  result.application.engineVersion      = arg->engine_version;
-  // Create validation options
-  //  : User options, or defaults when NULL
+  // User options, or defaults when NULL
+  result.allocator   = (arg->allocator) ? *arg->allocator : cvk_allocator_defaults();
+  result.application = (arg->application) ? *arg->application : cvk_application_defaults();
+  // User validation options, or use the defaults when NULL
   cvk_validation_Options validation = (arg->validation) ? *arg->validation : cvk_validation_options_defaults();
   //  : Assign to the result
   result.validation = (cvk_Validation){
