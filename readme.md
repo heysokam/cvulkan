@@ -12,7 +12,7 @@ _(Think `vk-bootstrap`, but with Modern C and a touch of `wgpu-native` instead)_
 
 `cvulkan` focuses exclusively on ergonomics & helper code.  
 The goal is to fully respect Vulkan concepts and constructs,  
-with little to none abstraction.  
+with little to no abstraction.  
 
 At any time, you'll be able to drop the `cvulkan` API  
 and write standard Vulkan using the Vulkan specification as normal.  
@@ -64,7 +64,8 @@ Up-to-date list of features pending and done:
 | 0.14.0  | Descriptor Indexing _(bindless)_  | 📋 TODO   | [doc/todo.0.14.0.md](doc/todo.0.14.0.md)  |
 | 0.15.0  | Synchonization 2                  | 📋 TODO   | [doc/todo.0.15.0.md](doc/todo.0.15.0.md)  |
 |  ?.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
-|  ?.?.?  | Cross-Language FFI                | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
+|  ?.?.?  | Cross-Language FFI : Zig          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
+|  ?.?.?  | Cross-Language FFI : Nim          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
 |  1.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)    |
 |  ?.?.?  | Unlikely/Experimental/Backlog     | (N/A)     | [doc/todo.unlikely.md](doc/todo.unlikely.md) |
 
@@ -173,4 +174,3 @@ If you don't modify anything, you can use _(and relicense)_ the code into your a
 The MPL is a not-so-well-known license.  
 Please read their [FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) if you were not aware of its existence.  
 
-This project is covered under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
