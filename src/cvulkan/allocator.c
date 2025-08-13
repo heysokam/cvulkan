@@ -1,7 +1,7 @@
 //:___________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
-#include "./memory.h"
+#include "./allocator.h"
 #include <stdlib.h>
 
 
@@ -72,7 +72,7 @@ cvk_Pure cvk_Allocator_CPU cvk_allocator_cpu_stdlib () {
 }
 
 
-cvk_Pure cvk_Allocator cvk_Allocator_defaults () {
+cvk_Pure cvk_Allocator cvk_allocator_defaults () {
   return (cvk_Allocator){
     .gpu = cvk_allocator_gpu_defaults(),
     .cpu = cvk_allocator_cpu_defaults(),

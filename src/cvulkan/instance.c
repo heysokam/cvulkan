@@ -2,8 +2,9 @@
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
 #include "./result.h"
+#include "./application.h"
+#include "./allocator.h"
 #include "./validation.h"
-#include <vulkan/vulkan_core.h>
 #include "./instance.h"
 
 

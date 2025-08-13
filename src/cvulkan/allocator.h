@@ -3,8 +3,8 @@
 //:___________________________________________________________
 //! @fileoverview Memory Management tools for the GPU and CPU
 //____________________________________________________________|
-#ifndef H_cvulkan_memory
-#define H_cvulkan_memory
+#ifndef H_cvulkan_allocator
+#define H_cvulkan_allocator
 #include "./base.h"
 #include "./types.h"
 
@@ -52,19 +52,19 @@ cvk_Pure cvk_Allocator_CPU cvk_allocator_cpu_stdlib ();
 
 /// @description
 /// Function that creates the default `cvk_Allocator` object used by the cvk API
-cvk_Pure cvk_Allocator cvk_Allocator_defaults ();
+cvk_Pure cvk_Allocator cvk_allocator_defaults ();
 
 
 //______________________________________
 // @section Single Header Support
 //____________________________
 #ifdef cvk_Implementation
-#define cvk_Implementation_memory
+#define cvk_Implementation_allocator
 #endif
-#ifdef cvk_Implementation_memory
-#include "./memory.c"
+#ifdef cvk_Implementation_allocator
+#include "./allocator.c"
 #endif
 
 
-#endif  // H_cvulkan_memory
+#endif  // H_cvulkan_allocator
 
