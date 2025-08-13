@@ -9,7 +9,7 @@
 #include "./types.h"
 
 
-cvk_Pure cvk_Application cvk_Application_defaults ();
+cvk_Pure cvk_Application cvk_application_defaults ();
 
 
 //______________________________________
