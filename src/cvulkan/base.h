@@ -48,15 +48,20 @@ typedef VkExtent3D cvk_Size3D;
 
 typedef struct cvk_Slice_s {
   cvk_size    len;
-  cvk_size    itemsize; ///< Readonly for statically typed slices.
+  cvk_size    itemsize;  ///< Readonly for statically typed slices.
   cvk_pointer ptr;
 } cvk_Slice_t;
-#ifndef cvk_Slice  // clang-format off
+#ifndef cvk_Slice        // clang-format off
 #define cvk_Slice cvk_Slice_t
 #define cvk_Slice_empty() (cvk_Slice){ .len = 0, .itemsize= 0, .ptr = NULL }
 #define cvk_Slice_isEmpty(slice) ((slice).ptr == NULL || (slice).len == 0)
 // clang-format on
 #endif  // cvk_Slice
+
+typedef struct cvk_StringSlice {
+  cvk_StringList const ptr;
+  cvk_size const       len;
+} cvk_StringSlice;
 
 #ifndef cvk_Optional_u32
 #define cvk_Optional_u32               uint32_t
