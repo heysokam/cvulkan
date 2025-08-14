@@ -35,6 +35,8 @@ cvk_bool cvk_instance_layers_checkSupport (
   cvk_Slice const      required,
   cvk_Allocator* const allocator
 ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   if (!required.len) return cvk_true;
 
   cvk_Slice properties = cvk_Slice_empty();
@@ -46,19 +48,9 @@ cvk_bool cvk_instance_layers_checkSupport (
 
   cvk_bool found = cvk_false;
   for (size_t layerId = 0; layerId < properties.len; ++layerId) {
-    // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     VkLayerProperties const prop = ((VkLayerProperties*)properties.ptr)[layerId];
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-    // clang-format on
     for (size_t vlayerID = 0; vlayerID < required.len; ++vlayerID) {
-      // clang-format off
-      #pragma GCC diagnostic push
-      #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
       cvk_String const extension = ((cvk_String*)required.ptr)[vlayerID];
-      #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-      // clang-format on
       if (cvk_String_equal(prop.layerName, extension)) {
         found = cvk_true;
         goto end;
@@ -68,6 +60,7 @@ cvk_bool cvk_instance_layers_checkSupport (
 end:
   allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&properties);
   return found;
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 }
 
 
