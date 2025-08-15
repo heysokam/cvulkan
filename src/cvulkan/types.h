@@ -21,11 +21,12 @@ typedef struct cvk_Allocator_CPU_s cvk_Allocator_CPU_t;
 //______________________________________
 // @section Allocator.CPU: Function Types Declarations
 //____________________________
-typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_alloc)(cvk_Allocator_CPU* const, cvk_size const, cvk_size const);
-typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_allocZ)(cvk_Allocator_CPU* const, cvk_size const, cvk_size const);
-typedef void (*cvk_Fn_allocator_free)(cvk_Allocator_CPU* const, cvk_Slice* const);
-typedef void (*cvk_Fn_allocator_copy)(cvk_Allocator_CPU* const, cvk_Slice const* const, cvk_Slice* const);
-typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_duplicate)(cvk_Allocator_CPU* const, cvk_Slice const* const);
+
+typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_alloc)(cvk_Allocator_CPU* const A, cvk_size const count, cvk_size const itemsize);
+typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_allocZ)(cvk_Allocator_CPU* const A, cvk_size const count, cvk_size const itemsize);
+typedef void (*cvk_Fn_allocator_free)(cvk_Allocator_CPU* const A, cvk_Slice* const data);
+typedef void (*cvk_Fn_allocator_copy)(cvk_Allocator_CPU* const A, cvk_Slice const* const src, cvk_Slice* const trg);
+typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_duplicate)(cvk_Allocator_CPU* const A, cvk_Slice const* const data);
 
 
 //______________________________________
