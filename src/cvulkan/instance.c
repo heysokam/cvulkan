@@ -13,10 +13,10 @@
 //____________________________
 
 cvk_Pure VkInstanceCreateInfo cvk_instance_options_create (
-  cvk_Application const* const application,
-  VkInstanceCreateFlags const  flags,
-  cvk_Slice const              layers,
-  cvk_Slice const              extensions
+  cvk_Application const* const  application,
+  VkInstanceCreateFlags const   flags,
+  cvk_Slice const               layers,
+  cvk_instance_Extensions const extensions
 ) {
   return (VkInstanceCreateInfo){
     .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -76,6 +76,91 @@ static void cvk_instance_layers_checkValidation (
 
 
 //______________________________________
+// @section Instance: Extensions
+//____________________________
+static cvk_instance_Extensions const cvk_instance_extensions_Defaults = (cvk_instance_Extensions){
+  .len = 0,
+  .ptr = NULL,
+};
+
+
+typedef struct cvk_instance_extensions_merge_args {
+  cvk_bool const       debug_active;
+  cvk_bool const       portability;
+  cvk_Allocator* const allocator;
+} cvk_instance_extensions_merge_args;
+
+
+/// @description
+/// Merges the given `list` of extensions into the result, using the given `arg.allocator`.
+/// @param `list` Lists of extensions required when creating an instance for the application.
+/// @param `arg.debug_active` Will add the DebugMessenger extension when true. Ignored when `list.cvulkan` has a value (aka `list.cvulkan != NULL`)
+/// @param `arg.portability` Will add the PortabilityEnumeration extension when true. Ignored when `list.cvulkan` has a value (aka `list.cvulkan != NULL`)
+static cvk_Pure cvk_instance_Extensions cvk_instance_extensions_merge (
+  cvk_instance_extensions_Required const          list,
+  cvk_instance_extensions_merge_args const* const arg
+) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  cvk_instance_Extensions result   = (cvk_instance_Extensions){ 0 };
+  cvk_instance_Extensions defaults = (list.cvulkan) ? *list.cvulkan : cvk_instance_extensions_Defaults;
+  cvk_size                start    = 0;
+
+  // Find the final length
+  result.len += list.system.len;
+  result.len += list.user.len;
+  result.len += defaults.len;
+  if (!list.cvulkan) {  // Only add the independent defaults when the user did not override the list
+    result.len += (arg->debug_active) ? 1 : 0;
+    result.len += (arg->portability) ? 1 : 0;
+  }
+
+  // Allocate space for all the extensions
+  cvk_Slice data = arg->allocator->cpu.alloc(&arg->allocator->cpu, result.len, sizeof(cvk_String));
+
+  // Add the system extensions
+  arg->allocator->cpu.copy(
+    /* A   */ &arg->allocator->cpu,
+    /* src */ &(cvk_Slice){ .ptr = list.system.ptr, .len = list.system.len, .itemsize = data.itemsize },
+    /* trg */ &(cvk_Slice){ .ptr = (cvk_String*)data.ptr + start, .len = list.system.len, .itemsize = data.itemsize }
+  );
+  start += list.system.len;
+
+  // Add the user extensions
+  arg->allocator->cpu.copy(
+    /* A   */ &arg->allocator->cpu,
+    /* src */ &(cvk_Slice){ .ptr = list.user.ptr, .len = list.user.len, .itemsize = data.itemsize },
+    /* trg */ &(cvk_Slice){ .ptr = (cvk_String*)data.ptr + start, .len = list.user.len, .itemsize = data.itemsize }
+  );
+  start += list.user.len;
+
+  // Add the cvulkan extensions
+  arg->allocator->cpu.copy(
+    /* A   */ &arg->allocator->cpu,
+    /* src */ &(cvk_Slice){ .ptr = defaults.ptr, .len = defaults.len, .itemsize = data.itemsize },
+    /* trg */ &(cvk_Slice){ .ptr = (cvk_String*)data.ptr + start, .len = defaults.len, .itemsize = data.itemsize }
+  );
+  start += defaults.len;
+  if (!list.cvulkan) {  // Only add the independent defaults when the user did not override the list
+    if (arg->debug_active) {
+      ((cvk_String*)data.ptr)[start] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+      start += 1;
+    }
+    if (arg->portability) {
+      ((cvk_String*)data.ptr)[start] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
+      start += 1;
+    }
+  }
+
+  // Return the result
+  result.ptr = data.ptr;
+  result.len = data.len;
+  return result;
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+}
+
+
+//______________________________________
 // @section Instance: Initialize/Allocate/Create
 //____________________________
 cvk_Pure cvk_Instance cvk_instance_create (
@@ -111,25 +196,18 @@ cvk_Pure cvk_Instance cvk_instance_create (
   layers.ptr               = &layer_list;
   layers.len               = 1;
 
-  //
-  // TODO:  Extensions
-  //
-  cvk_String extension_list[3] = {
-    [0] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-    // FIX: Should come from the user-provided extensions_getRequired function (eg: glfw)
-    [1] = VK_KHR_SURFACE_EXTENSION_NAME,
-    [2] = "VK_KHR_xcb_surface",  // VK_KHR_XCB_SURFACE_EXTENSION_NAME
-    // TODO: Portability for mac
-  };
-  cvk_Slice extensions = cvk_Slice_empty();
-  extensions.ptr       = &extension_list;
-  extensions.len       = 3;
+  // Extensions
+  result.extensions = /* clang-format off */ cvk_instance_extensions_merge(arg->extensions, &(cvk_instance_extensions_merge_args){
+    .debug_active = result.validation.debug_active,
+    .portability  = arg->portability,
+    .allocator    = &result.allocator,
+  }); //clang-format on
 
   // Create instance.cfg
   //  : with layers
   //  : with extensions
   //  : with debug.cfg as pNext
-  result.cfg = cvk_instance_options_create(&result.application, 0, layers, extensions);
+  result.cfg = cvk_instance_options_create(&result.application, (VkInstanceCreateFlags)arg->portability, layers, result.extensions);
   if (result.validation.debug_active) result.cfg.pNext = (void*)&result.validation.debug_cfg;
   // Create instance.ct
   cvk_result_check(vkCreateInstance(&result.cfg, result.allocator.gpu, &result.ct), "Failed to create the Vulkan Instance.");
@@ -153,7 +231,7 @@ void cvk_instance_destroy (
   cvk_Instance* const instance
 ) {
   // TODO: Free the Allocator's data
-  // TODO: Deallocate the extensions
+  instance->allocator.cpu.free(&instance->allocator.cpu, &(cvk_Slice){.len=instance->extensions.len, .itemsize= sizeof(cvk_String), .ptr= instance->extensions.ptr});
   cvk_validation_debug_context_destroy(instance->ct, instance->validation.debug_ct, instance->allocator.gpu);
   instance->cfg = (VkInstanceCreateInfo){ 0 };
   vkDestroyInstance(instance->ct, instance->allocator.gpu);

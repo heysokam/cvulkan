@@ -11,6 +11,7 @@
 #define cvk_Implementation
 #include <cvulkan.h>
 
+
 //______________________________________
 // SpirV shaders used by this example
 extern unsigned char examples_shaders_texture_frag_spv[];

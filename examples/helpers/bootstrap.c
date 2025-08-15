@@ -46,7 +46,9 @@ static example_Bootstrap example_bootstrap_create (
   cvk_Size2D const  window_size
 ) {  // clang-format off
   example_Bootstrap result = (example_Bootstrap){ 0 };
-  result.instance         = cvk_instance_create(&(cvk_instance_create_args){ 0 });  // Create with all defaults
+  cvk_instance_extensions_Required extensions = { 0 };
+  extensions.system.ptr   = glfwGetRequiredInstanceExtensions((uint32_t*)&extensions.system.len);
+  result.instance         = cvk_instance_create(&(cvk_instance_create_args){ .extensions = extensions });
   result.surface          = example_bootstrap_surface_create(result.instance.ct, window_ct, result.instance.allocator.gpu);
   result.device_physical  = cvk_device_physical_create(&(cvk_device_physical_create_args){
     .instance             = &result.instance,

@@ -29,8 +29,13 @@ int main () {
 
   //________________________________________________
   // Initialize: GPU Instance
+  // Create with the GLFW required extensions, and all else as defaults
   // @note Validation Layers and Debug Messenger are active by default (unless specified otherwise)
-  cvk_Instance instance = cvk_instance_create(&(cvk_instance_create_args){ 0 });  // Create with all defaults
+  cvk_instance_extensions_Required extensions = { 0 };  // clang-format off
+  extensions.system.ptr = glfwGetRequiredInstanceExtensions((uint32_t*)&extensions.system.len);
+  cvk_Instance instance = cvk_instance_create(&(cvk_instance_create_args){
+    .extensions = extensions,
+  });  // clang-format on
 
 
   //________________________________________________

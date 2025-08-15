@@ -36,9 +36,9 @@
 - [x] Application Info
 - [x] Validation Layers
 - [x] Debug Messenger
-- [ ] Extensions
+- [x] Extensions
   - [x] Minimal
-  - [ ] Custom
+  - [x] Custom
 ```
 
 ```md
@@ -48,14 +48,6 @@
   - [ ] Check validation layer availability detection
   - [ ] Test validation error reporting
   - [ ] Ensure proper cleanup of validation resources
-```
-
-```md
-- `src/cvulkan/extensions.h`
-- [ ] **Review extension management**
-  - [ ] Verify extension enumeration
-  - [ ] Check extension availability validation
-  - [ ] Test extension loading and usage
 ```
 
 ```md
@@ -75,11 +67,11 @@
     - [ ] Validation enabled
     - [ ] Validation disabled
     - [ ] Custom debug callback
-    - [ ] Custom Extensions
+    - [x] Custom Extensions
 ```
 
 ```md
-- `src/cvulkan/memory.c` and `src/cvulkan/memory.h`
+- `src/cvulkan/allocator.c` and `src/cvulkan/allocator.h`
 - [ ] **Review memory allocation system**
   - [ ] Verify memory type selection logic
   - [ ] Check memory allocation error handling
@@ -89,7 +81,7 @@
 
 ```md
 - [ ] **Documentation updates**
-  - [ ] Update memory.h documentation
+  - [ ] Update allocator.h documentation
   - [ ] Document memory allocation patterns
 ```
 

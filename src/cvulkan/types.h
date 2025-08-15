@@ -11,6 +11,7 @@
 //______________________________________
 // @section Allocator.CPU: Overridable Type
 //____________________________
+
 #ifndef cvk_Allocator_CPU
 typedef struct cvk_Allocator_CPU_s cvk_Allocator_CPU_t;
 #define cvk_Allocator_CPU cvk_Allocator_CPU_t
@@ -30,6 +31,7 @@ typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_duplicate)(cvk_Allocator_CPU* cons
 //______________________________________
 // @section Allocator.CPU: Core Type
 //____________________________
+
 struct cvk_Allocator_CPU_s {
   cvk_Fn_allocator_alloc     alloc;
   cvk_Fn_allocator_allocZ    allocZ;
@@ -98,14 +100,36 @@ typedef struct cvk_Validation {
 
 
 //______________________________________
+// @section Instance: Extensions & Layers
+//____________________________
+
+typedef cvk_StringSlice cvk_instance_Extensions;
+typedef cvk_StringSlice cvk_instance_Layers;
+
+/// @description
+/// List of `Instance.extensions` required to create an Instance that's usable for the target application.
+typedef struct cvk_instance_extensions_Required {
+  cvk_instance_Extensions              system;  ///< List of extensions required by the system
+  cvk_Nullable cvk_instance_Extensions user;    ///< List of extensions required by the user
+  /// Uses cvulkan's default extensions when omitted.  (aka. 0,NULL)
+  /// @important
+  /// Extensions required by cvulkan won't be added at all when this field has a value,
+  /// and this list will be used instead.
+  /// Use only to override cvulkan's default behavior.
+  cvk_Nullable cvk_instance_Extensions const* const cvulkan;
+} cvk_instance_extensions_Required;
+
+
+//______________________________________
 // @section Instance
 //____________________________
 typedef struct cvk_Instance {
-  VkInstance           ct;
-  VkInstanceCreateInfo cfg;
-  cvk_Allocator        allocator;
-  VkApplicationInfo    application;
-  cvk_Validation       validation;
+  VkInstance              ct;
+  VkInstanceCreateInfo    cfg;
+  cvk_Allocator           allocator;
+  VkApplicationInfo       application;
+  cvk_Validation          validation;
+  cvk_instance_Extensions extensions;
 } cvk_Instance;
 
 /// @description

@@ -128,7 +128,7 @@ const cgltf = Dependency.new("cgltf", "https://github.com/jkuhlmann/cgltf",     
 # @section Examples
 #_____________________________
 const examples_flags = Flags(
-  cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation-unknown-command", "-Wno-unsafe-buffer-usage"],
+  cc: @[&"-I{dir_cvk}", &"-I{dir_helpers}", "-Wno-documentation", "-Wno-documentation-unknown-command", "-Wno-unsafe-buffer-usage"],
   ld: @["-lvulkan", "-lglfw"])
 const wip_flags = Flags(
   cc: examples_flags.cc & @["-Wunsafe-buffer-usage"],

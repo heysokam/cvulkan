@@ -59,8 +59,8 @@ typedef struct cvk_Slice_s {
 #endif  // cvk_Slice
 
 typedef struct cvk_StringSlice {
-  cvk_StringList const ptr;
-  cvk_size const       len;
+  cvk_StringList ptr;
+  cvk_size       len;
 } cvk_StringSlice;
 
 #ifndef cvk_Optional_u32

@@ -11,7 +11,6 @@
 #include "./memory.h"
 #include "./config.h"
 #include "./application.h"
-#include "./extensions.h"
 #include "./validation.h"
 #include "./instance.h"
 #include "./surface.h"
