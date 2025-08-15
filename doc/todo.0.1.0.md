@@ -34,11 +34,14 @@
 # VkInstance
 - [x] Minimal creation
 - [x] Application Info
-- [x] Validation Layers
+- [x] Layers
+  - [x] Validation
+  - [x] Custom
 - [x] Debug Messenger
 - [x] Extensions
   - [x] Minimal
   - [x] Custom
+  - [ ] Filter out extensions not supported by the system
 ```
 
 ```md
@@ -68,6 +71,7 @@
     - [ ] Validation disabled
     - [ ] Custom debug callback
     - [x] Custom Extensions
+    - [ ] Do not add extensions that are not supported
 ```
 
 ```md

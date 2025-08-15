@@ -15,7 +15,7 @@
 cvk_Pure VkInstanceCreateInfo cvk_instance_options_create (
   cvk_Application const* const  application,
   VkInstanceCreateFlags const   flags,
-  cvk_Slice const               layers,
+  cvk_instance_Layers const     layers,
   cvk_instance_Extensions const extensions
 ) {
   return (VkInstanceCreateInfo){
@@ -75,9 +75,32 @@ static void cvk_instance_layers_checkValidation (
 }
 
 
+static cvk_Pure cvk_instance_Layers cvk_instance_layers_defaults (
+  cvk_bool const       validation_active,
+  cvk_Allocator* const allocator
+) {
+  // @important
+  // Assumes that the user will send us the validation layer,
+  // when they request any custom layers at all
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  cvk_instance_Layers result = (cvk_instance_Layers){ 0 };
+  if (!validation_active) return result;
+  // Add validation layer
+  cvk_Slice data             = allocator->cpu.allocZ(&allocator->cpu, 1, sizeof(cvk_StringList));
+  ((cvk_String*)data.ptr)[0] = cvk_validation_LayerName;
+  // Return the result
+  result.ptr = data.ptr;
+  result.len = data.len;
+  return result;
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+}
+
+
 //______________________________________
 // @section Instance: Extensions
 //____________________________
+
 static cvk_instance_Extensions const cvk_instance_extensions_Defaults = (cvk_instance_Extensions){
   .len = 0,
   .ptr = NULL,
@@ -89,7 +112,6 @@ typedef struct cvk_instance_extensions_merge_args {
   cvk_bool const       portability;
   cvk_Allocator* const allocator;
 } cvk_instance_extensions_merge_args;
-
 
 /// @description
 /// Merges the given `list` of extensions into the result, using the given `arg.allocator`.
@@ -105,6 +127,8 @@ static cvk_Pure cvk_instance_Extensions cvk_instance_extensions_merge (
   cvk_instance_Extensions result   = (cvk_instance_Extensions){ 0 };
   cvk_instance_Extensions defaults = (list.cvulkan) ? *list.cvulkan : cvk_instance_extensions_Defaults;
   cvk_size                start    = 0;
+
+  // FIX: Filter out extensions not supported by the system
 
   // Find the final length
   result.len += list.system.len;
@@ -188,14 +212,8 @@ cvk_Pure cvk_Instance cvk_instance_create (
   //  : Check that validation layers are supported when required
   if (result.validation.layers_active) cvk_instance_layers_checkValidation(&result.allocator);
 
-  //
-  // TODO: Layers
-  //
-  cvk_String layer_list[1] = { [0] = cvk_validation_LayerName };
-  cvk_Slice  layers        = cvk_Slice_empty();
-  layers.ptr               = &layer_list;
-  layers.len               = 1;
-
+  // Layers
+  result.layers = (arg->layers) ? *arg->layers : cvk_instance_layers_defaults(result.validation.layers_active, &result.allocator);
   // Extensions
   result.extensions = /* clang-format off */ cvk_instance_extensions_merge(arg->extensions, &(cvk_instance_extensions_merge_args){
     .debug_active = result.validation.debug_active,
@@ -207,7 +225,7 @@ cvk_Pure cvk_Instance cvk_instance_create (
   //  : with layers
   //  : with extensions
   //  : with debug.cfg as pNext
-  result.cfg = cvk_instance_options_create(&result.application, (VkInstanceCreateFlags)arg->portability, layers, result.extensions);
+  result.cfg = cvk_instance_options_create(&result.application, (VkInstanceCreateFlags)arg->portability, result.layers, result.extensions);
   if (result.validation.debug_active) result.cfg.pNext = (void*)&result.validation.debug_cfg;
   // Create instance.ct
   cvk_result_check(vkCreateInstance(&result.cfg, result.allocator.gpu, &result.ct), "Failed to create the Vulkan Instance.");

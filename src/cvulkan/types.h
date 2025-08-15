@@ -131,6 +131,7 @@ typedef struct cvk_Instance {
   VkApplicationInfo       application;
   cvk_Validation          validation;
   cvk_instance_Extensions extensions;
+  cvk_instance_Layers     layers;
 } cvk_Instance;
 
 /// @description

@@ -37,7 +37,7 @@ cvk_Pure VkDebugUtilsMessengerCreateInfoEXT cvk_validation_debug_options_create 
 }
 
 
-VkBool32 cvk_validation_debug_callback (
+VKAPI_ATTR VkBool32 VKAPI_CALL cvk_validation_debug_callback (
   VkDebugUtilsMessageSeverityFlagBitsEXT const      severity,
   VkDebugUtilsMessageTypeFlagsEXT const             types,
   VkDebugUtilsMessengerCallbackDataEXT const* const cbdata,

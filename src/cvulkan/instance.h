@@ -18,7 +18,7 @@
 cvk_Pure VkInstanceCreateInfo cvk_instance_options_create ( // clang-format off
   cvk_Application const* const  application,
   VkInstanceCreateFlags const   flags,
-  cvk_Slice const               layers,
+  cvk_instance_Layers const     layers,
   cvk_instance_Extensions const extensions
 ); // clang-format on
 
@@ -29,11 +29,12 @@ cvk_Pure VkInstanceCreateInfo cvk_instance_options_create ( // clang-format off
 
 typedef struct cvk_instance_create_args {  // clang-format off
   cvk_Nullable cvk_Allocator* const                   allocator;    ///< Will use the default allocator when null
-  cvk_Nullable cvk_Slice const                        layers;       ///< Will use the cvk required layers when (0,NULL)
+  cvk_Nullable cvk_StringSlice const*const            layers;       ///< Leave as (0,NULL) for default behavior (will add validation layers when relevant). Will override all layers when not null.
   cvk_Nullable cvk_instance_extensions_Required const extensions;   ///< Will not add any system or user extensions when omitted. Only the defaults will be added.
-  cvk_Nullable VkApplicationInfo const* const         application;  ///< Will use `cvk_application_defaults()` when omitted (aka nulll)
+  cvk_Nullable VkApplicationInfo const* const         application;  ///< Will use `cvk_application_defaults()` when omitted (aka null)
   cvk_Nullable cvk_validation_Options const* const    validation;   ///< Will configure debug messenger and validation layers with defaults when null
   cvk_Nullable cvk_bool const                         portability;  ///< Will add Portability flags and extensions when `true`.
+  char                                                priv_pad[4];
 } cvk_instance_create_args;  // clang-format on
 cvk_Pure cvk_Instance cvk_instance_create (cvk_instance_create_args const* const arg);
 void                  cvk_instance_destroy (cvk_Instance* const instance);
