@@ -194,7 +194,7 @@ cvk_Pure cvk_instance_Extensions cvk_instance_extensions_create (
     if (arg->debug_active) do {
         cvk_String extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
         if (!cvk_instance_extensions_checkSupported(&properties, extension)) break;
-        ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, extension);
         current += 1;
       } while (cvk_do_onetime);
 

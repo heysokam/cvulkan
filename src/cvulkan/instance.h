@@ -40,7 +40,7 @@ cvk_bool cvk_instance_layers_checkSupport ( // clang-format off
 
 /// @description
 /// Frees the memory allocated for the given `list` of layers.
-/// All entries will be freed individually, and must be heap allocated
+/// All entries will be freed individually, and must be heap allocated.
 /// (ie: string literals are not allowed. They must be duplicated with the given allocator)
 void cvk_instance_layers_destroy ( // clang-format off
   cvk_instance_Layers  layers,
