@@ -49,7 +49,7 @@ Up-to-date list of features pending and done:
 | Version | Focus                             | Status    | File            |
 |---------|-----------------------------------|-----------|-----------------|
 |  0.1.0  | Instance, Validation & Helpers    | ✅ Done   | [doc/done.0.1.0.md](doc/done.0.1.0.md)       |
-|  0.2.0  | Physical Device Selection         | 🔄 Review | [doc/todo.0.2.0.md](doc/todo.0.2.0.md)       |
+|  0.2.0  | Physical Device Selection         | ✅ Done   | [doc/done.0.2.0.md](doc/done.0.2.0.md)       |
 |  0.3.0  | Logical Device                    | 🔄 Review | [doc/todo.0.3.0.md](doc/todo.0.3.0.md)       |
 |  0.4.0  | Device Queue                      | 🔄 Review | [doc/todo.0.4.0.md](doc/todo.0.4.0.md)       |
 |  0.5.0  | Surface & Swapchain               | 🔄 Review | [doc/todo.0.5.0.md](doc/todo.0.5.0.md)       |
@@ -63,9 +63,9 @@ Up-to-date list of features pending and done:
 | 0.13.0  | Dynamic Rendering                 | 📋 TODO   | [doc/todo.0.13.0.md](doc/todo.0.13.0.md)     |
 | 0.14.0  | Descriptor Indexing _(bindless)_  | 📋 TODO   | [doc/todo.0.14.0.md](doc/todo.0.14.0.md)     |
 | 0.15.0  | Synchonization 2                  | 📋 TODO   | [doc/todo.0.15.0.md](doc/todo.0.15.0.md)     |
-|  0.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  0.?.?  | Cross-Language FFI : Zig          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  0.?.?  | Cross-Language FFI : Nim          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
+|  0.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  0.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)       |
 |  ?.?.?  | VMA Replacement                   | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  ?.?.?  | Unlikely/Experimental/Backlog     | (N/A)     | [doc/todo.unlikely.md](doc/todo.unlikely.md) |

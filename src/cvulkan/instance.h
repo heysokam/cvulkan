@@ -14,7 +14,7 @@
 //____________________________
 
 /// @description
-/// Creates a valid VkInstanceCreateInfo object with the given arguments
+/// Creates a valid `VkInstanceCreateInfo` object using the given configuration options.
 cvk_Pure VkInstanceCreateInfo cvk_instance_options_create ( // clang-format off
   cvk_Application const* const  application,
   VkInstanceCreateFlags const   flags,

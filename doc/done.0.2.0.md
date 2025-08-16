@@ -21,10 +21,11 @@
   - [x] Verify device enumeration covers all available devices
   - [x] Check device property retrieval is complete
   - [x] Ensure proper device ranking/selection logic
-- [ ] **Queue Family selection**
-  - [ ] Verify queue family enumeration
-  - [ ] Check queue family property validation
-  - [ ] Test queue family selection logic
-  - [ ] Ensure proper queue family assignment
+- [x] **Queue Family selection**
+  - [x] Verify queue family enumeration
+  - [x] Check queue family property validation
+  - [x] Test queue family selection logic
+  - [x] Ensure proper queue family assignment
+- [x] **Swapchain Support**
 ```
 

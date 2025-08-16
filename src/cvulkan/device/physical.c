@@ -86,7 +86,7 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
   // Get the isSuitable/getScore functions (user or default)
   cvk_Fn_device_physical_isSuitable const isSuitable = (arg->isSuitable) ? arg->isSuitable : cvk_device_physical_isSuitable;
   cvk_Fn_device_physical_getScore const   getScore   = (arg->getScore) ? arg->getScore : cvk_device_physical_getScore;
-  // For each available device, call isSuitable and stop when the condition matches
+  // For each available device, call isSuitable/getScore and assign to the result when the condition matches
   cvk_device_Physical       result    = (cvk_device_Physical){ .ct = NULL, .id = cvk_Optional_u32_none };
   cvk_device_physical_Score rank_best = 0;
   for (cvk_Optional_u32 id = 0; id < available.len; ++id) {
