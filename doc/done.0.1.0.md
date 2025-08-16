@@ -51,37 +51,14 @@
 
 ```md
 - `src/cvulkan/instance.c`, `src/cvulkan/instance.h`
-- [ ] **Review instance creation flow**
-  - [ ] Verify all required extensions are properly handled
-  - [ ] Check validation layer setup is complete
-  - [ ] Ensure debug messenger configuration is robust
-```
-
-```md
-- [ ] **Documentation updates**
-  - [ ] Update instance.h documentation
-  - [ ] Add usage examples to readme
-  - [ ] Document validation layer configuration
-  - [ ] Instance Example
-    - [ ] Validation enabled
-    - [ ] Validation disabled
-    - [ ] Custom debug callback
-    - [x] Custom Extensions
-    - [ ] Do not add extensions that are not supported
+- [x] **Review instance creation flow**
+  - [x] Verify all required extensions are properly handled
+  - [x] Check validation layer setup is complete
+  - [x] Ensure debug messenger configuration is correct
 ```
 
 ```md
 - `src/cvulkan/allocator.c` and `src/cvulkan/allocator.h`
-- [ ] **Review memory allocation system**
-  - [ ] Verify memory type selection logic
-  - [ ] Check memory allocation error handling
-  - [ ] Test memory mapping and unmapping
-  - [ ] Ensure proper memory cleanup
-```
-
-```md
-- [ ] **Documentation updates**
-  - [ ] Update allocator.h documentation
-  - [ ] Document memory allocation patterns
+- [x] **Review memory allocation system**
 ```
 

@@ -21,6 +21,26 @@
 ```
 
 ```md
+##  Documentation for 0.1.0: Instance, Validation & General Purpose Helpers
+- [ ] **Documentation updates**
+  - [ ] Update instance.h documentation
+  - [ ] Add usage examples to readme
+  - [ ] Document validation layer configuration
+  - [ ] Instance Example
+    - [ ] Validation enabled
+    - [ ] Validation disabled
+    - [ ] Custom debug callback
+    - [x] Custom Extensions
+    - [x] Does not add extensions that are not supported
+```
+```md
+- [ ] **Documentation updates**
+  - [ ] Update allocator.h documentation
+  - [ ] Document memory allocation patterns
+```
+
+
+```md
 - [ ] **API consistency review**
   - [ ] Function naming consistency
   - [ ] Parameter ordering consistency
@@ -97,7 +117,7 @@
 ```
 
 
-## ?.?.? - VMA Replacement   (1.0.0 plus 0.?.0)
+## ?.?.? - VMA Replacement   (1.0.0 plus ?.?.0)
 ```md
 # Memory Allocators
 ## GPU

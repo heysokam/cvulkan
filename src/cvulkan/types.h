@@ -33,26 +33,23 @@ typedef void (*cvk_Fn_allocator_string_copy)(cvk_Allocator_CPU* const A, cvk_Str
 
 
 //______________________________________
-// @section Allocator.CPU: Core Type
-//____________________________
-
-struct cvk_Allocator_CPU_s {
-  cvk_Fn_allocator_alloc     alloc;
-  cvk_Fn_allocator_allocZ    allocZ;
-  cvk_Fn_allocator_free      free;
-  cvk_Fn_allocator_copy      copy;
-  cvk_Fn_allocator_duplicate duplicate;
-  cvk_Fn_allocator_resize    resize;
-  // String Allocation
-  cvk_Fn_allocator_string_duplicate string_duplicate;
-  cvk_Fn_allocator_string_copy      string_copy;
-};
-
-
-//______________________________________
 // @section Allocator: Core Types
 //____________________________
+
+struct cvk_Allocator_CPU_s { // clang-format off
+  cvk_Fn_allocator_alloc     alloc;      ///< Equivalent to stdlib.h/malloc, but with cvulkan's allocator API.
+  cvk_Fn_allocator_allocZ    allocZ;     ///< Equivalent to stdlib.h/calloc, but with cvulkan's allocator API.
+  cvk_Fn_allocator_free      free;       ///< Equivalent to stdlib.h/free, but with cvulkan's allocator API.
+  cvk_Fn_allocator_copy      copy;       ///< Equivalent to stdlib.h/memcpy, but with cvulkan's allocator API.
+  cvk_Fn_allocator_duplicate duplicate;  ///< Equivalent to stdlib.h/malloc+memcpy, but with cvulkan's allocator API.
+  cvk_Fn_allocator_resize    resize;     ///< Equivalent to stdlib.h/realloc, but with cvulkan's allocator API.
+  // String Allocation
+  cvk_Fn_allocator_string_copy      string_copy;       ///< Equivalent to stdlib.h/strcpy, but with cvulkan's allocator API. Uses memcpy to write `src` to `trg`.
+  cvk_Fn_allocator_string_duplicate string_duplicate;  ///< Equivalent to stdlib.h/strdup, but with cvulkan's allocator API.
+}; // clang-format on
+
 #define cvk_Allocator_GPU VkAllocationCallbacks*
+
 typedef struct cvk_Allocator {
   cvk_Allocator_GPU gpu;
   cvk_Allocator_CPU cpu;
