@@ -82,7 +82,7 @@ typedef struct cvk_StringSlice {
 
 #ifndef cvk_do_onetime
 /// Shorthand for creating a breakable block that runs once, such as `do { .... } while (cvk_do_onetime);`
-#define cvk_do_onetime false
+#define cvk_do_onetime cvk_false
 #endif  // cvk_do_onetime
 
 

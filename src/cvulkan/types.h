@@ -131,6 +131,7 @@ typedef struct cvk_instance_extensions_Required {
 //______________________________________
 // @section Instance
 //____________________________
+
 typedef struct cvk_Instance {
   VkInstance              ct;
   VkInstanceCreateInfo    cfg;
