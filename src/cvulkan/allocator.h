@@ -13,19 +13,29 @@
 // @section Allocator.CPU: Defaults (stdlib)
 //____________________________
 
-/// @description Thin wrapper for using stdlib.h/malloc with our allocator API
+/// @description Thin wrapper for using stdlib.h/malloc with cvulkan's allocator API
 cvk_Pure cvk_Slice cvk_allocator_alloc_stdlib (cvk_Allocator_CPU* const A, cvk_size const count, cvk_size const itemsize);
-/// @description Thin wrapper for using stdlib.h/calloc with our allocator API
+/// @description Thin wrapper for using stdlib.h/calloc with cvulkan's allocator API
 cvk_Pure cvk_Slice cvk_allocator_allocZ_stdlib (cvk_Allocator_CPU* const A, cvk_size const count, cvk_size const itemsize);
-/// @description Thin wrapper for using stdlib.h/free with our allocator API
+/// @description Thin wrapper for using stdlib.h/free with cvulkan's allocator API
 void cvk_allocator_free_stdlib (cvk_Allocator_CPU* const A, cvk_Slice* const data);
-/// @description Thin wrapper for using stdlib.h/memcpy with our allocator API
+/// @description Thin wrapper for using stdlib.h/memcpy with cvulkan's allocator API
 void cvk_allocator_copy_stdlib (cvk_Allocator_CPU* const A, cvk_Slice const* const src, cvk_Slice* const trg);
-/// @description Thin wrapper for using stdlib.h/malloc+memcpy with our allocator API
+/// @description Thin wrapper for using stdlib.h/malloc+memcpy with cvulkan's allocator API
 cvk_Pure cvk_Slice cvk_allocator_duplicate_stdlib (cvk_Allocator_CPU* const A, cvk_Slice const* const data);
+/// @description Thin wrapper for using stdlib.h/realloc with cvulkan's allocator API
+void cvk_allocator_resize_stdlib (cvk_Allocator_CPU* const A, cvk_Slice* const trg, cvk_size const len);
+/// @description Thin wrapper for using stdlib.h/strcpy with cvulkan's allocator API. Uses memcpy to write `src` to `trg`.
+void cvk_allocator_string_copy_stdlib (cvk_Allocator_CPU* const A, cvk_String const src, cvk_String trg);
+/// @description
+/// Duplicates the `src` string by allocating a new copy of its data and returning it.
+/// Thin wrapper for using stdlib.h/strdup with cvulkan's allocator API
+/// @license Port of musl/strdup | musl.libc.org | MIT License
+cvk_Pure cvk_String cvk_allocator_string_duplicate_stdlib (cvk_Allocator_CPU* const A, cvk_String const src);
+
 /// @description
 /// Function that creates a stdlib CPU allocator wrapper
-/// Allows using stdlib.h with our allocator API
+/// Allows using stdlib.h with cvulkan's allocator API
 cvk_Pure cvk_Allocator_CPU cvk_allocator_cpu_stdlib ();
 #ifndef cvk_allocator_cpu_defaults
 /// @description

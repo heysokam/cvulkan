@@ -27,6 +27,9 @@ typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_allocZ)(cvk_Allocator_CPU* const A
 typedef void (*cvk_Fn_allocator_free)(cvk_Allocator_CPU* const A, cvk_Slice* const data);
 typedef void (*cvk_Fn_allocator_copy)(cvk_Allocator_CPU* const A, cvk_Slice const* const src, cvk_Slice* const trg);
 typedef cvk_Pure cvk_Slice (*cvk_Fn_allocator_duplicate)(cvk_Allocator_CPU* const A, cvk_Slice const* const data);
+typedef void (*cvk_Fn_allocator_resize)(cvk_Allocator_CPU* const A, cvk_Slice* const trg, cvk_size const len);
+typedef cvk_Pure cvk_String (*cvk_Fn_allocator_string_duplicate)(cvk_Allocator_CPU* const A, cvk_String const src);
+typedef void (*cvk_Fn_allocator_string_copy)(cvk_Allocator_CPU* const A, cvk_String const src, cvk_String trg);
 
 
 //______________________________________
@@ -39,6 +42,10 @@ struct cvk_Allocator_CPU_s {
   cvk_Fn_allocator_free      free;
   cvk_Fn_allocator_copy      copy;
   cvk_Fn_allocator_duplicate duplicate;
+  cvk_Fn_allocator_resize    resize;
+  // String Allocation
+  cvk_Fn_allocator_string_duplicate string_duplicate;
+  cvk_Fn_allocator_string_copy      string_copy;
 };
 
 

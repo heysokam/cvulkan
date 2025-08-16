@@ -13,13 +13,15 @@
 - [x] Minimal creation (cpu:stdlib, gpu:null)
 ## CPU
 - [x] Custom Allocator Support
-- [x] stdlib: malloc -> alloc
-- [x] stdlib: calloc -> allocZ
-- [x] stdlib: free   -> free
-- [x] stdlib: memcpy -> copy
-- [x] stdlib: ??     -> duplicate
-- [ ] stdlib: memset -> set
-- [ ] stdlib: ??     -> resize
+- [x] stdlib: malloc     -> alloc
+- [x] stdlib: calloc     -> allocZ
+- [x] stdlib: free       -> free
+- [x] stdlib: memcpy     -> copy
+- [x] stdlib: calloc+cpy -> duplicate
+- [x] stdlib: realloc    -> resize
+- [ ] stdlib: memset     -> set
+- [x] stdlib: strcpy     -> string_copy
+- [x] stdlib: strdup     -> string_duplicate
 ## GPU
 - [x] Custom Allocator Support
 - [x] NULL Allocator
