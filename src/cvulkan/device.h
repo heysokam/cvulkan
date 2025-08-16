@@ -13,12 +13,26 @@
 // @section Device: Queue Families
 //____________________________
 
+/// @description
+/// Creates a `Queue.Families` object with all the relevant queue families data for the given `Device.Physical`.
+/// The `Queue.Families.Properties` data of the device will be allocated and added to the returning object.
+///
+/// The `Queue.ID` values are populated using this logic:
+/// `.graphics` : has graphics
+/// `.present`  : has surface support
+/// `.transfer` : has transfer and not (graphics or compute)  [aka dedicated transfer]
+/// `.compute`  : has compute and not graphics                [aka dedicated compute]
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_queue_families_destroy` using the same `allocator`,
 cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ); // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_device_queue_families_create` for the given families.
 void cvk_device_queue_families_destroy ( // clang-format off
   cvk_QueueFamilies* const queueFamilies,
   cvk_Allocator* const     allocator
@@ -31,14 +45,16 @@ void cvk_device_queue_families_destroy ( // clang-format off
 
 /// @description
 /// Returns the Swapchain support information for the given Device+Surface
-/// The caller is responsible for calling `cvk_device_swapchain_support_destroy` on the result,
-/// in order to free the memory allocated for its formats and modes lists.
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_swapchain_support_destroy` using the same `allocator`,
 cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ); // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_device_swapchain_support_create` using the same `allocator`.
 void cvk_device_swapchain_support_destroy ( // clang-format off
   cvk_device_swapchain_Support* const support,
   cvk_Allocator* const                allocator
@@ -92,7 +108,8 @@ cvk_Pure cvk_device_physical_Score cvk_device_physical_getScore_default ( // cla
 
 /// @description
 /// Allocates a `cvk_device_physical_List` that contains all the devices available on the system.
-/// The caller is responsible for freeing the result with the allocator contained in the `instance`.
+/// The caller owns the memory allocated by this function,
+/// and is responsible for freeing the result with the allocator contained in the given `instance`.
 cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (  // clang-format off
   cvk_Instance* const instance
 );  // clang-format on
@@ -111,7 +128,9 @@ typedef struct cvk_device_physical_create_args {
 /// @description
 /// Searches for a valid `Device.Physical` object handle based on the configuration options at `cvk_device_physical_create_args`.
 /// It also populates its `.properties`, `.features`, etc fields for ergonomics.
-/// The caller must call `cvk_device_physical_destroy` to release any memory allocated by this function.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_physical_destroy` using the same `allocator`,
 /// All allocations are processed using the allocator at `arg.instance.allocator`.
 cvk_Pure cvk_device_Physical cvk_device_physical_create (  // clang-format off
   cvk_device_physical_create_args* const arg
@@ -132,6 +151,13 @@ void cvk_device_physical_destroy ( // clang-format off
 // @section Device: Queue
 //____________________________
 
+cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create ( // clang-format off
+  cvk_QueueID  family,
+  uint32_t     count,
+  float const* priorities,
+  cvk_bool     Protected
+); // clang-format on
+
 /// @description
 /// Configuration options for `cvk_device_queue_create`.
 typedef struct cvk_device_queue_create_args {
@@ -142,26 +168,26 @@ typedef struct cvk_device_queue_create_args {
   cvk_bool const                   Protected;
   char                             priv_pad[4];
 } cvk_device_queue_create_args;
-cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create ( // clang-format off
-  cvk_QueueID  family,
-  uint32_t     count,
-  float const* priorities,
-  cvk_bool     Protected
-); // clang-format on
 
 /// @description
-/// Creates all the data required for creating a Device.Queue, except for its `.ct` context field.
-/// Must be called before `cvk_device_queue_create_context`
+/// Creates all the data required for creating a Device.Queue, except for its `.ct` context/handle field.
+/// Must be called before `cvk_device_queue_create_context`.
+///
 /// @note:
-/// The (`queue_create_noContext`, `queue_create_context`) pair of functions exists to solve a cyclic dependency.
+/// The (`cvk_queue_create_noContext`, `cvk_queue_create_context`) pair of functions exists to solve a cyclic dependency.
 /// The Queue's `.cfg` field must be used when creating a Device.Logical.context.
 /// But a creating a Queue.context requires a Device.Logical.context.
-cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (cvk_device_queue_create_args* const arg);
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_queue_destroy` using the same `allocator`,
+cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (  // clang-format off
+  cvk_device_queue_create_args* const arg
+);  // clang-format on
 
 /// @description
-/// Assigns the context field of the given {@arg queue}.
+/// Assigns the context field of the given `queue`.
 /// Must be called after `cvk_device_queue_create_noContext`.
-/// @see {@link cvk_device_queue_create_noContext} for more info.
+/// @see `cvk_device_queue_create_noContext` for more info.
 void cvk_device_queue_create_context ( // clang-format off
   cvk_device_Queue* const         queue,
   cvk_device_Logical const* const device
@@ -178,6 +204,7 @@ typedef struct cvk_device_queue_submit_args {
   cvk_Nullable cvk_Semaphore const* const semaphore_signal;
   cvk_Nullable cvk_Fence const* const     fence;
 } cvk_device_queue_submit_args;
+
 void cvk_device_queue_submit ( // clang-format off
   cvk_device_Queue const* const             queue,
   cvk_device_queue_submit_args const* const arg
@@ -199,7 +226,8 @@ cvk_Pure cvk_device_Extensions cvk_device_Extensions_default (cvk_Allocator* con
 
 /// @description
 /// Allocates the list of Device.Physical Extension Properties available on this system.
-/// The caller is responsible for freeing the result with the given {@arg allocator}.
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_extensions_properties_destroy` using the same `allocator`,
 cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_create ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Allocator* const             allocator
@@ -263,6 +291,8 @@ cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_cfg (  // clang
   cvk_device_Swapchain const* const swapchain
 );  // clang-format on
 
+/// @description
+/// Configuration options for `cvk_device_swapchain_image_view_create`.
 typedef struct cvk_device_swapchain_image_view_create_args {
   cvk_device_Logical const* const device_logical;
   VkImage const                   image;
@@ -274,6 +304,8 @@ cvk_Pure VkImageView cvk_device_swapchain_image_view_create ( // clang-format of
   cvk_device_swapchain_image_view_create_args const* const arg
 ); // clang-format on
 
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_swapchain_image_list_destroy` using the same `allocator`,
 cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create ( // clang-format off
   cvk_device_Swapchain const* const swapchain,
   cvk_device_Logical* const         device_logical,
@@ -286,6 +318,8 @@ void cvk_device_swapchain_image_list_destroy ( // clang-format off
   cvk_Allocator* const                   allocator
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_device_swapchain_create`.
 typedef struct cvk_device_swapchain_create_args {
   cvk_device_Physical* const device_physical;
   cvk_device_Logical* const  device_logical;
@@ -294,6 +328,8 @@ typedef struct cvk_device_swapchain_create_args {
   cvk_Allocator* const       allocator;
 } cvk_device_swapchain_create_args;
 
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_swapchain_destroy` using the same `allocator`,
 cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (  // clang-format off
   cvk_device_swapchain_create_args const*const arg
 );  // clang-format on
@@ -352,18 +388,29 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create ( // clang-format 
   cvk_device_Extensions const      extensions
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_device_logical_create`.
 typedef struct cvk_device_logical_create_args {
   cvk_device_Physical const* const physical;
   cvk_device_Queue const* const    queue;
   cvk_Allocator* const             allocator;
 } cvk_device_logical_create_args;
-cvk_Pure cvk_device_Logical cvk_device_logical_create (cvk_device_logical_create_args* const arg);
-void cvk_device_logical_destroy ( // clang-format off
+
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_logical_destroy` using the same `allocator`,
+cvk_Pure cvk_device_Logical cvk_device_logical_create (  // clang-format off
+  cvk_device_logical_create_args* const arg
+);  // clang-format on
+
+void cvk_device_logical_destroy (  // clang-format off
   cvk_device_Logical* const device,
   cvk_Allocator* const      allocator
-); // clang-format on
+);  // clang-format on
 
-void cvk_device_logical_wait (cvk_device_Logical const* const device_logical);
+void cvk_device_logical_wait (  // clang-format off
+  cvk_device_Logical const* const device_logical
+);  // clang-format on
+
 
 //______________________________________
 // @section Single Header Support

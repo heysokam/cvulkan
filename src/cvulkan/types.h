@@ -167,11 +167,20 @@ typedef struct cvk_queueFamilies_properties_List {
 
 typedef cvk_Optional_u32 cvk_QueueID;
 
+
+// @NOTE:
+// Queue Families not needed for cvulkan:
+// - SparseBinding and Protected are more akin to flags for existing types
+// - Video En/Decode are for vkvideo, not graphics
+// - OpticalFlow is an nvidia extension for video
+// - If a user requires these mandatory, they should create their own Physical Device search
+//   : VK_QUEUE_PROTECTED_BIT, VK_QUEUE_SPARSE_BINDING_BIT, VK_QUEUE_VIDEO_DECODE_BIT_KHR, VK_QUEUE_VIDEO_ENCODE_BIT_KHR, VK_QUEUE_OPTICAL_FLOW_BIT_NV
+
 typedef struct cvk_QueueFamilies {
   cvk_queueFamilies_properties_List properties;
   cvk_QueueID                       graphics;  ///< ID of the first Graphics queue found on the device
   cvk_QueueID                       present;   ///< ID of the first queue with Surface Present support found on the device
-  cvk_QueueID                       compute;   ///< ID of the first Compute queue found on the device
+  cvk_QueueID                       compute;   ///< ID of the first Compute-only queue found on the device
   cvk_QueueID                       transfer;  ///< ID of the first Transfer-only queue found with support on the device
   ///< @note Both Graphics and Compute queues can transfer by default
 } cvk_QueueFamilies;
