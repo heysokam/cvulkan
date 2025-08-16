@@ -6,6 +6,7 @@ from std/os import absolutePath
 from std/strutils import replace
 # @deps builder
 import confy
+from ./info as pkg import nil
 
 
 #_______________________________________
@@ -23,9 +24,9 @@ const dir_helpers  = dir_examples/"helpers"
 const dir_shd      = dir_examples/"shaders"
 let   dir_local    = os.absolutePath(".")
 # Files
-const file_cvulkan = dir_cvk/"cvulkan.h"
-const file_ffi_zig = dir_ffi_zig/"src"/"cvulkan.zig"
-const file_ffi_nim = dir_ffi_nim/"src"/"cvulkan"/"raw.nim"
+const file_cvulkan = dir_cvk/pkg.name&".h"
+const file_ffi_zig = dir_ffi_zig/"src"/pkg.name&".zig"
+const file_ffi_nim = dir_ffi_nim/"src"/pkg.name/"raw.nim"
 
 
 
@@ -33,7 +34,7 @@ const file_ffi_nim = dir_ffi_nim/"src"/"cvulkan"/"raw.nim"
 # @section FFI Bindings: Nim
 #_____________________________
 proc gen_nim=
-  info "Generating the cvulkan bindings for nim with Futhark ..."
+  info &"Generating the {pkg.name} bindings for nim with Futhark ..."
   #___________________
   const deps_futhark = Dependencies.new(
     Dependency.new( "futhark",      "https://github.com/PMunch/futhark"      ),
@@ -68,7 +69,7 @@ proc gen_nim=
 # @section FFI Bindings: Zig
 #_____________________________
 proc gen_zig=
-  info "Generating the cvulkan bindings for zig with translate-c ..."
+  info &"Generating the {pkg.name} bindings for zig with translate-c ..."
   sh confy.cfg.zig.bin, "translate-c", "-I/usr/include", file_cvulkan, ">", file_ffi_zig
   info "Done creating the zig bindings."
 
