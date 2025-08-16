@@ -19,17 +19,11 @@
 - [x] stdlib: memcpy     -> copy
 - [x] stdlib: calloc+cpy -> duplicate
 - [x] stdlib: realloc    -> resize
-- [ ] stdlib: memset     -> set
 - [x] stdlib: strcpy     -> string_copy
 - [x] stdlib: strdup     -> string_duplicate
 ## GPU
 - [x] Custom Allocator Support
 - [x] NULL Allocator
-- [ ] Pure C Replacement for VMA
-## Docs
-- [ ] How to use the API
-- [ ] Philosophy: Bring your own Allocator (Zig-inspired)
-- [ ] Slices and Slice-like objects
 ```
 
 ```md

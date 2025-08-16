@@ -11,6 +11,16 @@
 
 ### Tasks
 ```md
+# Memory Allocators
+## CPU
+- [ ] stdlib: memset     -> set
+## Docs
+- [ ] How to use the API
+- [ ] Philosophy: Bring your own Allocator (Zig-inspired)
+- [ ] Slices and Slice-like objects
+```
+
+```md
 - [ ] **API consistency review**
   - [ ] Function naming consistency
   - [ ] Parameter ordering consistency
@@ -84,5 +94,13 @@
   - [ ] Memory safety validation
   - [ ] Performance validation
   - [ ] Error handling validation
+```
+
+
+## ?.?.? - VMA Replacement   (1.0.0 plus 0.?.0)
+```md
+# Memory Allocators
+## GPU
+- [ ] Pure C Replacement for VMA
 ```
 

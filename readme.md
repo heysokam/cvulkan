@@ -48,25 +48,26 @@ Up-to-date list of features pending and done:
 
 | Version | Focus                             | Status    | File            |
 |---------|-----------------------------------|-----------|-----------------|
-|  0.1.0  | Instance, Validation & Helpers    | 🔄 Review | [doc/todo.0.1.0.md](doc/todo.0.1.0.md)    |
-|  0.2.0  | Physical Device Selection         | 🔄 Review | [doc/todo.0.2.0.md](doc/todo.0.2.0.md)    |
-|  0.3.0  | Logical Device                    | 🔄 Review | [doc/todo.0.3.0.md](doc/todo.0.3.0.md)    |
-|  0.4.0  | Device Queue                      | 🔄 Review | [doc/todo.0.4.0.md](doc/todo.0.4.0.md)    |
-|  0.5.0  | Surface & Swapchain               | 🔄 Review | [doc/todo.0.5.0.md](doc/todo.0.5.0.md)    |
-|  0.6.0  | Shaders                           | 🔄 Review | [doc/todo.0.6.0.md](doc/todo.0.6.0.md)    |
-|  0.7.0  | Static Rendering Elements         | 🔄 Review | [doc/todo.0.7.0.md](doc/todo.0.7.0.md)    |
-|  0.8.0  | Synchronization Structures        | 🔄 Review | [doc/todo.0.8.0.md](doc/todo.0.8.0.md)    |
-|  0.9.0  | Graphics Pipeline                 | 🔄 Review | [doc/todo.0.9.0.md](doc/todo.0.9.0.md)    |
-| 0.10.0  | Buffers                           | 🔄 Review | [doc/todo.0.10.0.md](doc/todo.0.10.0.md)  |
-| 0.11.0  | Images & Textures                 | 🔄 Review | [doc/todo.0.11.0.md](doc/todo.0.11.0.md)  |
-| 0.12.0  | Compute Pipeline                  | 📋 TODO   | [doc/todo.0.12.0.md](doc/todo.0.12.0.md)  |
-| 0.13.0  | Dynamic Rendering                 | 📋 TODO   | [doc/todo.0.13.0.md](doc/todo.0.13.0.md)  |
-| 0.14.0  | Descriptor Indexing _(bindless)_  | 📋 TODO   | [doc/todo.0.14.0.md](doc/todo.0.14.0.md)  |
-| 0.15.0  | Synchonization 2                  | 📋 TODO   | [doc/todo.0.15.0.md](doc/todo.0.15.0.md)  |
-|  ?.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
-|  ?.?.?  | Cross-Language FFI : Zig          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
-|  ?.?.?  | Cross-Language FFI : Nim          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)   |
-|  1.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)    |
+|  0.1.0  | Instance, Validation & Helpers    | 🔄 Review | [doc/todo.0.1.0.md](doc/todo.0.1.0.md)       |
+|  0.2.0  | Physical Device Selection         | 🔄 Review | [doc/todo.0.2.0.md](doc/todo.0.2.0.md)       |
+|  0.3.0  | Logical Device                    | 🔄 Review | [doc/todo.0.3.0.md](doc/todo.0.3.0.md)       |
+|  0.4.0  | Device Queue                      | 🔄 Review | [doc/todo.0.4.0.md](doc/todo.0.4.0.md)       |
+|  0.5.0  | Surface & Swapchain               | 🔄 Review | [doc/todo.0.5.0.md](doc/todo.0.5.0.md)       |
+|  0.6.0  | Shaders                           | 🔄 Review | [doc/todo.0.6.0.md](doc/todo.0.6.0.md)       |
+|  0.7.0  | Static Rendering Elements         | 🔄 Review | [doc/todo.0.7.0.md](doc/todo.0.7.0.md)       |
+|  0.8.0  | Synchronization Structures        | 🔄 Review | [doc/todo.0.8.0.md](doc/todo.0.8.0.md)       |
+|  0.9.0  | Graphics Pipeline                 | 🔄 Review | [doc/todo.0.9.0.md](doc/todo.0.9.0.md)       |
+| 0.10.0  | Buffers                           | 🔄 Review | [doc/todo.0.10.0.md](doc/todo.0.10.0.md)     |
+| 0.11.0  | Images & Textures                 | 🔄 Review | [doc/todo.0.11.0.md](doc/todo.0.11.0.md)     |
+| 0.12.0  | Compute Pipeline                  | 📋 TODO   | [doc/todo.0.12.0.md](doc/todo.0.12.0.md)     |
+| 0.13.0  | Dynamic Rendering                 | 📋 TODO   | [doc/todo.0.13.0.md](doc/todo.0.13.0.md)     |
+| 0.14.0  | Descriptor Indexing _(bindless)_  | 📋 TODO   | [doc/todo.0.14.0.md](doc/todo.0.14.0.md)     |
+| 0.15.0  | Synchonization 2                  | 📋 TODO   | [doc/todo.0.15.0.md](doc/todo.0.15.0.md)     |
+|  ?.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
+|  ?.?.?  | Cross-Language FFI : Zig          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
+|  ?.?.?  | Cross-Language FFI : Nim          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
+|  1.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)       |
+|  ?.?.?  | VMA Replacement                   | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  ?.?.?  | Unlikely/Experimental/Backlog     | (N/A)     | [doc/todo.unlikely.md](doc/todo.unlikely.md) |
 
 ```md
