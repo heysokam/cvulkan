@@ -43,7 +43,7 @@
 - [x] Extensions
   - [x] Minimal
   - [x] Custom
-  - [ ] Filter out extensions not supported by the system
+  - [x] Filter out extensions not supported by the system
 ```
 
 ```md

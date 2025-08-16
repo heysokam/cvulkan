@@ -52,6 +52,35 @@ void                  cvk_instance_destroy (cvk_Instance* const instance);
 ///  Will always return true when the required list is empty.
 cvk_bool cvk_instance_layers_checkSupport (cvk_Slice const required, cvk_Allocator* const allocator);
 
+typedef struct cvk_instance_extensions_create_args {
+  cvk_bool const       debug_active;
+  cvk_bool const       portability;
+  cvk_Allocator* const allocator;
+} cvk_instance_extensions_create_args;
+
+/// @internal
+/// Called by `cvk_instance_create`.
+/// Use only when implementing an custom version of `Instance.create`
+///
+/// @description
+/// Merges the given `list` of extensions into the result, using the given `arg.allocator`.
+/// Filters out any extensions that are not supported on this system.
+/// @param `list` Lists of extensions required when creating an instance for the application.
+/// @param `arg.debug_active` Will add the DebugMessenger extension when true. Ignored when `list.cvulkan` has a value (aka `list.cvulkan != NULL`)
+/// @param `arg.portability` Will add the PortabilityEnumeration extension when true. Ignored when `list.cvulkan` has a value (aka `list.cvulkan != NULL`)
+cvk_Pure cvk_instance_Extensions cvk_instance_extensions_create ( // clang-format off
+  cvk_instance_extensions_Required const          list,
+  cvk_instance_extensions_create_args const* const arg
+); // clang-format on
+
+/// @internal
+/// Called by `cvk_instance_destroy`.
+/// Use only when implementing an custom version of `Instance.destroy`
+void cvk_instance_extensions_destroy ( // clang-format off
+  cvk_instance_Extensions extensions,
+  cvk_Allocator* const    allocator
+); // clang-format on
+
 
 //______________________________________
 // @section Single Header Support

@@ -106,31 +106,40 @@ static cvk_instance_Extensions const cvk_instance_extensions_Defaults = (cvk_ins
   .ptr = NULL,
 };
 
+static cvk_Pure cvk_bool cvk_instance_extensions_checkSupported (
+  cvk_Slice /* VkExtensionProperties[] */ const* const properties,
+  cvk_String const                                     extension
+) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  for (cvk_size id = 0; id < properties->len; ++id) {
+    VkExtensionProperties property = ((VkExtensionProperties*)properties->ptr)[id];
+    if (cvk_String_equal(property.extensionName, extension)) return cvk_true;
+  }
+  return cvk_false;
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+}
 
-typedef struct cvk_instance_extensions_merge_args {
-  cvk_bool const       debug_active;
-  cvk_bool const       portability;
-  cvk_Allocator* const allocator;
-} cvk_instance_extensions_merge_args;
 
-/// @description
-/// Merges the given `list` of extensions into the result, using the given `arg.allocator`.
-/// @param `list` Lists of extensions required when creating an instance for the application.
-/// @param `arg.debug_active` Will add the DebugMessenger extension when true. Ignored when `list.cvulkan` has a value (aka `list.cvulkan != NULL`)
-/// @param `arg.portability` Will add the PortabilityEnumeration extension when true. Ignored when `list.cvulkan` has a value (aka `list.cvulkan != NULL`)
-static cvk_Pure cvk_instance_Extensions cvk_instance_extensions_merge (
-  cvk_instance_extensions_Required const          list,
-  cvk_instance_extensions_merge_args const* const arg
+cvk_Pure cvk_instance_Extensions cvk_instance_extensions_create (
+  cvk_instance_extensions_Required const           list,
+  cvk_instance_extensions_create_args const* const arg
 ) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   cvk_instance_Extensions result   = (cvk_instance_Extensions){ 0 };
   cvk_instance_Extensions defaults = (list.cvulkan) ? *list.cvulkan : cvk_instance_extensions_Defaults;
-  cvk_size                start    = 0;
+  cvk_size                current  = 0;
 
-  // FIX: Filter out extensions not supported by the system
+  // Extension Properties to filter out extensions not supported by the system
+  cvk_Slice properties = cvk_Slice_empty();
+  vkEnumerateInstanceExtensionProperties(NULL, (uint32_t*)&properties.len, NULL);
+  if (properties.len) {
+    properties = arg->allocator->cpu.allocZ(&arg->allocator->cpu, properties.len, sizeof(VkExtensionProperties));
+    vkEnumerateInstanceExtensionProperties(NULL, (uint32_t*)&properties.len, properties.ptr);
+  }
 
-  // Find the final length
+  // Find the maximum length
   result.len += list.system.len;
   result.len += list.user.len;
   result.len += defaults.len;
@@ -140,47 +149,70 @@ static cvk_Pure cvk_instance_Extensions cvk_instance_extensions_merge (
   }
 
   // Allocate space for all the extensions
-  cvk_Slice data = arg->allocator->cpu.alloc(&arg->allocator->cpu, result.len, sizeof(cvk_String));
+  cvk_Slice data = arg->allocator->cpu.allocZ(&arg->allocator->cpu, result.len, sizeof(cvk_String));
 
   // Add the system extensions
-  arg->allocator->cpu.copy(
-    /* A   */ &arg->allocator->cpu,
-    /* src */ &(cvk_Slice){ .ptr = list.system.ptr, .len = list.system.len, .itemsize = data.itemsize },
-    /* trg */ &(cvk_Slice){ .ptr = (cvk_String*)data.ptr + start, .len = list.system.len, .itemsize = data.itemsize }
-  );
-  start += list.system.len;
-
-  // Add the user extensions
-  arg->allocator->cpu.copy(
-    /* A   */ &arg->allocator->cpu,
-    /* src */ &(cvk_Slice){ .ptr = list.user.ptr, .len = list.user.len, .itemsize = data.itemsize },
-    /* trg */ &(cvk_Slice){ .ptr = (cvk_String*)data.ptr + start, .len = list.user.len, .itemsize = data.itemsize }
-  );
-  start += list.user.len;
-
-  // Add the cvulkan extensions
-  arg->allocator->cpu.copy(
-    /* A   */ &arg->allocator->cpu,
-    /* src */ &(cvk_Slice){ .ptr = defaults.ptr, .len = defaults.len, .itemsize = data.itemsize },
-    /* trg */ &(cvk_Slice){ .ptr = (cvk_String*)data.ptr + start, .len = defaults.len, .itemsize = data.itemsize }
-  );
-  start += defaults.len;
-  if (!list.cvulkan) {  // Only add the independent defaults when the user did not override the list
-    if (arg->debug_active) {
-      ((cvk_String*)data.ptr)[start] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-      start += 1;
-    }
-    if (arg->portability) {
-      ((cvk_String*)data.ptr)[start] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
-      start += 1;
-    }
+  for (cvk_size id = 0; id < list.system.len; ++id) {
+    cvk_String const extension = list.system.ptr[id];
+    if (!cvk_instance_extensions_checkSupported(&properties, extension)) continue;
+    ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, extension);
+    current += 1;
   }
 
-  // Return the result
+  // Add the user extensions
+  for (cvk_size id = 0; id < list.user.len; ++id) {
+    cvk_String const extension = list.user.ptr[id];
+    if (!cvk_instance_extensions_checkSupported(&properties, extension)) continue;
+    ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, extension);
+    current += 1;
+  }
+
+  // Add the cvulkan extensions
+  for (cvk_size id = 0; id < defaults.len; ++id) {
+    cvk_String const extension = defaults.ptr[id];
+    if (!cvk_instance_extensions_checkSupported(&properties, extension)) continue;
+    ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, extension);
+    current += 1;
+  }
+  if (!list.cvulkan) {  // Only add the independent defaults when the user did not override the list
+    if (arg->debug_active) do {
+        cvk_String extension = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+        if (!cvk_instance_extensions_checkSupported(&properties, extension)) break;
+        ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        current += 1;
+      } while (cvk_do_onetime);
+
+    if (arg->portability) do {
+        cvk_String extension = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
+        if (!cvk_instance_extensions_checkSupported(&properties, extension)) break;
+        ((cvk_StringList)data.ptr)[current] = arg->allocator->cpu.string_duplicate(&arg->allocator->cpu, extension);
+        current += 1;
+      } while (cvk_do_onetime);
+  }
+
+  // Cleanup and Return the result
+  arg->allocator->cpu.free(&arg->allocator->cpu, (cvk_Slice*)&properties);
+  arg->allocator->cpu.resize(&arg->allocator->cpu, &data, current);  // Resize down to the final length
   result.ptr = data.ptr;
   result.len = data.len;
   return result;
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+}
+
+void cvk_instance_extensions_destroy (
+  cvk_instance_Extensions extensions,
+  cvk_Allocator* const    allocator
+) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+#pragma GCC diagnostic ignored "-Wcast-qual"
+  for (cvk_size id = 0; id < extensions.len; ++id) {
+    cvk_size len = strlen(extensions.ptr[id]);
+    char*    ptr = (char*)(extensions.ptr)[id];
+    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(cvk_String), .ptr = ptr });
+  }
+  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = extensions.len, .itemsize = sizeof(cvk_String), .ptr = extensions.ptr });
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual
 }
 
 
@@ -215,7 +247,7 @@ cvk_Pure cvk_Instance cvk_instance_create (
   // Layers
   result.layers = (arg->layers) ? *arg->layers : cvk_instance_layers_defaults(result.validation.layers_active, &result.allocator);
   // Extensions
-  result.extensions = /* clang-format off */ cvk_instance_extensions_merge(arg->extensions, &(cvk_instance_extensions_merge_args){
+  result.extensions = /* clang-format off */ cvk_instance_extensions_create(arg->extensions, &(cvk_instance_extensions_create_args){
     .debug_active = result.validation.debug_active,
     .portability  = arg->portability,
     .allocator    = &result.allocator,
@@ -249,7 +281,7 @@ void cvk_instance_destroy (
   cvk_Instance* const instance
 ) {
   // TODO: Free the Allocator's data
-  instance->allocator.cpu.free(&instance->allocator.cpu, &(cvk_Slice){.len=instance->extensions.len, .itemsize= sizeof(cvk_String), .ptr= instance->extensions.ptr});
+  cvk_instance_extensions_destroy(instance->extensions, &instance->allocator);
   cvk_validation_debug_context_destroy(instance->ct, instance->validation.debug_ct, instance->allocator.gpu);
   instance->cfg = (VkInstanceCreateInfo){ 0 };
   vkDestroyInstance(instance->ct, instance->allocator.gpu);
