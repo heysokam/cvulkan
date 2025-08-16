@@ -32,8 +32,8 @@ cvk_Pure VkInstanceCreateInfo cvk_instance_options_create (
 
 
 cvk_bool cvk_instance_layers_checkSupport (
-  cvk_Slice const      required,
-  cvk_Allocator* const allocator
+  cvk_StringSlice const required,
+  cvk_Allocator* const  allocator
 ) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
@@ -50,7 +50,7 @@ cvk_bool cvk_instance_layers_checkSupport (
   for (size_t layerId = 0; layerId < properties.len; ++layerId) {
     VkLayerProperties const prop = ((VkLayerProperties*)properties.ptr)[layerId];
     for (size_t vlayerID = 0; vlayerID < required.len; ++vlayerID) {
-      cvk_String const extension = ((cvk_String*)required.ptr)[vlayerID];
+      cvk_String const extension = required.ptr[vlayerID];
       if (cvk_String_equal(prop.layerName, extension)) {
         found = cvk_true;
         goto end;
@@ -67,8 +67,8 @@ end:
 static void cvk_instance_layers_checkValidation (
   cvk_Allocator* const allocator
 ) {
-  cvk_String      validation_layers[1] = { [0] = cvk_validation_LayerName };
-  cvk_Slice const layers               = (cvk_Slice){ .ptr = &validation_layers, .len = 1 };  // clang-format off
+  cvk_String            validation_layers[1] = { [0] = cvk_validation_LayerName };
+  cvk_StringSlice const layers               = (cvk_StringSlice){ .ptr = validation_layers, .len = 1 };  // clang-format off
   cvk_assert(cvk_instance_layers_checkSupport(layers, allocator),
     "Validation layers are not available in this system."
   );  // clang-format on
@@ -88,12 +88,28 @@ static cvk_Pure cvk_instance_Layers cvk_instance_layers_defaults (
   if (!validation_active) return result;
   // Add validation layer
   cvk_Slice data             = allocator->cpu.allocZ(&allocator->cpu, 1, sizeof(cvk_StringList));
-  ((cvk_String*)data.ptr)[0] = cvk_validation_LayerName;
+  ((cvk_String*)data.ptr)[0] = allocator->cpu.string_duplicate(&allocator->cpu, cvk_validation_LayerName);
   // Return the result
   result.ptr = data.ptr;
   result.len = data.len;
   return result;
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+}
+
+void cvk_instance_layers_destroy (
+  cvk_instance_Layers  layers,
+  cvk_Allocator* const allocator
+) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+#pragma GCC diagnostic ignored "-Wcast-qual"
+  for (cvk_size id = 0; id < layers.len; ++id) {
+    cvk_size len = strlen(layers.ptr[id]);
+    char*    ptr = (char*)(layers.ptr)[id];
+    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(cvk_String), .ptr = ptr });
+  }
+  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = layers.ptr, .len = layers.len, .itemsize = sizeof(cvk_String) });
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual
 }
 
 
@@ -281,6 +297,7 @@ void cvk_instance_destroy (
   cvk_Instance* const instance
 ) {
   // TODO: Free the Allocator's data
+  cvk_instance_layers_destroy(instance->layers, &instance->allocator);
   cvk_instance_extensions_destroy(instance->extensions, &instance->allocator);
   cvk_validation_debug_context_destroy(instance->ct, instance->validation.debug_ct, instance->allocator.gpu);
   instance->cfg = (VkInstanceCreateInfo){ 0 };

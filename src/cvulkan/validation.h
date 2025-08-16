@@ -9,7 +9,6 @@
 #include "./types.h"
 
 
-
 /// @description
 /// Validation Layer Name, missing from the spec.
 /// Should be VK_KHR_VALIDATION_LAYER_NAME or similar
@@ -20,6 +19,9 @@
 // @section Validation: Options
 //____________________________
 
+/// @description
+/// Returns a valid `cvk_validation_Options` object already configured to use all of the `cvulkan` defaults.
+/// The default values are taken from the (overridable) `cvk_config_validation_*` and `cvk_config_debug_*` comptime defined values.
 cvk_Pure cvk_validation_Options cvk_validation_options_defaults ();
 
 
@@ -27,7 +29,14 @@ cvk_Pure cvk_validation_Options cvk_validation_options_defaults ();
 // @section Debug Messenger: Options
 //____________________________
 
+/// @description
+/// Returns a valid `VkDebugUtilsMessengerCreateInfoEXT` object already configured to use all of the `cvulkan` defaults.
+/// The default values are taken from the (overridable) `cvk_config_debug_*` comptime defined values.
 cvk_Pure VkDebugUtilsMessengerCreateInfoEXT cvk_validation_debug_options_defaults ();
+
+/// @description
+/// Returns a valid `VkDebugUtilsMessengerCreateInfoEXT` configured to use the given arguments.
+/// Shorthand to avoid passing the correct `sType` enum value on creation.
 cvk_Pure VkDebugUtilsMessengerCreateInfoEXT cvk_validation_debug_options_create (
   VkDebugUtilsMessengerCreateFlagsEXT const  flags,
   VkDebugUtilsMessageSeverityFlagsEXT const  severity,
@@ -36,7 +45,10 @@ cvk_Pure VkDebugUtilsMessengerCreateInfoEXT cvk_validation_debug_options_create 
   void* const                                userdata
 );
 
-VkBool32 cvk_validation_debug_callback (
+/// @description
+/// Function used by cvulkan as the default DebugMessenger callback.
+/// Overridable at comptime by the `cvk_config_debug_callback` define.
+VKAPI_ATTR VkBool32 VKAPI_CALL cvk_validation_debug_callback (
   VkDebugUtilsMessageSeverityFlagBitsEXT const      severity,
   VkDebugUtilsMessageTypeFlagsEXT const             types,
   VkDebugUtilsMessengerCallbackDataEXT const* const cbdata,
@@ -49,9 +61,8 @@ VkBool32 cvk_validation_debug_callback (
 //____________________________
 
 /// @description
-/// Creates the debug messenger context with `vkCreateDebugUtilsMessengerEXT`
-/// @note `vkCreateDebugUtilsMessengerEXT` is not provided by default,
-/// This helper first requests the function, and then calls with the correct arguments
+/// Creates the debug messenger context using `vkCreateDebugUtilsMessengerEXT`
+/// @note This helper first requests the `vkCreateDebugUtilsMessengerEXT` function handle, and then calls it with the correct arguments
 cvk_Pure VkDebugUtilsMessengerEXT cvk_validation_debug_context_create (  // clang-format off
   VkInstance const                          instance,
   VkDebugUtilsMessengerCreateInfoEXT* const cfg,
@@ -60,10 +71,13 @@ cvk_Pure VkDebugUtilsMessengerEXT cvk_validation_debug_context_create (  // clan
 
 
 /// @description
-/// Destroys the debug messenger context with `vkDestroyDebugUtilsMessengerEXT`
-/// @note `vkDestroyDebugUtilsMessengerEXT` is not provided by default,
-/// This helper first requests the function, and then calls with the correct arguments
-void cvk_validation_debug_context_destroy (VkInstance const instance, VkDebugUtilsMessengerEXT debug_ct, VkAllocationCallbacks* const allocator);
+/// Destroys the debug messenger context using `vkDestroyDebugUtilsMessengerEXT`
+/// @note This helper first requests the `vkDestroyDebugUtilsMessengerEXT` function handle, and then calls it with the correct arguments
+void cvk_validation_debug_context_destroy ( // clang-format off
+  VkInstance const             instance,
+  VkDebugUtilsMessengerEXT     debug_ct,
+  VkAllocationCallbacks* const allocator
+); // clang-format on
 
 
 //______________________________________

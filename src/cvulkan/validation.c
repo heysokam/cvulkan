@@ -111,8 +111,5 @@ void cvk_validation_debug_context_destroy (
 ) {
   PFN_vkDestroyDebugUtilsMessengerEXT destroy = cvk_Fn_get_destroyDebug(instance);
   destroy(instance, debug_ct, allocator);
-  // TODO:
-  cvk_discard(instance);
-  cvk_discard(cvk_Fn_get_destroyDebug);
 }
 

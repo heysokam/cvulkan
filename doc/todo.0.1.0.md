@@ -42,11 +42,11 @@
 
 ```md
 - `src/cvulkan/validation.c`, `src/cvulkan/validation.h`
-- [ ] **Review validation layer integration**
-  - [ ] Verify debug callback registration
-  - [ ] Check validation layer availability detection
-  - [ ] Test validation error reporting
-  - [ ] Ensure proper cleanup of validation resources
+- [x] **Review validation layer integration**
+  - [x] Verify debug callback registration
+  - [x] Check validation layer availability detection
+  - [x] Test validation error reporting
+  - [x] Ensure proper cleanup of validation resources
 ```
 
 ```md
