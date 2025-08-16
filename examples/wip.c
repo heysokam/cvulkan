@@ -1,73 +1,46 @@
 //:___________________________________________________________
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  CC0-1.0  :
 //:___________________________________________________________
-// @deps cdk
+//! @fileoverview
+//!  Most minimal cvulkan example possible.
+//!  Creates+destroys an instance with validation layers & debug messenger.
+//__________________________________________________________________________|
 #define GLFW_INCLUDE_VULKAN
 #define csys_Implementation
 #include "helpers/csys.h"
-#define ctime_Implementation
-#include "helpers/ctime.h"
-// @deps cvulkan
 #define cvk_Implementation
 #include <cvulkan.h>
 
 
-//______________________________________
-// Generic boilerplate shared by all Examples
-#include "./helpers/bootstrap.c"
-//______________________________________
-
-typedef struct Example {
-  example_Bootstrap gpu;
-  ctime_Time        time;
-} Example;
-
-
-static Example example_create (
-  csys_System const* const system
-) {
-  Example result = (Example){ 0 };
-  result.time    = ctime_start();
-  result.gpu     = example_bootstrap_create(system->window.ct, (cvk_Size2D){ .width = system->window.width, .height = system->window.height });
-  return result;
-}
-
-
-static void example_update (
-  Example* const           example,
-  csys_System const* const system
-) {
-  cvk_discard(example);  // FIX: Remove
-  cvk_discard(system);   // FIX: Remove
-}
-
-
-static void example_destroy (
-  Example* const example
-) {
-  cvk_device_logical_wait(&example->gpu.device_logical);
-  example_bootstrap_destroy(&example->gpu);
-}
-
-
 int main () {
-  // Initialize: Window/Input
-  csys_System system = csys_init(csys_init_Options_defaults());
+  cvk_Instance instance = (cvk_Instance){ 0 };  // Zero Initialize
 
-  // Initialize: Example Data
-  Example example = example_create(
-    /* system */ &system  // clang-format off
-  );
+  //________________________________________________
+  // Validate that nothing is initialized before running
+  cvk_assert(instance.ct == NULL, "The instance context should be null (not initialized yet).");
+  cvk_assert(instance.validation.debug_active == cvk_false, "Debug Messenger should be inactive (not initialized yet).");
+  cvk_assert(instance.validation.layers_active == cvk_false, "Validation layers should be inactive (not initialized yet).");
+  cvk_assert(instance.allocator.cpu.free == NULL, "CPU Allocator should not contain valid functions (not initialized yet).");
 
-  // Update Loop
-  while (!csys_close(&system)) {
-    csys_update(&system);
-    example_update(&example, &system);
-  }
+  //________________________________________________
+  // Create the instance with all options at their defaults
+  // @note Validation Layers and Debug Messenger will be active
+  cvk_instance_extensions_Required extensions = { 0 };  // clang-format off
+  extensions.system.ptr = glfwGetRequiredInstanceExtensions((uint32_t*)&extensions.system.len);
+  instance = cvk_instance_create(&(cvk_instance_create_args){
+    .extensions = extensions,
+  });  // clang-format on
 
-  // Terminate
-  example_destroy(&example);
-  csys_term(&system);
-  return 0;
+  //________________________________________________
+  // Check that everything was initialized correctly
+  cvk_assert(instance.ct != NULL, "The instance context should be not be null.");
+  cvk_assert(instance.validation.debug_active == cvk_true, "Debug Messenger should be active (default).");
+  cvk_assert(instance.validation.layers_active == cvk_true, "Validation layers should be active (default).");
+  cvk_assert(instance.allocator.cpu.free != NULL, "CPU Allocator should contain valid functions (default: stdlib).");
+
+  //________________________________________________
+  // Destroy the instance and all its contents
+  cvk_instance_destroy(&instance);
 }
+
 
