@@ -3,13 +3,31 @@
 
 ```md
 # Device
+## Logical
+- [x] Minimal creation
 - [ ] Extensions
   - [x] Minimal
   - [ ] Custom
 - [ ] Features
-## Logical
-- [x] Minimal creation
 - [ ] Support Multi-Queue creation
+```
+
+```md
+- `src/cvulkan/device/features.c`
+- [ ] **Review feature checking**
+  - [ ] Verify feature structure population
+  - [ ] Check feature availability validation
+  - [ ] Test feature requirement checking
+  - [ ] Ensure proper feature enablement
+```
+
+```md
+- `src/cvulkan/device/extensions.c`
+- [ ] **Review device extension support**
+  - [ ] Verify device extension enumeration
+  - [ ] Check device extension availability
+  - [ ] Test device extension enablement
+  - [ ] Ensure proper extension validation
 ```
 
 ```md
@@ -27,13 +45,5 @@
   - [ ] Check device extension enablement
   - [ ] Test device creation error handling
   - [ ] Ensure proper device cleanup
-```
-
-```md
-- [ ] **Documentation updates**
-  - [ ] Update device.h documentation
-  - [ ] Add queue management examples
-  - [ ] Document device feature patterns
-  - [ ] **Device Example**
 ```
 

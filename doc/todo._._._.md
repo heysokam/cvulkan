@@ -22,21 +22,39 @@
 
 ```md
 ##  Documentation for 0.1.0: Instance, Validation & General Purpose Helpers
-- [ ] **Documentation updates**
-  - [ ] Update instance.h documentation
+- [ ] **Instance & Validation**
+  - [x] Update instance.h documentation
   - [ ] Add usage examples to readme
   - [ ] Document validation layer configuration
   - [ ] Instance Example
-    - [ ] Validation enabled
+    - [x] Validation enabled
     - [ ] Validation disabled
     - [ ] Custom debug callback
     - [x] Custom Extensions
     - [x] Does not add extensions that are not supported
+- [ ] **Allocator**
+  - [x] Update allocator.h documentation
+  - [ ] Document memory allocation patterns
 ```
 ```md
+## Documentation for 0.2.0 - Physical Device Selection
 - [ ] **Documentation updates**
-  - [ ] Update allocator.h documentation
-  - [ ] Document memory allocation patterns
+  - [ ] Update device.h documentation
+  - [ ] Add device selection examples
+  - [ ] Document feature checking patterns
+  - [ ] **Device selection example**
+    - [ ] Automatic device selection
+    - [ ] Manual device selection
+    - [ ] Specific feature requirements
+    - [ ] Multiple device support
+```
+```md
+## Documentation for 0.3.0 - Logical Device
+- [ ] **Documentation updates**
+  - [ ] Update device.h documentation
+  - [ ] Add queue management examples
+  - [ ] Document device feature patterns
+  - [ ] **Device Example**
 ```
 
 
