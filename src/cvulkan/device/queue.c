@@ -10,11 +10,14 @@ cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   cvk_QueueFamilies result = (cvk_QueueFamilies){
     .properties = (cvk_queueFamilies_properties_List){ .itemsize = sizeof(VkQueueFamilyProperties) },
     .graphics   = cvk_Optional_u32_none,
     .present    = cvk_Optional_u32_none,
     .transfer   = cvk_Optional_u32_none,
+    .compute    = cvk_Optional_u32_none,
   };
   // Allocate the properties of all families available for the device
   vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&result.properties.len, NULL);
@@ -26,32 +29,19 @@ cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
   }
   // Populate the Queue IDs
   for (cvk_Optional_u32 id = 0; id < result.properties.len; ++id) {
-    // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
     VkQueueFamilyProperties const prop = result.properties.ptr[id];
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-    // clang-format on
     if (result.graphics == cvk_Optional_u32_none && prop.queueFlags & VK_QUEUE_GRAPHICS_BIT) result.graphics = id;
-    if (result.compute == cvk_Optional_u32_none && prop.queueFlags & VK_QUEUE_COMPUTE_BIT) result.compute = id;
-    cvk_bool const transferOnly = prop.queueFlags & VK_QUEUE_TRANSFER_BIT && !(prop.queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT));
-    if (result.transfer == cvk_Optional_u32_none && transferOnly) result.transfer = id;
+    cvk_bool const transfer_only = prop.queueFlags & VK_QUEUE_TRANSFER_BIT && !(prop.queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT));
+    if (result.transfer == cvk_Optional_u32_none && transfer_only) result.transfer = id;
+    cvk_bool const compute_only = (prop.queueFlags & VK_QUEUE_COMPUTE_BIT) && !(prop.queueFlags & VK_QUEUE_GRAPHICS_BIT);
+    if (result.compute == cvk_Optional_u32_none && compute_only) result.compute = id;
     VkBool32 canPresent = 0;
     vkGetPhysicalDeviceSurfaceSupportKHR(device->ct, id, surface, &canPresent);
     if (result.present == cvk_Optional_u32_none && canPresent) result.present = id;
-    // TODO: Are these needed? They seem niche.
-    //       SparseBinding and Protected seem to be flags, not queue types
-    //       Video En/Decode are for vkvideo, not graphics
-    //       OpticalFlow is an nvidia extension for video
-    //       The user of these might need their own Physical Device search anyway? :think:
-    // if (prop.queueFlags & VK_QUEUE_PROTECTED_BIT) result.protected = id;
-    // if (prop.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) result.sparseBinding = id;
-    // if (prop.queueFlags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) result.video_decode = id;
-    // if (prop.queueFlags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR) result.video_encode = id;
-    // if (prop.queueFlags & VK_QUEUE_OPTICAL_FLOW_BIT_NV) result.opticalFlow  = id;
   }
   // Return the result
   return result;
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 }  //:: cvk_device_queue_families_create
 
 
