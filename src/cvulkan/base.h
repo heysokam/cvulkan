@@ -80,6 +80,11 @@ typedef struct cvk_StringSlice {
 #define cvk_print printf
 #endif  // cvk_print
 
+#ifndef cvk_do_onetime
+/// Shorthand for creating a breakable block that runs once, such as `do { .... } while (cvk_do_onetime);`
+#define cvk_do_onetime false
+#endif  // cvk_do_onetime
+
 
 //______________________________________
 // @section Pragmas (compiler helpers)
