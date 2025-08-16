@@ -59,20 +59,39 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
 #define cvk_device_physical_isSuitable cvk_device_physical_isSuitable_default
 #endif
 
+cvk_Pure cvk_size cvk_device_physical_getScore_default ( // clang-format off
+  cvk_device_Physical const* const device,
+  cvk_Surface const                surface,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+#ifndef cvk_device_physical_getScore
+#define cvk_device_physical_getScore cvk_device_physical_getScore_default
+#endif
+
 /// @description
 /// Allocates a `cvk_device_physical_List` that contains all the devices available on the system.
 /// The caller is responsible for freeing the result with the allocator contained in the {@arg instance}.
-cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (cvk_Instance* const instance);
+cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable ( // clang-format off
+  cvk_Instance* const instance
+); // clang-format on
 
 typedef struct cvk_device_physical_create_args {
   cvk_Instance* const                                  instance;
   VkSurfaceKHR const                                   surface;
+  cvk_Nullable cvk_Fn_device_physical_getScore const   getScore;    ///< Called on every device found. Will use default when NULL
   cvk_Nullable cvk_Fn_device_physical_isSuitable const isSuitable;  ///< Called on every device found. Will use default when NULL
   cvk_bool const                                       forceFirst;  ///< Whether device selection should stop when the first device was found
   char                                                 priv_pad[4];
 } cvk_device_physical_create_args;
-cvk_Pure cvk_device_Physical cvk_device_physical_create (cvk_device_physical_create_args* const arg);
-void                         cvk_device_physical_destroy (cvk_device_Physical* const device, cvk_Allocator* const allocator);
+cvk_Pure cvk_device_Physical cvk_device_physical_create ( // clang-format off
+  cvk_device_physical_create_args* const arg
+); // clang-format on
+
+void cvk_device_physical_destroy ( // clang-format off
+  cvk_device_Physical* const device,
+  cvk_Allocator* const       allocator
+); // clang-format on
 
 
 //______________________________________

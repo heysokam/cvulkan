@@ -36,7 +36,7 @@ typedef void (*cvk_Fn_allocator_string_copy)(cvk_Allocator_CPU* const A, cvk_Str
 // @section Allocator: Core Types
 //____________________________
 
-struct cvk_Allocator_CPU_s { // clang-format off
+struct cvk_Allocator_CPU_s {  // clang-format off
   cvk_Fn_allocator_alloc     alloc;      ///< Equivalent to stdlib.h/malloc, but with cvulkan's allocator API.
   cvk_Fn_allocator_allocZ    allocZ;     ///< Equivalent to stdlib.h/calloc, but with cvulkan's allocator API.
   cvk_Fn_allocator_free      free;       ///< Equivalent to stdlib.h/free, but with cvulkan's allocator API.
@@ -46,7 +46,7 @@ struct cvk_Allocator_CPU_s { // clang-format off
   // String Allocation
   cvk_Fn_allocator_string_copy      string_copy;       ///< Equivalent to stdlib.h/strcpy, but with cvulkan's allocator API. Uses memcpy to write `src` to `trg`.
   cvk_Fn_allocator_string_duplicate string_duplicate;  ///< Equivalent to stdlib.h/strdup, but with cvulkan's allocator API.
-}; // clang-format on
+};  // clang-format on
 
 #define cvk_Allocator_GPU VkAllocationCallbacks*
 
@@ -234,9 +234,21 @@ typedef struct cvk_device_physical_List {
   VkPhysicalDevice*     ptr;
 } cvk_device_physical_List;
 
-
-/// @warning The `.properties` and `.features` fields are not populated yet when this function is called
+/// @warning
+/// The Features, Properties, QueueFamilies and SwapchainSupport fields are not populated yet when this function is called back from cvulkan.
+/// Only the `.ct` and `.id` fields will be available.
 typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format off
+  cvk_device_Physical const* const device,
+  cvk_Surface const                surface,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+typedef cvk_size cvk_device_physical_Score;
+
+/// @warning
+/// The Features, Properties, QueueFamilies and SwapchainSupport fields are not populated yet when this function is called back from cvulkan.
+/// Only the `.ct` and `.id` fields will be available.
+typedef cvk_Pure cvk_device_physical_Score (*cvk_Fn_device_physical_getScore)( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator

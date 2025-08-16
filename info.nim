@@ -3,7 +3,7 @@
 #:___________________________________________________________
 # Package Information
 const name        * = "cvulkan"
-const version     * = "0.1.0"
+const version     * = "0.1.1"
 const description * = "cvulkan | Comfy Vulkan API"
 const author      * = "heysokam"
 const license     * = "MPL-2.0"
