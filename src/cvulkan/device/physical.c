@@ -54,7 +54,7 @@ cvk_Pure cvk_size cvk_device_physical_getScore_default (
   cvk_discard(device);
   cvk_discard(surface);
   cvk_discard(allocator);
-  return 1;  // @note Score must be higher than 0 to be ranked. A value of 0 will be ignored.
+  return 1;  // @note Score must be higher than 0 to be ranked.
 }  //:: cvk_device_physical_getScore_default
 
 

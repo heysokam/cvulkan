@@ -39,7 +39,7 @@
 ```md
 ## Documentation for 0.2.0 - Physical Device Selection
 - [ ] **Documentation updates**
-  - [ ] Update device.h documentation
+  - [x] Update device.h documentation
   - [ ] Add device selection examples
   - [ ] Document feature checking patterns
   - [ ] **Device selection example**

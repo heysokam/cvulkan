@@ -49,6 +49,9 @@ void cvk_device_swapchain_support_destroy ( // clang-format off
 // @section Device: Physical
 //____________________________
 
+/// @description
+/// Default function used to decide a Device.Physical suitability during its creation.
+/// @returns whether or not the device meets the conditions required for the application.
 cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
@@ -56,38 +59,69 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
 ); // clang-format on
 
 #ifndef cvk_device_physical_isSuitable
+/// @description
+/// Default function used to decide a Device.Physical suitability during its creation.
+/// @see `cvk_device_physical_isSuitable_default` for more details.
+/// @overridable Add `#define cvk_device_physical_isSuitable yourSuitableFunction` to your code to change this default behavior
 #define cvk_device_physical_isSuitable cvk_device_physical_isSuitable_default
 #endif
 
-cvk_Pure cvk_size cvk_device_physical_getScore_default ( // clang-format off
+/// @description
+/// Default function used to rank a Device.Physical desirability/features during its creation.
+///
+/// @note Devices that do not pass the `isSuitable` suitability check won't be considered for ranking.
+/// @note Returning a value of `0` means that the device will not be considered for ranking.
+/// @note The default function always returns `1`.
+/// @note Tie Break: In case of equal scores, the first device found with that score will be selected.
+/// @note Returning a value of `SIZE_MAX`, the first time it is returned, means: Pick this specific device and ignore every other device found after it.
+///
+/// @returns A score in `range[0..SIZE_MAX]`
+cvk_Pure cvk_device_physical_Score cvk_device_physical_getScore_default ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ); // clang-format on
 
 #ifndef cvk_device_physical_getScore
+/// @description
+/// Default function used to rank a Device.Physical desirability/features during its creation.
+/// @see `cvk_device_physical_getScore_default` for more details.
+/// @overridable Add `#define cvk_device_physical_getScore yourRankingFunction` to your code to change this default behavior
 #define cvk_device_physical_getScore cvk_device_physical_getScore_default
 #endif
 
 /// @description
 /// Allocates a `cvk_device_physical_List` that contains all the devices available on the system.
-/// The caller is responsible for freeing the result with the allocator contained in the {@arg instance}.
-cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable ( // clang-format off
+/// The caller is responsible for freeing the result with the allocator contained in the `instance`.
+cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (  // clang-format off
   cvk_Instance* const instance
-); // clang-format on
+);  // clang-format on
 
+/// @description
+/// Configuration options for `cvk_device_physical_create`.
 typedef struct cvk_device_physical_create_args {
   cvk_Instance* const                                  instance;
   VkSurfaceKHR const                                   surface;
   cvk_Nullable cvk_Fn_device_physical_getScore const   getScore;    ///< Called on every device found. Will use default when NULL
   cvk_Nullable cvk_Fn_device_physical_isSuitable const isSuitable;  ///< Called on every device found. Will use default when NULL
-  cvk_bool const                                       forceFirst;  ///< Whether device selection should stop when the first device was found
+  cvk_Nullable cvk_bool const                          forceFirst;  ///< Whether device selection should stop when the first device was found
   char                                                 priv_pad[4];
 } cvk_device_physical_create_args;
-cvk_Pure cvk_device_Physical cvk_device_physical_create ( // clang-format off
-  cvk_device_physical_create_args* const arg
-); // clang-format on
 
+/// @description
+/// Searches for a valid `Device.Physical` object handle based on the configuration options at `cvk_device_physical_create_args`.
+/// It also populates its `.properties`, `.features`, etc fields for ergonomics.
+/// The caller must call `cvk_device_physical_destroy` to release any memory allocated by this function.
+/// All allocations are processed using the allocator at `arg.instance.allocator`.
+cvk_Pure cvk_device_Physical cvk_device_physical_create (  // clang-format off
+  cvk_device_physical_create_args* const arg
+);  // clang-format on
+
+/// @description
+/// Releases all memory allocated by `cvk_device_physical_create`.
+/// `NULL` handles won't trigger double destroy,
+/// and `NULL` data wont cause double release errors
+/// as long as the given `allocator.cpu` supports such scenario  (the default allocator supports this).
 void cvk_device_physical_destroy ( // clang-format off
   cvk_device_Physical* const device,
   cvk_Allocator* const       allocator
@@ -98,6 +132,8 @@ void cvk_device_physical_destroy ( // clang-format off
 // @section Device: Queue
 //____________________________
 
+/// @description
+/// Configuration options for `cvk_device_queue_create`.
 typedef struct cvk_device_queue_create_args {
   cvk_Instance const* const        instance;
   cvk_device_Physical const* const device;
