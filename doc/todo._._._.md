@@ -11,6 +11,14 @@
 
 ### Tasks
 ```md
+## General Tasks
+- [ ] Review `_create` function arguments
+  - [ ] @internal Functions should be marked/tagged as such, and take individual/separate arguments.
+  - [ ] All external API functions should take a `_args` object.
+  - [ ] Cleanup all inconsistencies in this rule across the entire lib.
+```
+
+```md
 # Memory Allocators
 ## CPU
 - [ ] stdlib: memset     -> set
