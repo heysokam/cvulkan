@@ -29,12 +29,15 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
 cvk_Pure cvk_device_Logical cvk_device_logical_create (
   cvk_device_logical_create_args* const arg
 ) {
-  // Create the Features and Extensions
-  cvk_device_Logical result = (cvk_device_Logical){
-    .ct         = NULL,
-    .features   = cvk_device_Features_default(),
-    .extensions = cvk_device_Extensions_default(arg->allocator),
-  };
+  cvk_device_Logical result = (cvk_device_Logical){ 0 };
+  // Create the Extensions
+  result.extensions = /* clang-format off */ cvk_device_extensions_create(arg->extensions, &(cvk_device_extensions_create_args){
+    .device    = arg->physical,
+    .allocator = arg->allocator,
+  });
+
+  // Create the Features
+  result.features = cvk_device_features_default();
   // Create the configuration options
   result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, result.extensions);
   // clang-format off
@@ -49,7 +52,7 @@ void cvk_device_logical_destroy (
   cvk_device_Logical* const device,
   cvk_Allocator* const      allocator
 ) {
-  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&device->extensions);
+  cvk_device_extensions_destroy(&device->extensions, allocator);
   device->cfg = (VkDeviceCreateInfo){ 0 };
   vkDestroyDevice(device->ct, allocator->gpu);
 }

@@ -225,7 +225,7 @@ void cvk_instance_extensions_destroy (
   for (cvk_size id = 0; id < extensions.len; ++id) {
     cvk_size len = strlen(extensions.ptr[id]);
     char*    ptr = (char*)(extensions.ptr)[id];
-    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(cvk_String), .ptr = ptr });
+    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(char), .ptr = (cvk_pointer)ptr });
   }
   allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = extensions.len, .itemsize = sizeof(cvk_String), .ptr = extensions.ptr });
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual

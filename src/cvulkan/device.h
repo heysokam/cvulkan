@@ -10,6 +10,35 @@
 
 
 //______________________________________
+// @section Device: Extensions
+//____________________________
+
+/// @description
+/// Configuration options for `cvk_device_extensions_create`.
+typedef struct cvk_device_extensions_create_args {
+  cvk_device_Physical const* const device;
+  cvk_Allocator* const             allocator;
+} cvk_device_extensions_create_args;
+
+/// @description
+/// TODO: Describe
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_extensions_destroy` using the same `allocator`.
+cvk_Pure cvk_device_Extensions cvk_device_extensions_create (  // clang-format off
+  cvk_device_extensions_Required const* const    required,
+  cvk_device_extensions_create_args const* const arg
+);  // clang-format on
+
+/// @description
+/// Releases any memory and handles created by `cvk_device_extensions_create` using the same `allocator`.
+void cvk_device_extensions_destroy ( // clang-format off
+  cvk_device_Extensions* const extensions,
+  cvk_Allocator* const         allocator
+); // clang-format on
+
+
+//______________________________________
 // @section Device: Queue Families
 //____________________________
 
@@ -70,9 +99,10 @@ void cvk_device_swapchain_support_destroy ( // clang-format off
 /// Default function used to decide a Device.Physical suitability during its creation.
 /// @returns whether or not the device meets the conditions required for the application.
 cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const            device,
+  cvk_Surface const                           surface,
+  cvk_device_extensions_Required const* const extensions,
+  cvk_Allocator* const                        allocator
 ); // clang-format on
 
 #ifndef cvk_device_physical_isSuitable
@@ -118,10 +148,12 @@ cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (  // clang-f
 /// @description
 /// Configuration options for `cvk_device_physical_create`.
 typedef struct cvk_device_physical_create_args {
-  cvk_Instance* const                                  instance;
-  VkSurfaceKHR const                                   surface;
-  cvk_Nullable cvk_Fn_device_physical_getScore const   getScore;    ///< Called on every device found. Will use default when NULL
+  cvk_Instance* const instance;
+  VkSurfaceKHR const  surface;
+  cvk_Nullable cvk_device_extensions_Required const* const
+    extensions;  ///< List of extensions passed to the `isSuitable` function. Will use the defaults when omitted (aka NULL)
   cvk_Nullable cvk_Fn_device_physical_isSuitable const isSuitable;  ///< Called on every device found. Will use default when NULL
+  cvk_Nullable cvk_Fn_device_physical_getScore const   getScore;    ///< Called on every device found. Will use default when NULL
   cvk_Nullable cvk_bool const                          forceFirst;  ///< Whether device selection should stop when the first device was found
   char                                                 priv_pad[4];
 } cvk_device_physical_create_args;
@@ -223,8 +255,8 @@ void cvk_device_queue_wait (  // clang-format off
 
 /// @description
 /// Allocates the list of Device.Logical extensions used by this library by default.
-/// The caller is responsible for freeing the result with the given {@arg allocator}.
-cvk_Pure cvk_device_Extensions cvk_device_Extensions_default (cvk_Allocator* const allocator);
+/// The caller is responsible for freeing the result using the same `allocator`.
+cvk_Pure cvk_device_extensions_Required cvk_device_extensions_required_defaults ();
 
 /// @description
 /// Allocates the list of Device.Physical Extension Properties available on this system.
@@ -241,9 +273,9 @@ void cvk_device_extensions_properties_destroy ( // clang-format off
 ); // clang-format on
 
 cvk_Pure cvk_bool cvk_device_extensions_supported ( // clang-format off
-  cvk_device_Physical const* const device,
-  cvk_device_Extensions const      extensions,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const   device,
+  cvk_device_Extensions const* const extensions,
+  cvk_Allocator* const               allocator
 ); // clang-format on
 
 
@@ -385,7 +417,7 @@ void cvk_device_swapchain_present ( // clang-format off
 // @section Device: Features
 //____________________________
 
-cvk_Pure cvk_device_Features cvk_device_Features_default ();
+cvk_Pure cvk_device_Features cvk_device_features_default ();
 
 
 //______________________________________
@@ -401,9 +433,10 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create ( // clang-format 
 /// @description
 /// Configuration options for `cvk_device_logical_create`.
 typedef struct cvk_device_logical_create_args {
-  cvk_device_Physical const* const physical;
-  cvk_device_Queue const* const    queue;
-  cvk_Allocator* const             allocator;
+  cvk_device_Physical const* const                         physical;
+  cvk_device_Queue const* const                            queue;
+  cvk_Allocator* const                                     allocator;
+  cvk_Nullable cvk_device_extensions_Required const* const extensions;  ///< Will use the default extensions when omitted (aka NULL)
 } cvk_device_logical_create_args;
 
 /// The caller owns the memory allocated by this function,

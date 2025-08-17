@@ -152,6 +152,33 @@ typedef cvk_Slice (*cvk_Fn_extensions_Instance_getRequired)(void);
 
 
 //______________________________________
+// @section Device: Extensions
+//____________________________
+
+/// @description
+/// Typed `cvk_Slice` for clarity of intention: `cvk_String[]`
+/// Describes a list of string names of Device extensions.
+typedef cvk_StringSlice cvk_device_Extensions;
+
+/// @description
+/// List of `Device.extensions` required to create a Device that's usable for the target application.
+typedef struct cvk_device_extensions_Required {
+  cvk_Nullable cvk_device_Extensions const        user;     ///< Device Extensions required by the user. Will only add the default extensions when omitted.
+  cvk_Nullable cvk_device_Extensions const* const cvulkan;  ///< Device Extensions required by cvulkan. Will use the defaults when omitted (aka. 0,NULL)
+} cvk_device_extensions_Required;
+
+/// @description
+/// Describes a list of Extension Properties of a Device.Physical.
+/// Typed `cvk_Slice` for clarity of intention:
+/// `VkExtensionProperties[]` (aka: `cvk_Slice( VkExtensionProperties )`)
+typedef struct cvk_device_extensions_Properties {
+  cvk_size               len;
+  cvk_Readonly cvk_size  itemsize;
+  VkExtensionProperties* ptr;
+} cvk_device_extensions_Properties;
+
+
+//______________________________________
 // @section Device: Queue Families
 //____________________________
 
@@ -247,9 +274,10 @@ typedef struct cvk_device_physical_List {
 /// The Features, Properties, QueueFamilies and SwapchainSupport fields are not populated yet when this function is called back from cvulkan.
 /// Only the `.ct` and `.id` fields will be available.
 typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format off
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const            device,
+  cvk_Surface const                           surface,
+  cvk_device_extensions_Required const* const extensions,
+  cvk_Allocator* const                        allocator
 ); // clang-format on
 
 typedef cvk_size cvk_device_physical_Score;
@@ -277,31 +305,6 @@ typedef struct cvk_device_Queue {
   cvk_QueuePriority       priority;
   char                    priv_pad[4];
 } cvk_device_Queue;
-
-
-//______________________________________
-// @section Device: Extensions
-//____________________________
-
-/// @description
-/// Typed `cvk_Slice` for clarity of intention:
-/// Describes a list of (string literal) names of Device.Logical extensions.
-/// `cvk_String[]` (aka: `cvk_Slice( char const* )`)
-typedef struct cvk_device_Extensions {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  cvk_String*           ptr;
-} cvk_device_Extensions;
-
-/// @description
-/// Describes a list of Extension Properties of a Device.Physical.
-/// Typed `cvk_Slice` for clarity of intention:
-/// `VkExtensionProperties[]` (aka: `cvk_Slice( VkExtensionProperties )`)
-typedef struct cvk_device_extensions_Properties {
-  cvk_size               len;
-  cvk_Readonly cvk_size  itemsize;
-  VkExtensionProperties* ptr;
-} cvk_device_extensions_Properties;
 
 
 //______________________________________

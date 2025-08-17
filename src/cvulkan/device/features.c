@@ -4,5 +4,5 @@
 #include "../device.h"
 
 
-cvk_Pure cvk_device_Features cvk_device_Features_default () { return (cvk_device_Features){ 0 }; }
+cvk_Pure cvk_device_Features cvk_device_features_default () { return (cvk_device_Features){ 0 }; }
 

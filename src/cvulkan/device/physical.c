@@ -6,9 +6,10 @@
 
 
 cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const            device,
+  cvk_Surface const                           surface,
+  cvk_device_extensions_Required const* const extensions,
+  cvk_Allocator* const                        allocator
 ) {
   // WARN: The .properties field is not yet populated when this function is called
   VkPhysicalDeviceProperties properties = (VkPhysicalDeviceProperties){ 0 };
@@ -27,9 +28,11 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
   cvk_bool const    has_present   = cvk_Optional_u32_hasValue(queueFamilies.present);
   cvk_device_queue_families_destroy(&queueFamilies, allocator);
 
-  cvk_device_Extensions extensions          = cvk_device_Extensions_default(allocator);
-  cvk_bool const        supports_extensions = cvk_device_extensions_supported(device, extensions, allocator);
-  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&extensions);
+  cvk_bool const supports_extensions_user    = cvk_device_extensions_supported(device, &extensions->user, allocator);
+  cvk_bool const supports_extensions_cvulkan = cvk_device_extensions_supported(device, extensions->cvulkan, allocator);
+  cvk_bool const supports_extensions         = supports_extensions_user && supports_extensions_cvulkan;
+
+  // cvk_device_Extensions const device_extensions = cvk_device_extensions_defaults(&instance.allocator);
 
   cvk_bool supports_swapchain = cvk_false;
   if (supports_extensions) {
@@ -86,6 +89,7 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
   // Get the isSuitable/getScore functions (user or default)
   cvk_Fn_device_physical_isSuitable const isSuitable = (arg->isSuitable) ? arg->isSuitable : cvk_device_physical_isSuitable;
   cvk_Fn_device_physical_getScore const   getScore   = (arg->getScore) ? arg->getScore : cvk_device_physical_getScore;
+  cvk_device_extensions_Required const    extensions = (arg->extensions) ? *arg->extensions : cvk_device_extensions_required_defaults();
   // For each available device, call isSuitable/getScore and assign to the result when the condition matches
   cvk_device_Physical       result    = (cvk_device_Physical){ .ct = NULL, .id = cvk_Optional_u32_none };
   cvk_device_physical_Score rank_best = 0;
@@ -93,7 +97,7 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
     cvk_device_Physical const current = (cvk_device_Physical){ .ct = available.ptr[id], .id = id };
     // Continue/stop based on suitability and ranking
     if (arg->forceFirst) { /* clang-format off */ result = current; break; } /* clang-format on */
-    if (!isSuitable(&current, arg->surface, &arg->instance->allocator)) continue;
+    if (!isSuitable(&current, arg->surface, &extensions, &arg->instance->allocator)) continue;
     cvk_size rank_current = getScore(&current, arg->surface, &arg->instance->allocator);
     if (rank_current < rank_best) continue;
     if (rank_current == rank_best) continue;  // @note Tie breaker on equal scores: First found ranks higher.
