@@ -179,6 +179,40 @@ typedef struct cvk_device_extensions_Properties {
 
 
 //______________________________________
+// @section Device: Features
+//____________________________
+
+/// @description
+/// Container for the lists of features of every Vulkan version
+typedef struct cvk_device_Features {  // clang-format off
+  #ifndef VK_VERSION_1_1
+  VkPhysicalDeviceFeatures         list;
+  #else // >= VK_VERSION_1_1
+  VkPhysicalDeviceFeatures         v1_0;
+  char priv_pad2[4];
+  VkPhysicalDeviceVulkan11Features v1_1;
+  /// Final list of features sent to Vulkan.
+  /// v1_0 features must be set through the `.v1_0` field, and copied to the `list.features` field.
+  VkPhysicalDeviceFeatures2        list;
+  #endif
+  #ifdef VK_VERSION_1_2
+  VkPhysicalDeviceVulkan12Features v1_2;
+  #endif
+  #ifdef VK_VERSION_1_3
+  VkPhysicalDeviceVulkan13Features v1_3;
+  #endif
+  #ifdef VK_VERSION_1_4
+  VkPhysicalDeviceVulkan14Features v1_4;
+  #endif
+} cvk_device_Features;  // clang-format on
+
+typedef struct cvk_device_features_Required {
+  cvk_device_Features  user;
+  cvk_device_Features* cvulkan;  ///< Will override the defaults when not omitted.
+} cvk_device_features_Required;
+
+
+//______________________________________
 // @section Device: Queue Families
 //____________________________
 
@@ -254,8 +288,7 @@ typedef struct cvk_device_Physical {
   char                             priv_pad1[4];
   cvk_QueueFamilies                queueFamilies;     ///< QueueFamilies available on this device
   cvk_device_swapchain_Support     swapchainSupport;  ///< Swapchain Support Features of this device
-  char                             priv_pad2[4];
-  VkPhysicalDeviceFeatures         features;          ///< General Features supported by this device
+  cvk_device_Features              features;          ///< General Features supported by this device
   VkPhysicalDeviceProperties       properties;        ///< General Properties of this device
   VkPhysicalDeviceMemoryProperties memory;            ///< Memory Properties of this device
 } cvk_device_Physical;
@@ -277,6 +310,7 @@ typedef cvk_Pure cvk_bool (*cvk_Fn_device_physical_isSuitable)( // clang-format 
   cvk_device_Physical const* const            device,
   cvk_Surface const                           surface,
   cvk_device_extensions_Required const* const extensions,
+  cvk_device_features_Required const* const   features,
   cvk_Allocator* const                        allocator
 ); // clang-format on
 
@@ -330,20 +364,6 @@ typedef struct cvk_device_Swapchain {
   VkAttachmentDescription         attachment_cfg;
   char                            priv_pad[4];
 } cvk_device_Swapchain;
-
-
-//______________________________________
-// @section Device: Features
-//____________________________
-
-/// @description
-/// Alias to unify the naming convention of cvulkan types
-typedef struct cvk_device_Features {
-  // ?? v1_3;
-  // ?? v1_2;
-  // ?? v1_1;
-  VkPhysicalDeviceFeatures2 v1_0;
-} cvk_device_Features;
 
 
 //______________________________________

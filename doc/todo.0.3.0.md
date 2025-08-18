@@ -8,7 +8,7 @@
 - [x] Extensions
   - [x] Minimal
   - [x] Custom
-- [ ] Features
+- [x] Features
 - [ ] Support Multi-Queue creation
 ```
 
@@ -24,21 +24,20 @@
 ```md
 - `src/cvulkan/device/features.c`
 - [ ] **Review feature checking**
-  - [ ] Verify feature structure population
-  - [ ] Check feature availability validation
-  - [ ] Test feature requirement checking
-  - [ ] Ensure proper feature enablement
+  - [x] Verify feature structure population
+  - [x] Check feature availability validation
+  - [x] Test feature requirement checking
+  - [x] Ensure proper feature enablement
 ```
 
 ```md
 - `src/cvulkan/device/logical.c`
 - [ ] **Review device feature enabling**
-  - [ ] Verify feature structure population
-  - [ ] Check feature enablement during device creation
-  - [ ] Test feature availability after device creation
-  - [ ] Ensure proper feature validation
+  - [x] Check feature enablement during device creation
+  - [x] Test feature availability after device creation
+  - [x] Ensure proper feature validation
 - [ ] **Logical device creation**
-  - [ ] Verify device creation with all required features
+  - [x] Verify device creation with all required features
   - [x] Check device extension enablement
   - [ ] Test device creation error handling
   - [ ] Ensure proper device cleanup

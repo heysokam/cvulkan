@@ -10,19 +10,27 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
   cvk_device_Features const* const features,
   cvk_device_Extensions const      extensions
 ) {
-  return (VkDeviceCreateInfo){
+  return (VkDeviceCreateInfo) /* clang-format off */ {
     .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-    .pNext                   = NULL,  // FIX: Should have the device features here
+    #ifndef VK_VERSION_1_1
+    .pNext                   = NULL,
+    #else // >= VK_VERSION_1_1
+    .pNext                   = &features->list,
+    #endif// >= VK_VERSION_1_1
     .queueCreateInfoCount    = 1,
     .pQueueCreateInfos       = &queue->cfg,
     .enabledExtensionCount   = (uint32_t)extensions.len,
     .ppEnabledExtensionNames = (cvk_String const*)extensions.ptr,
-    .pEnabledFeatures        = &features->v1_0.features,  // FIX: Should be NULL. Features > v1.0 need to go into pNext
+    #ifndef VK_VERSION_1_1
+    .pEnabledFeatures        = &features->list,
+    #else // >= VK_VERSION_1_1
+    .pEnabledFeatures        = NULL,
+    #endif// >= VK_VERSION_1_1
     // Not Used
-    .flags               = (VkDeviceCreateFlags)0,  // Vk.Spec -> Reserved for future use
-    .enabledLayerCount   = 0,                       // Vk.Spec -> enabledLayerCount is deprecated and should not be used
-    .ppEnabledLayerNames = NULL,                    // Vk.Spec -> ppEnabledLayerNames is deprecated and should not be used
-  };
+    .flags                   = (VkDeviceCreateFlags)0,  // Vk.Spec -> Reserved for future use
+    .enabledLayerCount       = 0,                       // Vk.Spec -> enabledLayerCount is deprecated and should not be used
+    .ppEnabledLayerNames     = NULL,                    // Vk.Spec -> ppEnabledLayerNames is deprecated and should not be used
+  }; // clang-format on
 }
 
 
@@ -35,13 +43,12 @@ cvk_Pure cvk_device_Logical cvk_device_logical_create (
     .device    = arg->physical,
     .allocator = arg->allocator,
   });
-
   // Create the Features
-  result.features = cvk_device_features_default();
+  result.features = cvk_device_features_create(arg->features);
   // Create the configuration options
   result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, result.extensions);
-  // clang-format off
-  cvk_result_check(vkCreateDevice(arg->physical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+  // Create the context/handle
+  cvk_result_check(/* clang-format off */vkCreateDevice(arg->physical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a Vulkan Logical Device");  // clang-format on
   // Return the result
   return result;
