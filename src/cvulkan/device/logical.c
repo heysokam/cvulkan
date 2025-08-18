@@ -59,6 +59,7 @@ void cvk_device_logical_destroy (
   cvk_device_Logical* const device,
   cvk_Allocator* const      allocator
 ) {
+  cvk_device_features_destroy(&device->features);
   cvk_device_extensions_destroy(&device->extensions, allocator);
   device->cfg = (VkDeviceCreateInfo){ 0 };
   vkDestroyDevice(device->ct, allocator->gpu);
