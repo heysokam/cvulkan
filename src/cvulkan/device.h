@@ -155,9 +155,11 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
 ///
 /// @returns A score in `range[0..SIZE_MAX]`
 cvk_Pure cvk_device_physical_Score cvk_device_physical_getScore_default ( // clang-format off
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const            device,
+  cvk_Surface const                           surface,
+  cvk_device_extensions_Required const* const extensions,
+  cvk_device_features_Required const* const   features,
+  cvk_Allocator* const                        allocator
 ); // clang-format on
 
 #ifndef cvk_device_physical_getScore

@@ -50,12 +50,16 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
 
 
 cvk_Pure cvk_size cvk_device_physical_getScore_default (
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const            device,
+  cvk_Surface const                           surface,
+  cvk_device_extensions_Required const* const extensions,
+  cvk_device_features_Required const* const   features,
+  cvk_Allocator* const                        allocator
 ) {
   cvk_discard(device);
   cvk_discard(surface);
+  cvk_discard(features);
+  cvk_discard(extensions);
   cvk_discard(allocator);
   return 1;  // @note Score must be higher than 0 to be ranked.
 }  //:: cvk_device_physical_getScore_default
@@ -100,7 +104,7 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
     // Continue/stop based on suitability and ranking
     if (arg->forceFirst) { /* clang-format off */ result = current; break; } /* clang-format on */
     if (!isSuitable(&current, arg->surface, &extensions, &features, &arg->instance->allocator)) continue;
-    cvk_size rank_current = getScore(&current, arg->surface, &arg->instance->allocator);
+    cvk_size rank_current = getScore(&current, arg->surface, &extensions, &features, &arg->instance->allocator);
     if (rank_current < rank_best) continue;
     if (rank_current == rank_best) continue;  // @note Tie breaker on equal scores: First found ranks higher.
     result = current;

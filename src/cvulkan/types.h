@@ -282,6 +282,7 @@ typedef struct cvk_device_swapchain_Support {
 //______________________________________
 // @section Device: Physical
 //____________________________
+
 typedef struct cvk_device_Physical {
   VkPhysicalDevice                 ct;
   cvk_Optional_u32                 id;                ///< Identifier that represents its position in the devices list at the time of initialization
@@ -292,6 +293,7 @@ typedef struct cvk_device_Physical {
   VkPhysicalDeviceProperties       properties;        ///< General Properties of this device
   VkPhysicalDeviceMemoryProperties memory;            ///< Memory Properties of this device
 } cvk_device_Physical;
+
 /// @description
 /// Describes a list of VkPhysicalDevice contexts.
 /// Used mainly to hold the list of devices available on the system.
@@ -320,9 +322,11 @@ typedef cvk_size cvk_device_physical_Score;
 /// The Features, Properties, QueueFamilies and SwapchainSupport fields are not populated yet when this function is called back from cvulkan.
 /// Only the `.ct` and `.id` fields will be available.
 typedef cvk_Pure cvk_device_physical_Score (*cvk_Fn_device_physical_getScore)( // clang-format off
-  cvk_device_Physical const* const device,
-  cvk_Surface const                surface,
-  cvk_Allocator* const             allocator
+  cvk_device_Physical const* const            device,
+  cvk_Surface const                           surface,
+  cvk_device_extensions_Required const* const extensions,
+  cvk_device_features_Required const* const   features,
+  cvk_Allocator* const                        allocator
 ); // clang-format on
 
 
@@ -373,8 +377,8 @@ typedef struct cvk_device_Swapchain {
 typedef struct cvk_device_Logical {
   VkDevice              ct;
   VkDeviceCreateInfo    cfg;
-  cvk_device_Features   features;  // FIX: Move to Device.Physical
-  cvk_device_Extensions extensions;
+  cvk_device_Features   features;    ///< Features enabled on this device
+  cvk_device_Extensions extensions;  ///< Extensions enabled on this device
 } cvk_device_Logical;
 
 
