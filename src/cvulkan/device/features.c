@@ -48,7 +48,7 @@ cvk_Pure cvk_device_features_Required cvk_device_features_required_defaults () {
   result.cvulkan->list.features = result.cvulkan->v1_0;
 #endif  // >= VK_VERSION_1_1
   return result;
-}
+} //:: cvk_device_features_required_defaults
 
 
 cvk_Pure cvk_device_Features cvk_device_features_getSupported (
@@ -78,7 +78,7 @@ cvk_Pure cvk_device_Features cvk_device_features_getSupported (
   //__________________________________________________
   // Return the result
   return result;
-}
+} //:: cvk_device_features_getSupported
 
 
 cvk_Pure cvk_bool cvk_device_features_supported (
@@ -273,7 +273,7 @@ cvk_Pure cvk_bool cvk_device_features_supported (
 }  //:: cvk_device_features_supported
 
 
-cvk_Pure cvk_device_Features cvk_device_features_create (
+cvk_Pure cvk_device_Features cvk_device_features_merge (
   cvk_device_features_Required const* const features
 ) {
   cvk_device_Features result = cvk_device_features_empty();
@@ -480,12 +480,12 @@ cvk_Pure cvk_device_Features cvk_device_features_create (
   //________________________________________________
   // Return the merged features list
   return result;
-}  //:: cvk_device_features_create
+}  //:: cvk_device_features_merge
 
 
-void cvk_device_features_destroy (
+void cvk_device_features_clear (
   cvk_device_Features* const features
 ) {
   *features = cvk_device_features_empty();
-}
+} //:: cvk_device_features_clear
 

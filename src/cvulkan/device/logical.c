@@ -44,7 +44,7 @@ cvk_Pure cvk_device_Logical cvk_device_logical_create (
     .allocator = arg->allocator,
   });
   // Create the Features
-  result.features = cvk_device_features_create(arg->features);
+  result.features = cvk_device_features_merge(arg->features);
   // Create the configuration options
   result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, result.extensions);
   // Create the context/handle
@@ -59,7 +59,7 @@ void cvk_device_logical_destroy (
   cvk_device_Logical* const device,
   cvk_Allocator* const      allocator
 ) {
-  cvk_device_features_destroy(&device->features);
+  cvk_device_features_clear(&device->features);
   cvk_device_extensions_destroy(&device->extensions, allocator);
   device->cfg = (VkDeviceCreateInfo){ 0 };
   vkDestroyDevice(device->ct, allocator->gpu);

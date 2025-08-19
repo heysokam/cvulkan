@@ -132,7 +132,7 @@ void cvk_device_physical_destroy (
 ) {
   device->memory     = (VkPhysicalDeviceMemoryProperties){ 0 };
   device->properties = (VkPhysicalDeviceProperties){ 0 };
-  cvk_device_features_destroy(&device->features);
+  cvk_device_features_clear(&device->features);
   cvk_device_swapchain_support_destroy(&device->swapchainSupport, allocator);
   cvk_device_queue_families_destroy(&device->queueFamilies, allocator);
   device->id = cvk_Optional_u32_none;

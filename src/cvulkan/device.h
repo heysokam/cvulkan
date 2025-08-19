@@ -59,11 +59,11 @@ cvk_Pure cvk_bool cvk_device_features_supported ( // clang-format off
   cvk_device_Features const* const features
 ); // clang-format on
 
-cvk_Pure cvk_device_Features cvk_device_features_create (  // clang-format off
+cvk_Pure cvk_device_Features cvk_device_features_merge (  // clang-format off
   cvk_device_features_Required const* const features
 );  // clang-format on
 
-void cvk_device_features_destroy (  // clang-format off
+void cvk_device_features_clear (  // clang-format off
   cvk_device_Features* const features
 );  // clang-format on
 
