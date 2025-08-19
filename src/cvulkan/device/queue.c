@@ -58,10 +58,10 @@ void cvk_device_queue_families_destroy (
 
 
 cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create (
-  cvk_QueueID  family,
-  uint32_t     count,
-  float const* priorities,
-  cvk_bool     Protected
+  cvk_QueueID const  family,
+  uint32_t const     count,
+  float const* const priorities,
+  cvk_bool const     Protected
 ) {
   return (VkDeviceQueueCreateInfo){
     .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -70,18 +70,20 @@ cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create (
     .queueFamilyIndex = family,
     .queueCount       = count,
     .pQueuePriorities = priorities,
-
   };
-}
+}  //:: cvk_device_queue_options_create
 
 
+/// @internal
+/// @description
+/// Restricts the given `priority` value to be within the range allowed by the spec for Queue priorities.
 static cvk_Pure cvk_QueuePriority cvk_QueuePriority_clamp (
   cvk_QueuePriority const priority
 ) {  // clang-format off
   return (priority < 0.0f) ? 0.0f
-  : (priority > 1.0f) ? 1.0f
-  : priority;
-}  // clang-format on
+       : (priority > 1.0f) ? 1.0f
+       : priority;  // clang-format on
+}  //:: cvk_QueuePriority_clamp
 
 
 cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (
@@ -98,7 +100,7 @@ cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (
     /* Protected  */ arg->Protected
   );
   return result;
-}
+}  //:: cvk_device_queue_create_noContext
 
 
 void cvk_device_queue_create_context (
@@ -106,14 +108,14 @@ void cvk_device_queue_create_context (
   cvk_device_Logical const* const device
 ) {
   vkGetDeviceQueue(device->ct, queue->cfg.queueFamilyIndex, 0, &queue->ct);
-}
+}  //:: cvk_device_queue_create_context
 
 
 void cvk_device_queue_submit (
   cvk_device_Queue const* const             queue,
   cvk_device_queue_submit_args const* const arg
-) {  // clang-format off
-  cvk_result_check(vkQueueSubmit(queue->ct, 1, &(VkSubmitInfo){
+) {
+  cvk_result_check(/* clang-format off */vkQueueSubmit(queue->ct, 1, &(VkSubmitInfo){
     .sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
     .pNext                = NULL,
     .waitSemaphoreCount   = arg->semaphore_wait ? 1 : 0,
@@ -124,14 +126,14 @@ void cvk_device_queue_submit (
     .signalSemaphoreCount = arg->semaphore_signal ? 1 : 0,
     .pSignalSemaphores    = arg->semaphore_signal ? &arg->semaphore_signal->ct : NULL,
     }, /* fence */ arg->fence ? arg->fence->ct : NULL
-    ), "Failed to submit a Command Buffer to the given Device.Queue");
-}  // clang-format on
+    ), "Failed to submit a Command Buffer to the given Device.Queue");  // clang-format on
+}  //:: cvk_device_queue_submit
 
 
-void cvk_device_queue_wait (
+inline void cvk_device_queue_wait (
   cvk_device_Queue const* const queue
-) {  // clang-format off
-  cvk_result_check(vkQueueWaitIdle(queue->ct),
+) {
+  cvk_result_check(/* clang-format off */vkQueueWaitIdle(queue->ct),
     "Failed while waiting for a Queue to finish.");  // clang-format on
-}
+}  //:: cvk_device_queue_wait
 

@@ -128,7 +128,7 @@ void cvk_device_features_clear (  // clang-format off
 /// Creates a `Queue.Families` object with all the relevant queue families data for the given `Device.Physical`.
 /// The `Queue.Families.Properties` data of the device will be allocated and added to the returning object.
 ///
-/// The `Queue.ID` values are populated using this logic:
+/// The `Queue.ID` values are populated with this logic:
 /// `.graphics` : has graphics
 /// `.present`  : has surface support
 /// `.transfer` : has transfer and not (graphics or compute)  [aka dedicated transfer]
@@ -270,11 +270,14 @@ void cvk_device_physical_destroy ( // clang-format off
 // @section Device: Queue
 //____________________________
 
+/// @description
+/// Creates a valid `VkDeviceQueueCreateInfo` object using the given configuration options.
+/// @param Protected Will add `protected_BIT` to the queue flags when `cvk_true`.
 cvk_Pure VkDeviceQueueCreateInfo cvk_device_queue_options_create ( // clang-format off
-  cvk_QueueID  family,
-  uint32_t     count,
-  float const* priorities,
-  cvk_bool     Protected
+  cvk_QueueID const  family,
+  uint32_t const     count,
+  float const* const priorities,
+  cvk_bool const     Protected
 ); // clang-format on
 
 /// @description
@@ -295,8 +298,9 @@ typedef struct cvk_device_queue_create_args {
 /// @note:
 /// The (`cvk_queue_create_noContext`, `cvk_queue_create_context`) pair of functions exists to solve a cyclic dependency.
 /// The Queue's `.cfg` field must be used when creating a Device.Logical.context.
-/// But a creating a Queue.context requires a Device.Logical.context.
+/// But creating a Queue.context requires a Device.Logical.context.
 ///
+/// @important
 /// The caller owns the memory allocated by this function,
 /// and is responsible for calling `cvk_device_queue_destroy` using the same `allocator`.
 cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (  // clang-format off
@@ -304,20 +308,41 @@ cvk_Pure cvk_device_Queue cvk_device_queue_create_noContext (  // clang-format o
 );  // clang-format on
 
 /// @description
-/// Assigns the context field of the given `queue`.
-/// Must be called after `cvk_device_queue_create_noContext`.
+/// Populates the `.ct` context field of a `Queue` object created with `cvk_device_queue_create_noContext`.
+/// The given `queue` handle won't be usable until this function is called.
 /// @see `cvk_device_queue_create_noContext` for more info.
+///
+/// ............................................................
+/// @warning Advanced information about `Queue.ct` request implementation:
+///
+/// cvulkan's default behavior is to create only 1 queue per family.
+/// It disregards the differentiation between `Queue.Family.ID` and `Queue.ID`.
+/// and will create every queue with a `queueIndex` of `0`.
+///
+/// Most hardware only has 1 or 2 queues per family,
+/// and the only reason to hold more than one queue context/handle from a single family
+/// is for multi-threaded queue submission.
+/// But the performance bottleneck is rarely (if ever) going to be caused by Queue submission overhead.
+/// ........................................
+/// As with everything in cvulkan, you can override this default behavior by calling Vulkan directly:
+/// 1. Duplicate the no_context queue object
+/// 2. Call `vkGetDeviceQueue` directly on your duplicate
+/// ```c
+/// cvk_Queue some_queue = cvk_device_queue_create_noContext( .... );
+/// cvk_Queue YOUR_QUEUE = some_queue;                      // Duplicate an existing queue's data.
+/// cvk_device_queue_create_context(&some_queue, &device);  // Use `some_queue` normally.
+/// vkGetDeviceQueue(device.ct, YOUR_QUEUE.cfg.queueFamilyIndex, SOME_NEW_ID, &YOUR_QUEUE.ct);
+/// ```
+/// ............................................................
 void cvk_device_queue_create_context ( // clang-format off
   cvk_device_Queue* const         queue,
   cvk_device_Logical const* const device
 ); // clang-format on
 
-// clang-format off
 /// @description
 /// Releases any memory and handles created by `cvk_device_queue_create` using the same `allocator`.
 /// @note Queue objects currently don't hold anything that needs to be destroyed
-#define cvk_device_queue_destroy(ct, A) (void)(ct); (void)(A)
-// clang-format on
+#define cvk_device_queue_destroy(ct, A) /* clang-format off */ (void)(ct); (void)(A) /* clang-format on */
 
 /// @description
 /// Configuration options for `cvk_device_queue_submit`.
@@ -328,11 +353,18 @@ typedef struct cvk_device_queue_submit_args {
   cvk_Nullable cvk_Fence const* const     fence;
 } cvk_device_queue_submit_args;
 
+/// @description
+/// Sends the given `arg` `.command_buffer` to the given `queue` for execution on the GPU.
+/// It will wait and/or signal the given semaphores/fence when they are not omitted (aka. not NULL).
+/// It will ignore them otherwise.
 void cvk_device_queue_submit ( // clang-format off
   cvk_device_Queue const* const             queue,
   cvk_device_queue_submit_args const* const arg
 ); // clang-format on
 
+/// @description
+/// Waits for the host to complete any pending operations for the given `queue`.
+/// @note Inline alias for `vkQueueWaitIdle` using the cvulkan api.
 void cvk_device_queue_wait (  // clang-format off
   cvk_device_Queue const* const queue
 );  // clang-format on

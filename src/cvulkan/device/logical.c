@@ -31,7 +31,7 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
     .enabledLayerCount       = 0,                       // Vk.Spec -> enabledLayerCount is deprecated and should not be used
     .ppEnabledLayerNames     = NULL,                    // Vk.Spec -> ppEnabledLayerNames is deprecated and should not be used
   };  // clang-format on
-} //:: cvk_device_logical_options_create
+}  //:: cvk_device_logical_options_create
 
 
 cvk_Pure cvk_device_Logical cvk_device_logical_create (
@@ -69,6 +69,7 @@ void cvk_device_logical_destroy (
 inline void cvk_device_logical_wait (
   cvk_device_Logical const* const device_logical
 ) {
-  vkDeviceWaitIdle(device_logical->ct);
+  cvk_result_check(/* clang-format off */vkDeviceWaitIdle(device_logical->ct),
+    "Failed while waiting for a Device to finish all work on its Queues.");  // clang-format on
 }
 

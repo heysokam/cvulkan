@@ -27,6 +27,11 @@
 - [ ] Philosophy: Bring your own Allocator (Zig-inspired)
 - [ ] Slices and Slice-like objects
 ```
+```md
+## Queue
+- [ ] Arbitrary Queue creation (multi-queue)
+      Needs support on the device.logical function
+```
 
 ```md
 ##  Documentation for 0.1.0: Instance, Validation & General Purpose Helpers
@@ -64,6 +69,16 @@
   - [ ] Document device feature patterns
   - [ ] **Device Example**
 ```
+```md
+## Documentation for 0.4.0 - Device Queue
+- [ ] **Documentation updates**
+  - [ ] **Queue Example**
+    - [ ] Graphics queue only
+    - [ ] Compute queue
+    - [ ] Transfer queue
+    - [ ] Multiple queue families
+```
+
 
 
 ```md

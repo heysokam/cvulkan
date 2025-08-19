@@ -51,7 +51,7 @@ Up-to-date list of features pending and done:
 |  0.1.0  | Instance, Validation & Helpers    | ✅ Done   | [doc/done.0.1.0.md](doc/done.0.1.0.md)       |
 |  0.2.0  | Physical Device Selection         | ✅ Done   | [doc/done.0.2.0.md](doc/done.0.2.0.md)       |
 |  0.3.0  | Logical Device                    | ✅ Done   | [doc/done.0.3.0.md](doc/done.0.3.0.md)       |
-|  0.4.0  | Device Queue                      | 🔄 Review | [doc/todo.0.4.0.md](doc/todo.0.4.0.md)       |
+|  0.4.0  | Device Queue                      | ✅ Done   | [doc/done.0.4.0.md](doc/done.0.4.0.md)       |
 |  0.5.0  | Surface & Swapchain               | 🔄 Review | [doc/todo.0.5.0.md](doc/todo.0.5.0.md)       |
 |  0.6.0  | Shaders                           | 🔄 Review | [doc/todo.0.6.0.md](doc/todo.0.6.0.md)       |
 |  0.7.0  | Static Rendering Elements         | 🔄 Review | [doc/todo.0.7.0.md](doc/todo.0.7.0.md)       |
