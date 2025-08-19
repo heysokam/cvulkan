@@ -32,6 +32,10 @@
 - [ ] Arbitrary Queue creation (multi-queue)
       Needs support on the device.logical function
 ```
+```md
+## Swapchain
+- [ ] Swapchain.recreate // Almost done.  FIX: Triggers a validation error on recreation.
+```
 
 ```md
 ##  Documentation for 0.1.0: Instance, Validation & General Purpose Helpers
@@ -77,6 +81,23 @@
     - [ ] Compute queue
     - [ ] Transfer queue
     - [ ] Multiple queue families
+```
+```md
+## Documentation for 0.5.0 - Surface & Swapchain
+- [ ] **Documentation updates**
+  - [ ] Update surface.h documentation
+  - [ ] Add swapchain management examples
+  - [ ] Document surface integration patterns
+  - [ ] **Swapchain Example**
+    - [ ] Example with basic swapchain setup
+    - [ ] Example with swapchain recreation
+    - [ ] Example with different surface formats
+    - [ ] Example with multiple swapchain images
+    - [ ] **Fix swapchain recreation issues**
+      - [ ] Resolve validation errors during recreation
+      - [ ] Implement proper cleanup before recreation
+      - [ ] Test recreation with different surface sizes
+      - [ ] Ensure robust error handling
 ```
 
 

@@ -11,16 +11,11 @@
 - [x] Context creation
 - [x] Swapchain.Images Request
 - [x] Swapchain.ImageViews Request
-- [ ] Swapchain.recreate // Almost done.  FIX: Triggers a validation error on recreation.
 ```
 
 ```md
 - `src/cvulkan/surface.h`
-- [ ] **Review surface creation (system-agnostic)**
-  - [ ] Verify surface handle validation
-  - [ ] Check surface capability querying
-  - [ ] Test surface format enumeration
-  - [ ] Ensure proper surface cleanup
+- [x] **Review surface.h**
 ```
 
 ```md
@@ -35,22 +30,5 @@
   - [ ] Check image view format compatibility
   - [ ] Test image view lifecycle management
   - [ ] Ensure proper image view cleanup
-```
-
-```md
-- [ ] **Documentation updates**
-  - [ ] Update surface.h documentation
-  - [ ] Add swapchain management examples
-  - [ ] Document surface integration patterns
-  - [ ] **Swapchain Example**
-    - [ ] Example with basic swapchain setup
-    - [ ] Example with swapchain recreation
-    - [ ] Example with different surface formats
-    - [ ] Example with multiple swapchain images
-    - [ ] **Fix swapchain recreation issues**
-      - [ ] Resolve validation errors during recreation
-      - [ ] Implement proper cleanup before recreation
-      - [ ] Test recreation with different surface sizes
-      - [ ] Ensure robust error handling
 ```
 
