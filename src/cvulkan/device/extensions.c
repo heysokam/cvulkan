@@ -3,21 +3,29 @@
 //:___________________________________________________________
 #include "../result.h"
 #include "../device.h"
-#include <stdio.h>
 
-static cvk_String const cvk_device_extensions_defaults[1] = {
+
+#define cvk_device_extensions_defaults_len 1
+/// @internal
+/// @description
+/// Internal list of extensions used by cvulkan's default behavior.
+static cvk_String const cvk_device_extensions_defaults_ptr[cvk_device_extensions_defaults_len] = {
   [0] = VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 
+
 cvk_Pure cvk_device_extensions_Required cvk_device_extensions_required_defaults () {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wcast-qual"  // clang-format off
   return (cvk_device_extensions_Required){
     .user    = (cvk_device_Extensions){ 0 },
-    .cvulkan = &(cvk_device_Extensions){ .ptr = (cvk_String*)cvk_device_extensions_defaults, .len = 1 },
+    .cvulkan = &(cvk_device_Extensions){
+      .ptr   = (cvk_String*)cvk_device_extensions_defaults_ptr,
+      .len   = cvk_device_extensions_defaults_len
+    },
   };
-#pragma GCC diagnostic pop  // -Wcast-qual
-}
+#pragma GCC diagnostic pop // -Wcast-qual
+}  // clang-format on
 
 
 cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_create (
@@ -92,8 +100,8 @@ cvk_Pure cvk_device_Extensions cvk_device_extensions_create (
   cvk_device_Extensions          result   = (cvk_device_Extensions){ 0 };
   cvk_device_extensions_Required list     = (required) ? *required : (cvk_device_extensions_Required){ 0 };
   cvk_device_Extensions          defaults = /* clang-format off */ (list.cvulkan) ? *list.cvulkan : (cvk_device_Extensions){
-    .ptr = (cvk_String*)cvk_device_extensions_defaults,
-    .len = sizeof(cvk_device_extensions_defaults) / sizeof(*cvk_device_extensions_defaults),
+    .ptr = (cvk_String*)cvk_device_extensions_defaults_ptr,
+    .len = sizeof(cvk_device_extensions_defaults_ptr) / sizeof(*cvk_device_extensions_defaults_ptr),
   };  // clang-format on
   cvk_size current = 0;
 
@@ -144,5 +152,4 @@ void cvk_device_extensions_destroy (
   allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = (cvk_pointer)extensions->ptr, .len = extensions->len, .itemsize = sizeof(cvk_String) });
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual
 }
-
 
