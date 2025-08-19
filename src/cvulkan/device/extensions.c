@@ -48,20 +48,20 @@ void cvk_device_extensions_properties_destroy (
 
 cvk_Pure cvk_bool cvk_device_extensions_supported (
   cvk_device_Physical const* const   device,
-  cvk_device_Extensions const* const extensions,
+  cvk_device_Extensions const* const required,
   cvk_Allocator* const               allocator
 ) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   cvk_bool result = cvk_true;
-  if (!extensions || !extensions->ptr) return result;  // Always true for no extensions
+  if (!required || !required->ptr) return result;  // Always true for no extensions
   // Get the extension properties of the device
   cvk_device_extensions_Properties properties = cvk_device_extensions_properties_create(device, allocator);
   // For every available extension, check if any of the extension properties has an entry with the same `.extensionName`
-  for (cvk_size ext_id = 0; ext_id < extensions->len; ++ext_id) {
+  for (cvk_size ext_id = 0; ext_id < required->len; ++ext_id) {
     cvk_bool found = cvk_false;
     for (size_t prop_id = 0; prop_id < properties.len; ++prop_id) {
-      cvk_String name_ext  = ((cvk_String*)extensions->ptr)[ext_id];
+      cvk_String name_ext  = ((cvk_String*)required->ptr)[ext_id];
       cvk_String name_prop = ((VkExtensionProperties*)properties.ptr)[prop_id].extensionName;
       if (cvk_String_equal(name_ext, name_prop)) {
         found = cvk_true;

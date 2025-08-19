@@ -21,11 +21,13 @@ typedef struct cvk_device_extensions_create_args {
 } cvk_device_extensions_create_args;
 
 /// @description
-/// TODO: Describe
+/// Creates a list of Device.Extensions by combining the given `required` list into a single unified list.
 ///
 /// @warning
-/// Does not filter out extensions that are not supported by the device
-/// They are meant to be checked in the `isSuitable` Device.Physical callback
+/// Does not filter out extensions that are not supported by the device.
+/// They are meant to be checked for availability in the `isSuitable` Device.Physical callback.
+///
+/// @note All entries will be created with `allocator.string_duplicate`, and must be freed with `cvk_device_extensions_destroy`.
 ///
 /// The caller owns the memory allocated by this function,
 /// and is responsible for calling `cvk_device_extensions_destroy` using the same `allocator`.
@@ -39,6 +41,35 @@ cvk_Pure cvk_device_Extensions cvk_device_extensions_create (  // clang-format o
 void cvk_device_extensions_destroy ( // clang-format off
   cvk_device_Extensions* const extensions,
   cvk_Allocator* const         allocator
+); // clang-format on
+
+/// @description
+/// Returns the list of Device.Logical extensions used by this library by default.
+cvk_Pure cvk_device_extensions_Required cvk_device_extensions_required_defaults ();
+
+/// @description
+/// Allocates the list of Device.Extension.Properties available on this system.
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_device_extensions_properties_destroy` using the same `allocator`.
+cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_create ( // clang-format off
+  cvk_device_Physical const* const device,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+/// @description
+/// Releases any memory and handles created by `cvk_device_extensions_properties_create` using the same `allocator`.
+void cvk_device_extensions_properties_destroy ( // clang-format off
+  cvk_device_extensions_Properties properties,
+  cvk_Allocator* const             allocator
+); // clang-format on
+
+/// @description
+/// Checks that every extension in the given list of `required` extensions is supported by the given `device`.
+/// @returns `cvk_false` as soon as one of the extensions is required, but not supported by the device.
+cvk_Pure cvk_bool cvk_device_extensions_supported ( // clang-format off
+  cvk_device_Physical const* const   device,
+  cvk_device_Extensions const* const required,
+  cvk_Allocator* const               allocator
 ); // clang-format on
 
 
@@ -305,36 +336,6 @@ void cvk_device_queue_submit ( // clang-format off
 void cvk_device_queue_wait (  // clang-format off
   cvk_device_Queue const* const queue
 );  // clang-format on
-
-
-//______________________________________
-// @section Device: Extensions
-//____________________________
-
-/// @description
-/// Allocates the list of Device.Logical extensions used by this library by default.
-/// The caller is responsible for freeing the result using the same `allocator`.
-cvk_Pure cvk_device_extensions_Required cvk_device_extensions_required_defaults ();
-
-/// @description
-/// Allocates the list of Device.Physical Extension Properties available on this system.
-/// The caller owns the memory allocated by this function,
-/// and is responsible for calling `cvk_device_extensions_properties_destroy` using the same `allocator`.
-cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_create ( // clang-format off
-  cvk_device_Physical const* const device,
-  cvk_Allocator* const             allocator
-); // clang-format on
-
-void cvk_device_extensions_properties_destroy ( // clang-format off
-  cvk_device_extensions_Properties properties,
-  cvk_Allocator* const             allocator
-); // clang-format on
-
-cvk_Pure cvk_bool cvk_device_extensions_supported ( // clang-format off
-  cvk_device_Physical const* const   device,
-  cvk_device_Extensions const* const extensions,
-  cvk_Allocator* const               allocator
-); // clang-format on
 
 
 //______________________________________
