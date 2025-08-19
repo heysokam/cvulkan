@@ -6,9 +6,9 @@
 
 
 cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
-  cvk_device_Queue const* const    queue,
-  cvk_device_Features const* const features,
-  cvk_device_Extensions const      extensions
+  cvk_device_Queue const* const      queue,
+  cvk_device_Features const* const   features,
+  cvk_device_Extensions const* const extensions
 ) {
   return (VkDeviceCreateInfo) /* clang-format off */ {
     .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -19,8 +19,8 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
     #endif// >= VK_VERSION_1_1
     .queueCreateInfoCount    = 1,
     .pQueueCreateInfos       = &queue->cfg,
-    .enabledExtensionCount   = (uint32_t)extensions.len,
-    .ppEnabledExtensionNames = (cvk_String const*)extensions.ptr,
+    .enabledExtensionCount   = (uint32_t)extensions->len,
+    .ppEnabledExtensionNames = (cvk_String const*)extensions->ptr,
     #ifndef VK_VERSION_1_1
     .pEnabledFeatures        = &features->list,
     #else // >= VK_VERSION_1_1
@@ -30,8 +30,8 @@ cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create (
     .flags                   = (VkDeviceCreateFlags)0,  // Vk.Spec -> Reserved for future use
     .enabledLayerCount       = 0,                       // Vk.Spec -> enabledLayerCount is deprecated and should not be used
     .ppEnabledLayerNames     = NULL,                    // Vk.Spec -> ppEnabledLayerNames is deprecated and should not be used
-  }; // clang-format on
-}
+  };  // clang-format on
+} //:: cvk_device_logical_options_create
 
 
 cvk_Pure cvk_device_Logical cvk_device_logical_create (
@@ -46,7 +46,7 @@ cvk_Pure cvk_device_Logical cvk_device_logical_create (
   // Create the combined Features list
   result.features = cvk_device_features_merge(arg->features);
   // Create the configuration options
-  result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, result.extensions);
+  result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, &result.extensions);
   // Create the context/handle
   cvk_result_check(/* clang-format off */vkCreateDevice(arg->physical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a Vulkan Logical Device");  // clang-format on

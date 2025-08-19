@@ -476,10 +476,12 @@ void cvk_device_swapchain_present ( // clang-format off
 // @section Device: Logical
 //____________________________
 
+/// @description
+/// Creates a valid `VkDeviceCreateInfo` object using the given configuration options.
 cvk_Pure VkDeviceCreateInfo cvk_device_logical_options_create ( // clang-format off
-  cvk_device_Queue const* const    queue,
-  cvk_device_Features const* const features,
-  cvk_device_Extensions const      extensions
+  cvk_device_Queue const* const      queue,
+  cvk_device_Features const* const   features,
+  cvk_device_Extensions const* const extensions
 ); // clang-format on
 
 /// @description
@@ -492,17 +494,25 @@ typedef struct cvk_device_logical_create_args {
   cvk_Nullable cvk_device_features_Required const* const   features;    ///< Will use the default features when omitted (aka NULL)
 } cvk_device_logical_create_args;
 
+/// @description
+/// Creates a `Device.Logical` object with the required Extensions, Features and Queues configured as defined by `cvk_device_logical_create_args`
+///
 /// The caller owns the memory allocated by this function,
 /// and is responsible for calling `cvk_device_logical_destroy` using the same `allocator`.
 cvk_Pure cvk_device_Logical cvk_device_logical_create (  // clang-format off
   cvk_device_logical_create_args* const arg
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_device_logical_create` using the same `allocator`.
 void cvk_device_logical_destroy (  // clang-format off
   cvk_device_Logical* const device,
   cvk_Allocator* const      allocator
 );  // clang-format on
 
+/// @description
+/// Waits for the host to complete any pending queue operations for all queues of the given `device_logical`.
+/// @note Inline alias for `vkDeviceWaitIdle` using the cvulkan api.
 void cvk_device_logical_wait (  // clang-format off
   cvk_device_Logical const* const device_logical
 );  // clang-format on

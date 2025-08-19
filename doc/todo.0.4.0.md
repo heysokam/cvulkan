@@ -7,6 +7,7 @@
 - [ ] Arbitrary Queue creation (multi-queue)
       Needs support on the device.logical function
 - [x] Wait
+- [ ] Device.Logical: Support Multi-Queue creation
 ```
 
 ```md
