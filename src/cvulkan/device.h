@@ -46,23 +46,44 @@ void cvk_device_extensions_destroy ( // clang-format off
 // @section Device: Features
 //____________________________
 
+/// @description
+/// Creates a valid (but empty) `Device.Features` object,
+/// that can be sent to Vulkan for requesting or selecting the feature list of a Device.
+/// (ie: its `sType` fields and its `pNext` chain will be populated appropiately)
 cvk_Pure cvk_device_Features cvk_device_features_empty ();
 
-cvk_Pure cvk_device_features_Required cvk_device_features_required_defaults ();
-
+/// @description
+/// Requests the complete list of features available for the given `device`.
+/// @note Will request all features (up to v1.4) based on the version available on the Vulkan headers at compile time.
+/// @note Will use `vkGetPhysicalDeviceFeatures2` when `VK_VERSION_1_1` is defined, or fallback to `vkGetPhysicalDeviceFeatures` otherwise.
+/// @note The resulting `.list` field will have the correct structure for sending to Vulkan during Device.Logical creation.
 cvk_Pure cvk_device_Features cvk_device_features_getSupported (  // clang-format off
   cvk_device_Physical const* const device
 );  // clang-format on
 
+/// @description
+/// Checks that every feature in the given list of `required` features is supported by the given `device`.
+/// @returns `cvk_false` as soon as one of the features is required, but not supported by the device.
 cvk_Pure cvk_bool cvk_device_features_supported ( // clang-format off
   cvk_device_Physical const* const device,
-  cvk_device_Features const* const features
+  cvk_device_Features const* const required
 ); // clang-format on
 
+/// @description
+/// Creates the list of features used on cvulkan by default.
+cvk_Pure cvk_device_features_Required cvk_device_features_required_defaults ();
+
+/// @description
+/// Combines the given `cvk_device_features_Required` lists of features into a unified `cvk_device_Features` object.
+/// @note For ergonomics, the resulting list can be cleared using `cvk_device_features_clear`.
 cvk_Pure cvk_device_Features cvk_device_features_merge (  // clang-format off
   cvk_device_features_Required const* const features
 );  // clang-format on
 
+/// @description
+/// Sets every feature found in the given `features` list to `VK_FALSE`.
+/// The object will still be valid for sending to Vulkan after this is called.
+/// (ie: their `sType` fields and `pNext` chain won't be erased)
 void cvk_device_features_clear (  // clang-format off
   cvk_device_Features* const features
 );  // clang-format on
@@ -127,7 +148,11 @@ void cvk_device_swapchain_support_destroy ( // clang-format off
 
 /// @description
 /// Default function used to decide a Device.Physical suitability during its creation.
-/// @returns whether or not the device meets the conditions required for the application.
+///
+/// @returns Whether or not the device meets the conditions required for the application.
+/// Conditions: `is_discrete`
+/// and `has_graphics_queue` and `has_present_queue`
+/// and `supports_features` and `supports_extensions` and `supports_swapchain`
 cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
   cvk_device_Physical const* const            device,
   cvk_Surface const                           surface,
@@ -147,7 +172,7 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default ( // clang-format off
 /// @description
 /// Default function used to rank a Device.Physical desirability/features during its creation.
 ///
-/// @note Devices that do not pass the `isSuitable` suitability check won't be considered for ranking.
+/// @note Devices that do not pass the `isSuitable` check won't be considered for ranking.
 /// @note Returning a value of `0` means that the device will not be considered for ranking.
 /// @note The default function always returns `1`.
 /// @note Tie Break: In case of equal scores, the first device found with that score will be selected.

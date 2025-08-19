@@ -38,12 +38,12 @@ cvk_Pure cvk_device_Logical cvk_device_logical_create (
   cvk_device_logical_create_args* const arg
 ) {
   cvk_device_Logical result = (cvk_device_Logical){ 0 };
-  // Create the Extensions
+  // Create the combined Extensions list
   result.extensions = /* clang-format off */ cvk_device_extensions_create(arg->extensions, &(cvk_device_extensions_create_args){
     .device    = arg->physical,
     .allocator = arg->allocator,
   });
-  // Create the Features
+  // Create the combined Features list
   result.features = cvk_device_features_merge(arg->features);
   // Create the configuration options
   result.cfg = cvk_device_logical_options_create(arg->queue, &result.features, result.extensions);

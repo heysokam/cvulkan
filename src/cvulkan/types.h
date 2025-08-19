@@ -183,7 +183,7 @@ typedef struct cvk_device_extensions_Properties {
 //____________________________
 
 /// @description
-/// Container for the lists of features of every Vulkan version
+/// Container for the lists of features of every Vulkan version.
 typedef struct cvk_device_Features {  // clang-format off
   #ifndef VK_VERSION_1_1
   VkPhysicalDeviceFeatures         list;
@@ -206,6 +206,8 @@ typedef struct cvk_device_Features {  // clang-format off
   #endif
 } cvk_device_Features;  // clang-format on
 
+/// @description
+/// Container for the lists of features required by the user and cvulkan to support the behavior of an application.
 typedef struct cvk_device_features_Required {
   cvk_device_Features  user;
   cvk_device_Features* cvulkan;  ///< Will override the defaults when not omitted.
