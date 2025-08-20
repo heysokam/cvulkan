@@ -5,15 +5,15 @@
 #include "../device.h"
 
 
-cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
+cvk_Pure cvk_device_queue_Families cvk_device_queue_families_create (
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
 ) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-  cvk_QueueFamilies result = (cvk_QueueFamilies){
-    .properties = (cvk_queueFamilies_properties_List){ .itemsize = sizeof(VkQueueFamilyProperties) },
+  cvk_device_queue_Families result = (cvk_device_queue_Families){
+    .properties = (cvk_queue_families_properties_List){ .itemsize = sizeof(VkQueueFamilyProperties) },
     .graphics   = cvk_Optional_u32_none,
     .present    = cvk_Optional_u32_none,
     .transfer   = cvk_Optional_u32_none,
@@ -46,8 +46,8 @@ cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create (
 
 
 void cvk_device_queue_families_destroy (
-  cvk_QueueFamilies* const queueFamilies,
-  cvk_Allocator* const     allocator
+  cvk_device_queue_Families* const queueFamilies,
+  cvk_Allocator* const             allocator
 ) {
   allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&queueFamilies->properties);
   queueFamilies->graphics = cvk_Optional_u32_none;

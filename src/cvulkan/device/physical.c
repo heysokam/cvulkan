@@ -28,9 +28,9 @@ cvk_Pure cvk_bool cvk_device_physical_isSuitable_default (
   cvk_bool const supports_features         = supports_features_user && supports_features_cvulkan;
 
   // @WARN: The device->queueFamilies field is not yet populated when this function is called
-  cvk_QueueFamilies queueFamilies = cvk_device_queue_families_create(device, surface, allocator);
-  cvk_bool const    has_graphics  = cvk_Optional_u32_hasValue(queueFamilies.graphics);
-  cvk_bool const    has_present   = cvk_Optional_u32_hasValue(queueFamilies.present);
+  cvk_device_queue_Families queueFamilies = cvk_device_queue_families_create(device, surface, allocator);
+  cvk_bool const            has_graphics  = cvk_Optional_u32_hasValue(queueFamilies.graphics);
+  cvk_bool const            has_present   = cvk_Optional_u32_hasValue(queueFamilies.present);
   cvk_device_queue_families_destroy(&queueFamilies, allocator);
 
   // @WARN: The device->swapchainSupport field is not yet populated when this function is called

@@ -222,11 +222,11 @@ typedef struct cvk_device_features_Required {
 /// Describes a list of QueueFamily Properties.
 /// Typed `cvk_Slice` for clarity of intention:
 /// `VkQueueFamilyProperties[]` (aka: `cvk_Slice( VkQueueFamilyProperties )`)
-typedef struct cvk_queueFamilies_properties_List {
+typedef struct cvk_queue_families_properties_List {
   cvk_size                 len;
   cvk_Readonly cvk_size    itemsize;
   VkQueueFamilyProperties* ptr;
-} cvk_queueFamilies_properties_List;
+} cvk_queue_families_properties_List;
 
 typedef cvk_Optional_u32 cvk_QueueID;
 
@@ -239,14 +239,14 @@ typedef cvk_Optional_u32 cvk_QueueID;
 // - If a user requires these mandatory, they should create their own Physical Device search
 //   : VK_QUEUE_PROTECTED_BIT, VK_QUEUE_SPARSE_BINDING_BIT, VK_QUEUE_VIDEO_DECODE_BIT_KHR, VK_QUEUE_VIDEO_ENCODE_BIT_KHR, VK_QUEUE_OPTICAL_FLOW_BIT_NV
 
-typedef struct cvk_QueueFamilies {
-  cvk_queueFamilies_properties_List properties;
-  cvk_QueueID                       graphics;  ///< ID of the first Graphics queue found on the device
-  cvk_QueueID                       present;   ///< ID of the first queue with Surface Present support found on the device
-  cvk_QueueID                       compute;   ///< ID of the first Compute-only queue found on the device
-  cvk_QueueID                       transfer;  ///< ID of the first Transfer-only queue found with support on the device
+typedef struct cvk_device_queue_Families {
+  cvk_queue_families_properties_List properties;
+  cvk_QueueID                        graphics;  ///< ID of the first Graphics queue found on the device
+  cvk_QueueID                        present;   ///< ID of the first queue with Surface Present support found on the device
+  cvk_QueueID                        compute;   ///< ID of the first Compute-only queue found on the device
+  cvk_QueueID                        transfer;  ///< ID of the first Transfer-only queue found with support on the device
   ///< @note Both Graphics and Compute queues can transfer by default
-} cvk_QueueFamilies;
+} cvk_device_queue_Families;
 
 
 //______________________________________
@@ -289,7 +289,7 @@ typedef struct cvk_device_Physical {
   VkPhysicalDevice                 ct;
   cvk_Optional_u32                 id;                ///< Identifier that represents its position in the devices list at the time of initialization
   char                             priv_pad1[4];
-  cvk_QueueFamilies                queueFamilies;     ///< QueueFamilies available on this device
+  cvk_device_queue_Families        queueFamilies;     ///< QueueFamilies available on this device
   cvk_device_swapchain_Support     swapchainSupport;  ///< Swapchain Support Features of this device
   cvk_device_Features              features;          ///< General Features supported by this device
   VkPhysicalDeviceProperties       properties;        ///< General Properties of this device

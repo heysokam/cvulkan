@@ -136,7 +136,7 @@ void cvk_device_features_clear (  // clang-format off
 ///
 /// The caller owns the memory allocated by this function,
 /// and is responsible for calling `cvk_device_queue_families_destroy` using the same `allocator`.
-cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create ( // clang-format off
+cvk_Pure cvk_device_queue_Families cvk_device_queue_families_create ( // clang-format off
   cvk_device_Physical const* const device,
   cvk_Surface const                surface,
   cvk_Allocator* const             allocator
@@ -145,8 +145,8 @@ cvk_Pure cvk_QueueFamilies cvk_device_queue_families_create ( // clang-format of
 /// @description
 /// Releases any memory and handles created by `cvk_device_queue_families_create` for the given families.
 void cvk_device_queue_families_destroy ( // clang-format off
-  cvk_QueueFamilies* const queueFamilies,
-  cvk_Allocator* const     allocator
+  cvk_device_queue_Families* const queueFamilies,
+  cvk_Allocator* const             allocator
 ); // clang-format on
 
 
