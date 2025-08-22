@@ -59,8 +59,8 @@ cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_creat
 /// @description
 /// Releases any memory and handles created by `cvk_device_extensions_properties_create` using the same `allocator`.
 void cvk_device_extensions_properties_destroy ( // clang-format off
-  cvk_device_extensions_Properties properties,
-  cvk_Allocator* const             allocator
+  cvk_device_extensions_Properties* const properties,
+  cvk_Allocator* const                    allocator
 ); // clang-format on
 
 /// @description

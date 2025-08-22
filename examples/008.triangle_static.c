@@ -113,14 +113,14 @@ int main () {
   cvk_Shader shader_vert = cvk_shader_create(&(cvk_shader_create_args){
     .device_logical = &device_logical,
     .stage          = cvk_shader_stage_Vertex,
-    .code           = &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_vert_spv, .len = examples_shaders_triangle_vert_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) },
+    .code           = &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_vert_spv, .len = examples_shaders_triangle_vert_spv_len/sizeof(uint32_t) },
     .entryFn_name   = "main",  // <- @note main is already the default when not provided
     .allocator      = &instance.allocator,
   });
   cvk_Shader shader_frag = cvk_shader_create(&(cvk_shader_create_args){
     .device_logical = &device_logical,
     .stage          = cvk_shader_stage_Fragment,
-    .code           = &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_frag_spv, .len = examples_shaders_triangle_frag_spv_len/sizeof(uint32_t), .itemsize= sizeof(uint32_t) },
+    .code           = &(cvk_SpirV){ .ptr = (uint32_t*)examples_shaders_triangle_frag_spv, .len = examples_shaders_triangle_frag_spv_len/sizeof(uint32_t) },
     .allocator      = &instance.allocator,
   });  // clang-format on
 
@@ -130,7 +130,7 @@ int main () {
   cvk_Renderpass pipeline_renderpass = cvk_renderpass_create(&(cvk_renderpass_create_args){
     .device_logical     = &device_logical,
     .allocator          = &instance.allocator,
-    .attachment_cfg_ptr = &device_swapchain.attachment_cfg, // Single attachment for the swapchain image
+    .attachment_cfg_ptr = &device_swapchain.attachment_cfg,  // Single attachment for the swapchain image
   });
 
 
@@ -183,12 +183,11 @@ int main () {
   //________________________________________________
   // Initialize: Triangle Framebuffers
   cvk_framebuffer_List device_framebuffers = (cvk_framebuffer_List){
-    .len      = device_swapchain.images.len,
-    .itemsize = sizeof(cvk_Framebuffer),
-    .ptr      = NULL,
+    .len = device_swapchain.images.len,
+    .ptr = NULL,
   };
-  cvk_Slice framebuffers_tempdata = instance.allocator.cpu.allocZ(&instance.allocator.cpu, device_framebuffers.len, device_framebuffers.itemsize);
-  device_framebuffers.ptr = (cvk_Framebuffer*)framebuffers_tempdata.ptr;
+  cvk_Slice framebuffers_tempdata = instance.allocator.cpu.allocZ(&instance.allocator.cpu, device_framebuffers.len, sizeof(*device_framebuffers.ptr));
+  device_framebuffers.ptr         = (cvk_Framebuffer*)framebuffers_tempdata.ptr;
   for (cvk_size id = 0; id < device_framebuffers.len; ++id) {
     device_framebuffers.ptr[id] = cvk_framebuffer_create(&(cvk_framebuffer_create_args){
       .device_logical  = &device_logical,

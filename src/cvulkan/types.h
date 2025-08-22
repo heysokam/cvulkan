@@ -170,11 +170,10 @@ typedef struct cvk_device_extensions_Required {
 /// @description
 /// Describes a list of Extension Properties of a Device.Physical.
 /// Typed `cvk_Slice` for clarity of intention:
-/// `VkExtensionProperties[]` (aka: `cvk_Slice( VkExtensionProperties )`)
+/// `VkExtensionProperties[]`
 typedef struct cvk_device_extensions_Properties {
-  cvk_size               len;
-  cvk_Readonly cvk_size  itemsize;
   VkExtensionProperties* ptr;
+  cvk_size               len;
 } cvk_device_extensions_Properties;
 
 
@@ -221,11 +220,10 @@ typedef struct cvk_device_features_Required {
 /// @description
 /// Describes a list of QueueFamily Properties.
 /// Typed `cvk_Slice` for clarity of intention:
-/// `VkQueueFamilyProperties[]` (aka: `cvk_Slice( VkQueueFamilyProperties )`)
+/// `VkQueueFamilyProperties[]`
 typedef struct cvk_queue_families_properties_List {
-  cvk_size                 len;
-  cvk_Readonly cvk_size    itemsize;
   VkQueueFamilyProperties* ptr;
+  cvk_size                 len;
 } cvk_queue_families_properties_List;
 
 typedef cvk_Optional_u32 cvk_QueueID;
@@ -256,21 +254,19 @@ typedef struct cvk_device_queue_Families {
 /// @description
 /// Describes a list of Swapchain formats.
 /// Typed `cvk_Slice` for clarity of intention:
-/// `VkSurfaceFormatKHR[]` (aka: `cvk_Slice( VkSurfaceFormatKHR )`)
+/// `VkSurfaceFormatKHR[]`
 typedef struct cvk_device_swapchain_Formats {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  VkSurfaceFormatKHR*   ptr;
+  VkSurfaceFormatKHR* ptr;
+  cvk_size            len;
 } cvk_device_swapchain_Formats;
 
 /// @description
 /// Describes a list of Swapchain Present modes.
 /// Typed `cvk_Slice` for clarity of intention:
-/// `VkPresentModeKHR[]` (aka: `cvk_Slice( VkPresentModeKHR )`)
+/// `VkPresentModeKHR[]`
 typedef struct cvk_device_swapchain_Modes {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  VkPresentModeKHR*     ptr;
+  VkPresentModeKHR* ptr;
+  cvk_size          len;
 } cvk_device_swapchain_Modes;
 
 typedef struct cvk_device_swapchain_Support {
@@ -298,13 +294,12 @@ typedef struct cvk_device_Physical {
 
 /// @description
 /// Describes a list of VkPhysicalDevice contexts.
-/// Used mainly to hold the list of devices available on the system.
+/// Used to hold the list of devices available on the system.
 /// Typed `cvk_Slice` for clarity of intention:
-/// `VkPhysicalDevice[]` (aka: `cvk_Slice( VkPhysicalDevice )`)
+/// `VkPhysicalDevice[]`
 typedef struct cvk_device_physical_List {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  VkPhysicalDevice*     ptr;
+  VkPhysicalDevice* ptr;
+  cvk_size          len;
 } cvk_device_physical_List;
 
 /// @warning
@@ -358,9 +353,8 @@ typedef struct cvk_device_swapchain_Image {
 } cvk_device_swapchain_Image;
 
 typedef struct cvk_device_swapchain_image_List {
-  cvk_size                    len;
-  cvk_Readonly cvk_size       itemsize;
   cvk_device_swapchain_Image* ptr;
+  cvk_size                    len;
 } cvk_device_swapchain_image_List;
 
 typedef struct cvk_device_Swapchain {
@@ -394,9 +388,8 @@ typedef struct cvk_Framebuffer {
 } cvk_Framebuffer;
 
 typedef struct cvk_framebuffer_List {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  cvk_Framebuffer*      ptr;
+  cvk_Framebuffer* ptr;
+  cvk_size         len;
 } cvk_framebuffer_List;
 
 
@@ -415,9 +408,8 @@ typedef struct cvk_Renderpass {
 //____________________________
 
 typedef struct cvk_SpirV {
-  cvk_size              len;
-  cvk_Readonly cvk_size itemsize;
-  uint32_t*             ptr;
+  uint32_t* ptr;
+  cvk_size  len;
 } cvk_SpirV;
 
 typedef struct cvk_Shader {
@@ -433,9 +425,8 @@ typedef struct cvk_Shader {
 //____________________________
 
 typedef struct cvk_pipeline_shaderStage_List {
-  cvk_size                               len;
-  cvk_Readonly cvk_size                  itemsize;
   VkPipelineShaderStageCreateInfo* const ptr;
+  cvk_size                               len;
 } cvk_pipeline_shaderStage_List;
 
 

@@ -68,13 +68,13 @@ cvk_Pure cvk_size cvk_device_physical_getScore_default (
 cvk_Pure cvk_device_physical_List cvk_device_physical_getAvailable (
   cvk_Instance* const instance
 ) {
-  cvk_device_physical_List result = (cvk_device_physical_List){ .itemsize = sizeof(VkPhysicalDevice) };
+  cvk_device_physical_List result = (cvk_device_physical_List){ 0 };
   // clang-format off
   cvk_result_check(vkEnumeratePhysicalDevices(instance->ct, (uint32_t*)&result.len, NULL),
     "Failed when searching for GPUs with Vulkan support.");
   cvk_assert(result.len, "Failed to find any GPUs with Vulkan support.");
   if (result.len) {
-    cvk_Slice data = instance->allocator.cpu.allocZ(&instance->allocator.cpu, result.len, result.itemsize);
+    cvk_Slice data = instance->allocator.cpu.allocZ(&instance->allocator.cpu, result.len, sizeof(VkPhysicalDevice));
     cvk_result_check(vkEnumeratePhysicalDevices(instance->ct, (uint32_t*)&data.len, data.ptr), "Failed to retrieve the list of GPUs.");
     result.len = data.len;
     result.ptr = (VkPhysicalDevice*)data.ptr;
@@ -110,7 +110,9 @@ cvk_Pure cvk_device_Physical cvk_device_physical_create (
     result = current;
   }
   // Cleanup the list of devices
-  arg->instance->allocator.cpu.free(&arg->instance->allocator.cpu, (cvk_Slice*)&available);
+  arg->instance->allocator.cpu.free(/* clang-format off */&arg->instance->allocator.cpu, &(cvk_Slice) {
+    .ptr = available.ptr, .len = available.len, .itemsize = sizeof(VkPhysicalDevice)
+  });  // clang-format on
   // Validate
   cvk_assert(cvk_Optional_u32_hasValue(result.id), "Failed to find a Physical Device (GPU) suitable for Vulkan.");
   cvk_assert(result.ct != VK_NULL_HANDLE, "Failed to find a Physical Device (GPU) suitable for Vulkan.");

@@ -13,7 +13,7 @@ cvk_Pure cvk_device_queue_Families cvk_device_queue_families_create (
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   cvk_device_queue_Families result = (cvk_device_queue_Families){
-    .properties = (cvk_queue_families_properties_List){ .itemsize = sizeof(VkQueueFamilyProperties) },
+    .properties = (cvk_queue_families_properties_List){ 0 },
     .graphics   = cvk_Optional_u32_none,
     .present    = cvk_Optional_u32_none,
     .transfer   = cvk_Optional_u32_none,
@@ -22,7 +22,7 @@ cvk_Pure cvk_device_queue_Families cvk_device_queue_families_create (
   // Allocate the properties of all families available for the device
   vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&result.properties.len, NULL);
   if (result.properties.len) {
-    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.properties.len, result.properties.itemsize);
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.properties.len, sizeof(VkQueueFamilyProperties));
     vkGetPhysicalDeviceQueueFamilyProperties(device->ct, (uint32_t*)&data.len, data.ptr);
     result.properties.len = data.len;
     result.properties.ptr = (VkQueueFamilyProperties*)data.ptr;
@@ -49,7 +49,9 @@ void cvk_device_queue_families_destroy (
   cvk_device_queue_Families* const queueFamilies,
   cvk_Allocator* const             allocator
 ) {
-  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&queueFamilies->properties);
+  allocator->cpu.free(/* clang-format off */&allocator->cpu, &(cvk_Slice){
+    .ptr= queueFamilies->properties.ptr, .len= queueFamilies->properties.len, .itemsize= sizeof(VkQueueFamilyProperties)
+  }); // clang-format off
   queueFamilies->graphics = cvk_Optional_u32_none;
   queueFamilies->present  = cvk_Optional_u32_none;
   queueFamilies->transfer = cvk_Optional_u32_none;

@@ -32,12 +32,12 @@ cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_creat
   cvk_device_Physical const* const device,
   cvk_Allocator* const             allocator
 ) {
-  cvk_device_extensions_Properties result = (cvk_device_extensions_Properties){ .itemsize = sizeof(VkExtensionProperties) };
+  cvk_device_extensions_Properties result = (cvk_device_extensions_Properties){ 0 };
   // clang-format off
   cvk_result_check(vkEnumerateDeviceExtensionProperties(device->ct, NULL, (uint32_t*)&result.len, NULL),
     "Failed when searching for Physical Device properties.");
   if (result.len) {
-    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.len, result.itemsize);
+    cvk_Slice data = allocator->cpu.allocZ(&allocator->cpu, result.len, sizeof(VkExtensionProperties));
     cvk_result_check(vkEnumerateDeviceExtensionProperties(device->ct, NULL, (uint32_t*)&data.len, data.ptr),
       "Failed to retrieve the list of Physical Device properties.");
     result.ptr = (VkExtensionProperties*)data.ptr;
@@ -47,10 +47,10 @@ cvk_Pure cvk_device_extensions_Properties cvk_device_extensions_properties_creat
 
 
 void cvk_device_extensions_properties_destroy (
-  cvk_device_extensions_Properties properties,
-  cvk_Allocator* const             allocator
+  cvk_device_extensions_Properties* const properties,
+  cvk_Allocator* const                    allocator
 ) {
-  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&properties);
+  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = properties->ptr, .len = properties->len, .itemsize = sizeof(*properties->ptr) });
 }
 
 
@@ -84,7 +84,7 @@ cvk_Pure cvk_bool cvk_device_extensions_supported (
     }
   }
   // Cleanup and return
-  cvk_device_extensions_properties_destroy(properties, allocator);
+  cvk_device_extensions_properties_destroy(&properties, allocator);
   return result;
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 }
@@ -147,7 +147,7 @@ void cvk_device_extensions_destroy (
   for (cvk_size id = 0; id < extensions->len; ++id) {
     cvk_size len = strlen(extensions->ptr[id]);
     char*    ptr = (char*)(extensions->ptr)[id];
-    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(char), .ptr = (cvk_pointer)ptr });
+    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = (cvk_pointer)ptr, .len = len, .itemsize = sizeof(char) });
   }
   allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = (cvk_pointer)extensions->ptr, .len = extensions->len, .itemsize = sizeof(cvk_String) });
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual

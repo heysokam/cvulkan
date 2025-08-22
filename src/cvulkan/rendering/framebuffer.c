@@ -42,12 +42,13 @@ void cvk_framebuffer_list_destroy (
   cvk_framebuffer_List* const     framebuffers,
   cvk_device_Logical const* const device_logical,
   cvk_Allocator* const            allocator
-) {  // clang-format off
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   for (cvk_size id = 0; id < framebuffers->len; ++id) cvk_framebuffer_destroy(&framebuffers->ptr[id], device_logical, allocator);
-  #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-  // clang-format on
-  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)framebuffers);
+  allocator->cpu.free(/* clang-format off */&allocator->cpu, &(cvk_Slice){
+    .ptr= framebuffers->ptr, .len= framebuffers->len, .itemsize= sizeof(*framebuffers->ptr)
+  });  // clang-format on
+#pragma GCC diagnostic pop                                                                                                // -Wunsafe-buffer-usage
 }
 

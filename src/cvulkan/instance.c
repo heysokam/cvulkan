@@ -58,7 +58,7 @@ cvk_bool cvk_instance_layers_checkSupport (
     }
   }
 end:
-  allocator->cpu.free(&allocator->cpu, (cvk_Slice*)&properties);
+  allocator->cpu.free(&allocator->cpu, &properties);
   return found;
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 }
@@ -106,9 +106,9 @@ void cvk_instance_layers_destroy (
   for (cvk_size id = 0; id < layers.len; ++id) {
     cvk_size len = strlen(layers.ptr[id]);
     char*    ptr = (char*)(layers.ptr)[id];
-    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(cvk_String), .ptr = ptr });
+    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = ptr, .len = len, .itemsize = sizeof(*ptr) });
   }
-  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = layers.ptr, .len = layers.len, .itemsize = sizeof(cvk_String) });
+  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = layers.ptr, .len = layers.len, .itemsize = sizeof(*layers.ptr) });
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual
 }
 
@@ -207,7 +207,7 @@ cvk_Pure cvk_instance_Extensions cvk_instance_extensions_create (
   }
 
   // Cleanup and Return the result
-  arg->allocator->cpu.free(&arg->allocator->cpu, (cvk_Slice*)&properties);
+  arg->allocator->cpu.free(&arg->allocator->cpu, &properties);
   arg->allocator->cpu.resize(&arg->allocator->cpu, &data, current);  // Resize down to the final length
   result.ptr = data.ptr;
   result.len = data.len;
@@ -225,9 +225,9 @@ void cvk_instance_extensions_destroy (
   for (cvk_size id = 0; id < extensions.len; ++id) {
     cvk_size len = strlen(extensions.ptr[id]);
     char*    ptr = (char*)(extensions.ptr)[id];
-    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = len, .itemsize = sizeof(char), .ptr = (cvk_pointer)ptr });
+    allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = (cvk_pointer)ptr, .len = len, .itemsize = sizeof(*ptr) });
   }
-  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .len = extensions.len, .itemsize = sizeof(cvk_String), .ptr = extensions.ptr });
+  allocator->cpu.free(&allocator->cpu, &(cvk_Slice){ .ptr = extensions.ptr, .len = extensions.len, .itemsize = sizeof(*extensions.ptr), });
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage -Wcast-qual
 }
 
