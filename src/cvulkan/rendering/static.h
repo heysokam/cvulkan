@@ -5,7 +5,7 @@
 //!
 //! @important
 //!  cvulkan prioritizes Dynamic Rendering and vulkan 1.3+,
-//!  which makes this section unnecessary for normal use.
+//!  which makes this section completely unnecessary for normal use.
 //!  This API is here for completion (and supporting tile-based GPUs)
 //!  In short:
 //!  If you find something missing in this section that you need,

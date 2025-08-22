@@ -122,6 +122,18 @@
     - [ ] Multi-stage shader
     - [ ] Shader hot-reloading
 ```
+```md
+## Documentation for 0.7.0 - Static Rendering Elements
+- [ ] **Documentation updates**
+  - [ ] Update rendering.h documentation
+  - [ ] Document render pass patterns
+  - [ ] **Static Rendering example**
+    - [ ] Example with basic triangle rendering
+    - [ ] Example with texture rendering
+    - [ ] Example with multiple render targets
+    - [ ] Example with render pass dependencies
+```
+
 
 
 

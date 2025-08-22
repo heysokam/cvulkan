@@ -84,7 +84,7 @@ void cvk_renderpass_command_begin (
 }
 
 
-void cvk_renderpass_command_end (
+inline void cvk_renderpass_command_end (
   cvk_Renderpass const* const     renderpass,
   cvk_command_Buffer const* const command_buffer
 ) {
