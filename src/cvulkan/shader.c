@@ -31,15 +31,15 @@ cvk_Pure cvk_Shader cvk_shader_create (
     .module              = result.ct,
     .pName               = (arg->entryFn_name) ? arg->entryFn_name : "main",
     .stage               = (VkShaderStageFlagBits)arg->stage,
-    .pSpecializationInfo = NULL,  // TODO: How to use VkSpecializationInfo ?
+    .pSpecializationInfo = arg->specialization,
   };
   return result;
-}
+}  //:: cvk_shader_create
 
 
 void cvk_shader_destroy (
-  cvk_device_Logical const* const device_logical,
   cvk_Shader* const               shader,
+  cvk_device_Logical const* const device_logical,
   cvk_Allocator* const            allocator
 ) {
   allocator->cpu.free(/* clang-format off */&allocator->cpu, &(cvk_Slice){
@@ -48,5 +48,5 @@ void cvk_shader_destroy (
   shader->stage = (VkPipelineShaderStageCreateInfo){ 0 };
   shader->cfg   = (VkShaderModuleCreateInfo){ 0 };
   vkDestroyShaderModule(device_logical->ct, shader->ct, allocator->gpu);
-}
+}  //:: cvk_shader_destroy
 

@@ -311,8 +311,8 @@ int main () {
   cvk_pipeline_graphics_destroy(&pipeline_graphics, &device_logical, &instance.allocator);
   cvk_renderpass_destroy(&pipeline_renderpass, &device_logical, &instance.allocator);
   // Destroy example.Shaders
-  cvk_shader_destroy(&device_logical, &shader_frag, &instance.allocator);
-  cvk_shader_destroy(&device_logical, &shader_vert, &instance.allocator);
+  cvk_shader_destroy(&shader_frag, &device_logical, &instance.allocator);
+  cvk_shader_destroy(&shader_vert, &device_logical, &instance.allocator);
   // Destroy example.GPU
   cvk_device_swapchain_destroy(&device_swapchain, &device_logical, &instance.allocator);
   cvk_device_logical_destroy(&device_logical, &instance.allocator);

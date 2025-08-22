@@ -19,6 +19,7 @@
 - [ ] TODO/FIX/etc tags hanging in the code
   - [ ] Complete all `TODO:` tags
   - [ ] Solve the issues for every `FIX:` tag
+- [ ] Write doc-comments for everything at `cvulkan/types.h`
 ```
 
 ```md
@@ -39,6 +40,15 @@
 ## Swapchain
 - [ ] Swapchain.recreate // Almost done.  FIX: Triggers a validation error on recreation.
 ```
+```md
+## Shaders
+- [ ] **Test multi-stage shader support**
+  - [ ] Verify vertex-fragment shader combination
+  - [ ] Check shader stage linking
+  - [ ] Test shader stage validation
+  - [ ] Ensure proper stage management
+```
+
 
 ```md
 ##  Documentation for 0.1.0: Instance, Validation & General Purpose Helpers
@@ -101,6 +111,16 @@
       - [ ] Implement proper cleanup before recreation
       - [ ] Test recreation with different surface sizes
       - [ ] Ensure robust error handling
+```
+```md
+## Documentation for 0.6.0 - Shaders
+- [ ] **Documentation updates**
+  - [ ] Update shader.h documentation
+  - [ ] Add shader compilation examples
+  - [ ] **Shader Example**
+    - [x] Single-stage shader
+    - [ ] Multi-stage shader
+    - [ ] Shader hot-reloading
 ```
 
 
