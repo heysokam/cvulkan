@@ -66,7 +66,7 @@ Up-to-date list of features pending and done:
 |  0.?.?  | Cross-Language FFI : Zig          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  0.?.?  | Cross-Language FFI : Nim          | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  0.?.?  | API Polish & Documentation        | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
-|  0.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)       |
+|  1.0.0  | Production Ready                  | 🎯 Target | [doc/todo.1.0.0.md](doc/todo.1.0.0.md)       |
 |  ?.?.?  | VMA Replacement                   | 📋 TODO   | [doc/todo.?.?.?.md](doc/todo._._._.md)       |
 |  ?.?.?  | Unlikely/Experimental/Backlog     | (N/A)     | [doc/todo.unlikely.md](doc/todo.unlikely.md) |
 
