@@ -21,7 +21,7 @@ cvk_Pure VkSurfaceFormatKHR cvk_device_swapchain_select_format (
   }
   return support->formats.ptr[0];
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-}
+}  //:: cvk_device_swapchain_select_format
 
 
 cvk_Pure VkPresentModeKHR cvk_device_swapchain_select_mode (
@@ -38,7 +38,7 @@ cvk_Pure VkPresentModeKHR cvk_device_swapchain_select_mode (
   }
   return VK_PRESENT_MODE_FIFO_KHR;  // Guaranteed to exist by spec
 #pragma GCC diagnostic pop          // -Wunsafe-buffer-usage
-}
+}  //:: cvk_device_swapchain_select_mode
 
 
 cvk_Pure VkExtent2D cvk_device_swapchain_select_size (
@@ -53,7 +53,7 @@ cvk_Pure VkExtent2D cvk_device_swapchain_select_size (
     .height = cvk_clamp_u32(size.height, support->capabilities.minImageExtent.height, support->capabilities.maxImageExtent.height),
   };
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-}
+}  //:: cvk_device_swapchain_select_size
 
 
 cvk_Pure cvk_size cvk_device_swapchain_select_imgMin (
@@ -62,7 +62,7 @@ cvk_Pure cvk_size cvk_device_swapchain_select_imgMin (
   cvk_size result = support->capabilities.minImageCount + 1;
   if (support->capabilities.maxImageCount) result = cvk_max_u32((uint32_t)result, support->capabilities.maxImageCount);
   return result;
-}
+}  //:: cvk_device_swapchain_select_imgMin
 
 
 cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create (
@@ -100,7 +100,8 @@ cvk_Pure cvk_device_swapchain_Support cvk_device_swapchain_support_create (
 
   // Return the result
   return result;
-}
+} //:: cvk_device_swapchain_support_create
+
 
 void cvk_device_swapchain_support_destroy (
   cvk_device_swapchain_Support* const support,
@@ -113,6 +114,7 @@ void cvk_device_swapchain_support_destroy (
   allocator->cpu.free(/* clang-format off */&allocator->cpu, &(cvk_Slice){
     .ptr= support->modes.ptr, .len= support->modes.len, .itemsize= sizeof(*support->modes.ptr)
   });        // clang-format on
+}  //:: cvk_device_swapchain_support_destroy
 
 
 cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
@@ -161,10 +163,10 @@ cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
     .oldSwapchain          = NULL,                               // TODO: Allow Config
   };
 #pragma GCC diagnostic pop                                       // -Wunsafe-buffer-usage
-}
+}  //:: cvk_device_swapchain_options_create
 
 
-cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_cfg (
+cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_options_create (
   cvk_device_Swapchain const* const swapchain
 ) {
   return (VkAttachmentDescription) /* clang-format off */ {
@@ -177,28 +179,8 @@ cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_cfg (
     .storeOp        = VK_ATTACHMENT_STORE_OP_STORE,      // TODO: Configurable. Current: Allow reading the rendered contents from memory
     .stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,   // TODO: Configurable for stencil setups
     .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,  // TODO: Configurable for stencil setups
-  };                                                                                                      // clang-format on
-}
-
-
-void cvk_device_swapchain_image_list_destroy (
-  cvk_device_swapchain_image_List* const images,
-  cvk_device_Logical* const              device_logical,
-  cvk_Allocator* const                   allocator
-) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
-  for (cvk_size id = 0; id < images->len; ++id) {
-    cvk_semaphore_destroy(&images->ptr[id].finished, device_logical, allocator);
-    vkDestroyImageView(device_logical->ct, images->ptr[id].view, allocator->gpu);
-    images->ptr[id].ct = NULL;
-  }
-  // Allocated in cvk_device_swapchain_image_list_create
-  allocator->cpu.free(/* clang-format off */&allocator->cpu, &(cvk_Slice){
-    .ptr= images->ptr, .len = images->len, .itemsize= sizeof(*images->ptr)
-  }); // clang-format off
-#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-}
+  };  // clang-format on
+}  //:: cvk_device_swapchain_attachment_options_create
 
 
 cvk_Pure VkImageView cvk_device_swapchain_image_view_create (
@@ -223,7 +205,7 @@ cvk_Pure VkImageView cvk_device_swapchain_image_view_create (
     }}, arg->allocator->gpu, &result),
     "Failed to retrieve one of the ImageViews used by the Swapchain.");  // clang-format on
   return result;
-}
+}  //:: cvk_device_swapchain_image_view_create
 
 
 cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create (
@@ -277,7 +259,27 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
   result.ptr = (cvk_device_swapchain_Image*)data.ptr;
   return result;
 #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-}
+}  //:: cvk_device_swapchain_image_list_create
+
+
+void cvk_device_swapchain_image_list_destroy (
+  cvk_device_swapchain_image_List* const images,
+  cvk_device_Logical* const              device_logical,
+  cvk_Allocator* const                   allocator
+) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  for (cvk_size id = 0; id < images->len; ++id) {
+    cvk_semaphore_destroy(&images->ptr[id].finished, device_logical, allocator);
+    vkDestroyImageView(device_logical->ct, images->ptr[id].view, allocator->gpu);
+    images->ptr[id].ct = NULL;
+  }
+  // Allocated in cvk_device_swapchain_image_list_create
+  allocator->cpu.free(/* clang-format off */&allocator->cpu, &(cvk_Slice){
+    .ptr= images->ptr, .len = images->len, .itemsize= sizeof(*images->ptr)
+  }); // clang-format off
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+}  //:: cvk_device_swapchain_image_list_destroy
 
 
 cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (
@@ -297,14 +299,14 @@ cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (
     ),
     .images            = (cvk_device_swapchain_image_List){ 0 },                        // clang-format on
   };
-  result.attachment_cfg = cvk_device_swapchain_attachment_cfg(&result);
+  result.attachment_cfg = cvk_device_swapchain_attachment_options_create(&result);
   cvk_result_check(/* clang-format off */vkCreateSwapchainKHR(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create the device's Swapchain context.");  // clang-format on
   // Get the swapchain images
   result.images = cvk_device_swapchain_image_list_create(&result, arg->device_logical, arg->allocator);
   // Cleanup and Return the result
   return result;
-}
+}  //:: cvk_device_swapchain_create
 
 
 void cvk_device_swapchain_destroy (
@@ -324,7 +326,7 @@ void cvk_device_swapchain_destroy (
   swapchain->cfg = (VkSwapchainCreateInfoKHR){ 0 };
   vkDestroySwapchainKHR(device_logical->ct, swapchain->ct, allocator->gpu);
 #pragma GCC diagnostic pop  // -Wcast-qual
-}
+}  //:: cvk_device_swapchain_destroy
 
 
 //______________________________________
@@ -370,7 +372,7 @@ void cvk_device_swapchain_recreate (
 
   // Destroy the old handle
   vkDestroySwapchainKHR(arg->device_logical->ct, swapchain->cfg.oldSwapchain, arg->allocator->gpu);
-}
+}  //:: cvk_device_swapchain_recreate
 
 
 cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
@@ -389,18 +391,17 @@ cvk_Pure cvk_size cvk_device_swapchain_nextImageID (
   if (!arg->log_disable && status) cvk_print("Failed to request the next ID from the Device.Swapchain's list of images.\n");
   if (arg->status) *arg->status = status;
   return result;
-}
+}  //:: cvk_device_swapchain_nextImageID
 
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
 void cvk_device_swapchain_present (
   cvk_device_Swapchain const* const swapchain,
   cvk_size const                    imageID,
   cvk_device_Queue const* const     queue
 ) {
-  // clang-format off
-  cvk_result_check(vkQueuePresentKHR(queue->ct, &(VkPresentInfoKHR){
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+  cvk_result_check(/* clang-format off */vkQueuePresentKHR(queue->ct, &(VkPresentInfoKHR){
     .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
     .pNext              = NULL,
     .waitSemaphoreCount = 1,
@@ -409,7 +410,7 @@ void cvk_device_swapchain_present (
     .pSwapchains        = &swapchain->ct,
     .pImageIndices      = (uint32_t const*)&imageID,
     .pResults           = NULL, // todo: How to deal with multiple swapchains. This returns their VkResult[]
-  }), "Failed when presenting the Graphics Commands with the given Queue");
-}                           // clang-format on
-#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
+  }), "Failed when presenting the Graphics Commands with the given Queue");  // clang-format on
+#pragma GCC diagnostic pop                                                                // -Wunsafe-buffer-usage
+}  //:: cvk_device_swapchain_present
 

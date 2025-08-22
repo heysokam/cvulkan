@@ -16,6 +16,9 @@
   - [ ] @internal Functions should be marked/tagged as such, and take individual/separate arguments.
   - [ ] All external API functions should take a `_args` object.
   - [ ] Cleanup all inconsistencies in this rule across the entire lib.
+- [ ] TODO/FIX/etc tags hanging in the code
+  - [ ] Complete all `TODO:` tags
+  - [ ] Solve the issues for every `FIX:` tag
 ```
 
 ```md

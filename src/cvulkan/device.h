@@ -375,21 +375,24 @@ void cvk_device_queue_wait (  // clang-format off
 //____________________________
 
 /// @description
-/// Returns the preferred format for the Swapchain Surface
+/// Returns the format preferred by cvulkan for the Swapchain Surface.
+/// @note Format will be valid when `.format == VK_FORMAT_B8G8R8A8_SRGB` and `.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR`.
+/// @TODO: Allow configurable formats without overriding `swapchain.create`.
 cvk_Pure VkSurfaceFormatKHR cvk_device_swapchain_select_format (  // clang-format off
   cvk_device_swapchain_Support const* const support
 );  // clang-format on
 
 /// @description
-/// Returns the preferred present mode for the Swapchain Surface
-/// @note Searches for Mailbox support first, and returns FIFO if not found
+/// Returns the present mode preferred by cvulkan for the Swapchain Surface.
+/// @note Searches for Mailbox support first, and returns FIFO if not found.
+/// @TODO: Allow configurable present modes without overriding `swapchain.create`.
 cvk_Pure VkPresentModeKHR cvk_device_swapchain_select_mode (  // clang-format off
   cvk_device_swapchain_Support const* const support
 );  // clang-format on
 
 /// @description
-/// Returns the size of the Swapchain Surface
-/// @note Measurements in pixels/units are compared, in case they don't match
+/// Returns the size of the Swapchain Surface.
+/// @note Measurements in pixels/units are compared, in case they don't match.
 cvk_Pure VkExtent2D cvk_device_swapchain_select_size ( // clang-format off
   cvk_device_swapchain_Support const* const support,
   cvk_Size2D const                          size
@@ -418,7 +421,9 @@ cvk_Pure VkSwapchainCreateInfoKHR cvk_device_swapchain_options_create (
   cvk_Allocator* const             allocator
 );
 
-cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_cfg (  // clang-format off
+/// @description
+/// Creates a valid `VkAttachmentDescription` object using the given configuration options.
+cvk_Pure VkAttachmentDescription cvk_device_swapchain_attachment_options_create (  // clang-format off
   cvk_device_Swapchain const* const swapchain
 );  // clang-format on
 
@@ -430,11 +435,17 @@ typedef struct cvk_device_swapchain_image_view_create_args {
   cvk_Allocator const* const      allocator;
 } cvk_device_swapchain_image_view_create_args;
 
+/// @description
+/// Creates a valid `VkImageView` handle from the given `swapchain` and `arg.image`.
 cvk_Pure VkImageView cvk_device_swapchain_image_view_create ( // clang-format off
   cvk_device_Swapchain const* const                        swapchain,
   cvk_device_swapchain_image_view_create_args const* const arg
 ); // clang-format on
 
+/// @description
+/// Creates the list of Images of the given `swapchain`.
+/// The result will contain their `VkImage` and `VkImageView` handles, and a `VkSemaphore` for use with sync operations.
+///
 /// The caller owns the memory allocated by this function,
 /// and is responsible for calling `cvk_device_swapchain_image_list_destroy` using the same `allocator`.
 cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create ( // clang-format off
@@ -443,6 +454,8 @@ cvk_Pure cvk_device_swapchain_image_List cvk_device_swapchain_image_list_create 
   cvk_Allocator* const              allocator
 ); // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_device_swapchain_image_list_create` using the same `allocator`.
 void cvk_device_swapchain_image_list_destroy ( // clang-format off
   cvk_device_swapchain_image_List* const images,
   cvk_device_Logical* const              device_logical,
@@ -459,27 +472,41 @@ typedef struct cvk_device_swapchain_create_args {
   cvk_Allocator* const       allocator;
 } cvk_device_swapchain_create_args;
 
+/// @description
+/// Creates a `Device.Swapchain` object.
+/// The result will contain its handle and configuration,
+/// and will allocate/request its list of Images for presentation.
+///
 /// The caller owns the memory allocated by this function,
 /// and is responsible for calling `cvk_device_swapchain_destroy` using the same `allocator`.
 cvk_Pure cvk_device_Swapchain cvk_device_swapchain_create (  // clang-format off
   cvk_device_swapchain_create_args const*const arg
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_device_swapchain_create` using the same `allocator`.
 void cvk_device_swapchain_destroy ( // clang-format off
   cvk_device_Swapchain* const swapchain,
   cvk_device_Logical* const   device,
   cvk_Allocator* const        allocator
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_device_swapchain_recreate`.
 typedef struct cvk_device_swapchain_recreate_args {
   cvk_device_Logical* const device_logical;
   cvk_Allocator* const      allocator;
 } cvk_device_swapchain_recreate_args;
 
+//______________________________________
+// FIX: Does not work as expected.
+// Currently gives validation errors on unreachable semaphore.
+// https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation
 void cvk_device_swapchain_recreate ( // clang-format off
   cvk_device_Swapchain* const                     swapchain,
   cvk_device_swapchain_recreate_args const* const arg
 ); // clang-format on
+//______________________________________
 
 /// @description
 /// Configuration options for `cvk_device_swapchain_nextImageID`.
@@ -493,10 +520,18 @@ typedef struct cvk_device_swapchain_nextImageID_args {
   char                                    priv_pad[4];
 } cvk_device_swapchain_nextImageID_args;
 
+/// @description
+/// Returns the index number of the next `Swapchain.Image` available on the device.
+/// The status code returned by the function will be written to the `arg.status` pointer field.
+/// @note Thin wrapper for `vkAcquireNextImageKHR` using cvulkan's API.
 cvk_Pure cvk_size cvk_device_swapchain_nextImageID (  // clang-format off
   cvk_device_swapchain_nextImageID_args const* const arg
 );  // clang-format on
 
+/// @description
+/// Writes a request on the given `queue`
+/// for sending the `swapchain` image with index `imageID` to the presentation list.
+/// @note Thin wrapper for `vkQueuePresentKHR` using cvulkan's API.
 void cvk_device_swapchain_present ( // clang-format off
   cvk_device_Swapchain const* const swapchain,
   cvk_size const                    imageID,
