@@ -54,7 +54,7 @@ Up-to-date list of features pending and done:
 |  0.4.0  | Device Queue                      | ✅ Done   | [doc/done.0.4.0.md](doc/done.0.4.0.md)       |
 |  0.5.0  | Surface & Swapchain               | ✅ Done   | [doc/done.0.5.0.md](doc/done.0.5.0.md)       |
 |  0.6.0  | Shaders                           | ✅ Done   | [doc/done.0.6.0.md](doc/done.0.6.0.md)       |
-|  0.7.0  | Static Rendering Elements         | 🔄 Review | [doc/todo.0.7.0.md](doc/todo.0.7.0.md)       |
+|  0.7.0  | Static Rendering Elements         | ✅ Done   | [doc/done.0.7.0.md](doc/done.0.7.0.md)       |
 |  0.8.0  | Synchronization Structures        | 🔄 Review | [doc/todo.0.8.0.md](doc/todo.0.8.0.md)       |
 |  0.9.0  | Graphics Pipeline                 | 🔄 Review | [doc/todo.0.9.0.md](doc/todo.0.9.0.md)       |
 | 0.10.0  | Buffers                           | 🔄 Review | [doc/todo.0.10.0.md](doc/todo.0.10.0.md)     |

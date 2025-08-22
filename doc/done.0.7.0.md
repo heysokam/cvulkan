@@ -18,10 +18,10 @@
 
 ```md
 - `src/cvulkan/rendering/framebuffer.c` and `src/cvulkan/rendering/framebuffer.h`
-- [ ] **Framebuffer creation**
-  - [ ] Verify framebuffer creation with attachments
-  - [ ] Check framebuffer attachment binding
-  - [ ] Test framebuffer size validation
-  - [ ] Ensure proper framebuffer cleanup
+- [x] **Framebuffer creation**
+  - [x] Verify framebuffer creation with attachments
+  - [x] Check framebuffer attachment binding
+  - [x] Test framebuffer size validation
+  - [x] Ensure proper framebuffer cleanup
 ```
 

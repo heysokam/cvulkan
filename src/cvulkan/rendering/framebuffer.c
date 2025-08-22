@@ -7,8 +7,8 @@
 
 cvk_Pure cvk_Framebuffer cvk_framebuffer_create (
   cvk_framebuffer_create_args const* const arg
-) {  // clang-format off
-  cvk_Framebuffer result = (cvk_Framebuffer){
+) {
+  cvk_Framebuffer result = (cvk_Framebuffer) /* clang-format off */ {
     .ct                  = NULL,
     .cfg                 = (VkFramebufferCreateInfo){
       .sType             = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
@@ -20,9 +20,9 @@ cvk_Pure cvk_Framebuffer cvk_framebuffer_create (
       .attachmentCount   = (!arg->attachments_len && arg->attachments_ptr) ? 1 : (uint32_t)arg->attachments_len,
       .pAttachments      = arg->attachments_ptr,
       .layers            = 1, // TODO: Does this need configurability ??
-    },
+    },                                                       // clang-format on
   };
-  cvk_result_check(vkCreateFramebuffer(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+  cvk_result_check(/* clang-format off */vkCreateFramebuffer(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a Framebuffer context");  // clang-format on
   return result;
 }

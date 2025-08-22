@@ -4,10 +4,7 @@ The user could create their own `cvk_***_create` functions
 and still use most of cvulkan's API as normal.  
 
 ```md
-## Static Rendering
-### Framebuffer
-  - [ ] Customizable Options (for Tile-Based GPUs)
-### Renderpass
+## Static Rendering: Renderpass
 - `src/cvulkan/rendering/renderpass.c` and `src/cvulkan/rendering/renderpass.h`
 - [ ] **RenderPass setup**
   - [ ] Fully Customizable Options (for Tile-Based GPUs)
