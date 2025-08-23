@@ -9,7 +9,7 @@
 
 cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
   cvk_pipeline_graphics_create_args const* const arg
-) {  // clang-format off
+) {
   cvk_pipeline_Graphics result = (cvk_pipeline_Graphics){
     .ct                 = NULL,
     .layout             = cvk_pipeline_layout_create(arg->layout ? arg->layout : &(cvk_pipeline_layout_create_args){
@@ -17,11 +17,11 @@ cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
       .allocator        = arg->allocator,
     }),
     .renderpass         = (arg->renderpass) ? *arg->renderpass : (cvk_Renderpass){ .ct = NULL },
-  }; // clang-format on
+  };
   result.cfg = (VkGraphicsPipelineCreateInfo){
     .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
     .pNext               = NULL,
-    .flags               = arg->flags,  // TODO: DERIVATIVE
+    .flags               = arg->flags,
     .stageCount          = (uint32_t)arg->stages->len,
     .pStages             = arg->stages->ptr,
     .pVertexInputState   = arg->state_vertexInput,
@@ -35,21 +35,25 @@ cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
     .pTessellationState  = arg->state_tessellation,
     .layout              = result.layout.ct,
     .renderPass          = result.renderpass.ct,
-    .subpass             = 0,     // TODO: Does this need to be configurable ??
-    .basePipelineHandle  = NULL,  // TODO: Configurable. Derivative Pipeline creation
-    .basePipelineIndex   = -1,    // TODO: Configurable. Derivative Pipeline creation
-  };  // clang-format off
-  cvk_result_check(vkCreateGraphicsPipelines(
+    .subpass             = 0,  // TODO: Only needed for Tile-Based GPUs
+    .basePipelineHandle  = NULL,
+    .basePipelineIndex   = -1,
+  };
+  if (arg->derivative) {  // Derivative Pipeline creation
+    result.cfg.flags |= VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+    result.cfg.basePipelineHandle = arg->derivative->handle;
+    result.cfg.basePipelineIndex  = arg->derivative->index;
+  }
+  cvk_result_check(/* clang-format off */vkCreateGraphicsPipelines(
     /* device          */ arg->device_logical->ct,
     /* pipelineCache   */ VK_NULL_HANDLE,
     /* createInfoCount */ 1,
     /* pCreateInfos    */ &result.cfg,
     /* pAllocator      */ arg->allocator->gpu,
     /* pPipelines      */ &result.ct
-    ), "Failed to create a Graphics Pipeline");
-  // clang-format on
+    ), "Failed to create a Graphics Pipeline");  // clang-format on
   return result;
-}
+}  //:: cvk_pipeline_graphics_create
 
 
 void cvk_pipeline_graphics_destroy (
@@ -60,9 +64,10 @@ void cvk_pipeline_graphics_destroy (
   cvk_pipeline_layout_destroy(&pipeline->layout, device_logical, allocator);
   pipeline->cfg = (VkGraphicsPipelineCreateInfo){ 0 };
   if (pipeline->ct) vkDestroyPipeline(device_logical->ct, pipeline->ct, allocator->gpu);
-}
+}  //:: cvk_pipeline_graphics_destroy
 
-void cvk_pipeline_graphics_command_bind (
+
+inline void cvk_pipeline_graphics_command_bind (
   cvk_pipeline_Graphics const* const pipeline,
   cvk_command_Buffer const* const    command_buffer
 ) {
@@ -70,7 +75,7 @@ void cvk_pipeline_graphics_command_bind (
 }
 
 
-void cvk_command_draw (
+inline void cvk_command_draw (
   cvk_command_Buffer const* const    command_buffer,
   cvk_command_draw_args const* const arg
 ) {
@@ -83,7 +88,8 @@ void cvk_command_draw (
   );
 }
 
-void cvk_command_draw_indexed (
+
+inline void cvk_command_draw_indexed (
   cvk_command_Buffer const* const            command_buffer,
   cvk_command_draw_indexed_args const* const arg
 ) {

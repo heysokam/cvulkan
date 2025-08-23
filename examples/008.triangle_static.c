@@ -156,7 +156,7 @@ int main () {
   VkPipelineMultisampleStateCreateInfo   state_multisample           = cvk_pipeline_state_multisample_setup();
   VkPipelineColorBlendAttachmentState    state_colorBlend_attachment = cvk_pipeline_state_colorBlend_attachment_setup();
   // clang-format off
-  VkPipelineColorBlendStateCreateInfo    state_colorBlend            = cvk_pipeline_state_colorBlend_setup(&(cvk_pipeline_state_colorBlend_setup_args){
+  VkPipelineColorBlendStateCreateInfo    state_colorBlend            = cvk_pipeline_state_colorBlend_setup(&(cvk_pipeline_state_colorBlend_setup_args) /* clang-format off */ {
     .attachments_ptr = &state_colorBlend_attachment,
   });  // clang-format on
 

@@ -15,9 +15,10 @@ end-to-end rendering examples and validate the complete graphics pipeline.
 - [ ] Customizable Options
 ## Context: Graphics
 - [x] Minimal Creation: Single Pipeline
-- [ ] Customizable Options
-- [ ] Sane Defaults when `NULL`
-- [ ] Multi-pipeline
+- [x] Customizable Options
+- [x] Won't support. The Pipeline.create function is a tiny wrapper, and really easy to reimplement.
+  - [_] Sane Defaults when `NULL`
+  - [_] Multi-pipeline
 ```
 
 ```md
