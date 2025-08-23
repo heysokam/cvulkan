@@ -23,14 +23,14 @@
   - [x] Test image memory binding
   - [x] Ensure proper image cleanup
 
-- [ ] **Review image views**
-  - [ ] Verify image view creation for different formats
+- [x] **Review image views**
+  - [x] Verify image view creation for different formats
   - [x] Test image view binding
-  - [ ] Ensure proper resource cleanup
+  - [x] Ensure proper resource cleanup
 
-- [ ] **Review image samplers**
-  - [ ] Check sampler creation with various parameters
+- [x] **Review image samplers**
+  - [x] Check sampler creation with various parameters
   - [x] Test image sampler binding
-  - [ ] Ensure proper resource cleanup
+  - [x] Ensure proper resource cleanup
 ```
 

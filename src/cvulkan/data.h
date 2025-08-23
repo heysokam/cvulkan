@@ -315,10 +315,17 @@ typedef struct cvk_image_sampler_create_args /* clang-format off */ {
   cvk_Nullable cvk_bool const             unnormalized;        ///< Default: Normalized (aka. 0..1 sampling range)
 } cvk_image_sampler_create_args;  // clang-format on
 
+/// @description
+/// Creates a valid `Image.Sampler` object using the given `arg` configuration options.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_image_view_destroy` using the same `allocator`.
 cvk_Pure cvk_image_Sampler cvk_image_sampler_create (  // clang-format off
   cvk_image_sampler_create_args const* const arg
 );                               // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_image_sampler_create` using the same `allocator`.
 void cvk_image_sampler_destroy ( // clang-format off
   cvk_image_Sampler* const        image_sampler,
   cvk_device_Logical const* const device_logical,
