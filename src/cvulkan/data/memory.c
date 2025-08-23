@@ -17,8 +17,7 @@ cvk_Pure cvk_Memory cvk_memory_create (
       .pNext           = NULL,
       .memoryTypeIndex = arg->kind,
       .allocationSize  = arg->size_alloc,
-    },
-  };
+  }};
   cvk_result_check(vkAllocateMemory(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to allocate a block of GPU memory.");
   if (arg->data) {
@@ -29,7 +28,7 @@ cvk_Pure cvk_Memory cvk_memory_create (
       /* size   */ arg->size_data,
       /* flags  */ (VkMemoryMapFlags)0,
       /* ppData */ &result.data
-    ), "Failed to map a GPU Memory block.");  // clang-format on
+    ), "Failed to map a GPU Memory block.");
     arg->allocator->cpu.copy(
       /* A   */ &arg->allocator->cpu,
       /* src */ &(cvk_Slice){ arg->size_data, 1, arg->data },
@@ -38,7 +37,7 @@ cvk_Pure cvk_Memory cvk_memory_create (
     if (!result.persistent) vkUnmapMemory(arg->device_logical->ct, result.ct);
   }
   return result;
-}
+}  // clang-format on
 
 
 void cvk_memory_destroy (
@@ -57,17 +56,15 @@ cvk_Pure cvk_Optional_u32 cvk_memory_properties_type (
   cvk_device_Physical const* const   device_physical,
   cvk_memory_Flags const             flags
 ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
   for (uint32_t id = 0; id < device_physical->memory.memoryTypeCount; ++id) {
-    cvk_bool const sameType = memory->requirements.memoryTypeBits & 1 << id;
-    // clang-format off
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunsafe-buffer-usage"
+    cvk_bool const sameType  = memory->requirements.memoryTypeBits & 1 << id;
     cvk_bool const sameFlags = (device_physical->memory.memoryTypes[id].propertyFlags & (VkMemoryPropertyFlags)flags) == (VkMemoryPropertyFlags)flags;
-    #pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
-    // // clang-format on
     if (sameType && sameFlags) return id;
   }
   cvk_assert(cvk_false, "Failed to find a suitable memory type from the given Memory.Properties data.");
   return cvk_Optional_u32_none;
+#pragma GCC diagnostic pop  // -Wunsafe-buffer-usage
 }
 

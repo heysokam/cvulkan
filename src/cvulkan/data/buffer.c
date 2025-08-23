@@ -17,7 +17,7 @@ cvk_Pure cvk_Buffer cvk_buffer_create (
       .size                  = arg->size,
       .usage                 = arg->usage,
       .sharingMode           = arg->sharing,
-      .queueFamilyIndexCount = (arg->queueFamilies_ptr && !arg->queueFamilies_len) ? 1 : arg->queueFamilies_len,
+      .queueFamilyIndexCount = (arg->queueFamilies_ptr && !arg->queueFamilies_len) ? 1 : (uint32_t)arg->queueFamilies_len,
       .pQueueFamilyIndices   = arg->queueFamilies_ptr,
   }};                                                        // clang-format on
   cvk_result_check(/* clang-format off */vkCreateBuffer(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),

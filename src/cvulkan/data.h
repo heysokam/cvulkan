@@ -31,24 +31,37 @@ typedef VkMemoryPropertyFlags cvk_memory_Flags;
 /// Configuration options for `cvk_memory_create`.
 typedef struct cvk_memory_create_args {
   cvk_device_Logical const* const   device_logical;
-  cvk_Nullable cvk_pointer const    data;        ///< {@link cvk_memory_create} Will automatically map+copy the memory to the GPU when not `NULL`
-  uint32_t                          kind;
-  cvk_Nullable cvk_bool const       persistent;  ///< The memory will remain mapped after creation.
+  cvk_Nullable cvk_pointer const    data;       ///< Will automatically map+copy the memory to the GPU when not `NULL`
+  cvk_Nullable cvk_Allocator* const allocator;  ///< Can only be `NULL` when `.data` is `NULL`
   VkDeviceSize                      size_alloc;
   VkDeviceSize                      size_data;
+  uint32_t                          kind;
+  cvk_Nullable cvk_bool const       persistent;  ///< The memory will remain mapped after creation.
   cvk_Nullable VkDeviceSize const   offset;
-  cvk_Nullable cvk_Allocator* const allocator;  ///< Can only be `NULL` when `.data` is `NULL`
 } cvk_memory_create_args;
+
+/// @description
+/// Creates a valid `Memory` object using the given `arg` configuration options.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_memory_destroy` using the same `allocator`.
 cvk_Pure cvk_Memory cvk_memory_create (  // clang-format off
   cvk_memory_create_args const* const arg
-);                                              // clang-format on
+);  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_memory_create` using the same `allocator`.
+/// @warning The pointer at `memory.data` will not be freed, and must be managed by the caller independently.
 void cvk_memory_destroy ( // clang-format off
   cvk_Memory* const               memory,
   cvk_device_Logical const* const device_logical,
   cvk_Allocator const* const      allocator
 ); // clang-format on
 
+/// @description
+/// Searches for, and returns, the correct memory type for the given `memory` properties.
+/// Will return the first type that matches the memoryTypes of `device_physical` and the given `flags`.
+/// Will return `Optional.u32.none` and trigger a `cvk_assert` call when it fails to find a matching type.
 cvk_Pure cvk_Optional_u32 cvk_memory_properties_type ( // clang-format off
   cvk_memory_Properties const* const memory,
   cvk_device_Physical const* const   device_physical,
@@ -71,8 +84,8 @@ typedef struct cvk_buffer_create_args {
   cvk_memory_Flags const                 memory_flags;
   cvk_Nullable VkBufferCreateFlags const flags;
   cvk_Nullable VkSharingMode const       sharing;
-  cvk_Nullable uint32_t                  queueFamilies_len;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
   cvk_Nullable uint32_t const* const     queueFamilies_ptr;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
+  cvk_Nullable cvk_size                  queueFamilies_len;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
 } cvk_buffer_create_args;
 
 /// @description
