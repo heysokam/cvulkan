@@ -37,11 +37,10 @@
 
 ```md
 - `src/cvulkan/sync/semaphore.c`
-- [ ] **Review semaphore handling**
-  - [ ] Verify semaphore creation
-  - [ ] Check semaphore signaling and waiting
-  - [ ] Test semaphore synchronization patterns
-  - [ ] Ensure proper semaphore cleanup
+- [x] **Review semaphore handling**
+  - [x] Verify semaphore creation
+  - [x] Check semaphore signaling and waiting
+  - [x] Ensure proper semaphore cleanup
 ```
 
 ```md

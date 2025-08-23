@@ -136,11 +136,16 @@ void cvk_command_buffer_reset ( // clang-format off
 // @section Semaphore
 //____________________________
 
+/// @description
+/// Creates a valid `Semaphore` object using the given `allocator`.
+/// @note Thin wrapper for `vkCreateSemaphore` using the cvulkan API.
 cvk_Pure cvk_Semaphore cvk_semaphore_create (  // clang-format off
   cvk_device_Logical const* const device_logical,
   cvk_Allocator const* const      allocator
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_semaphore_create` using the same `allocator`.
 void cvk_semaphore_destroy ( // clang-format off
   cvk_Semaphore* const            semaphore,
   cvk_device_Logical const* const device_logical,
@@ -158,6 +163,8 @@ cvk_Pure cvk_Fence cvk_fence_create (  // clang-format off
   cvk_Allocator const* const      allocator
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_fence_create` using the same `allocator`.
 void cvk_fence_destroy ( // clang-format off
   cvk_Fence* const                fence,
   cvk_device_Logical const* const device_logical,

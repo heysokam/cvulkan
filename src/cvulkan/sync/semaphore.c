@@ -8,8 +8,8 @@
 cvk_Pure cvk_Semaphore cvk_semaphore_create (
   cvk_device_Logical const* const device_logical,
   cvk_Allocator const* const      allocator
-) {  // clang-format off
-  cvk_Semaphore result = (cvk_Semaphore){
+) {
+  cvk_Semaphore result = (cvk_Semaphore) /* clang-format off */{
     .ct      = NULL,
     .cfg     = (VkSemaphoreCreateInfo){
       .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
