@@ -8,8 +8,8 @@ end-to-end rendering examples and validate the complete graphics pipeline.
 # Pipeline
 ## State
 - [x] Minimal Creation
-- [ ] Customizable Options
-- [ ] Sane Defaults when `NULL`
+- [x] Customizable Options
+- [x] Sane Defaults
 ## Layout
 - [x] Minimal Creation
 - [ ] Customizable Options
@@ -31,11 +31,9 @@ end-to-end rendering examples and validate the complete graphics pipeline.
 
 ```md
 - `src/cvulkan/pipeline/layout.c`
-- [ ] **Review pipeline layout creation**
-  - [ ] Verify descriptor set layout creation
-  - [ ] Check push constant range setup
-  - [ ] Test pipeline layout binding
-  - [ ] Ensure proper layout cleanup
+- [x] **Review pipeline layout creation**
+  - [x] Verify descriptor set layout creation
+  - [x] Check push constant range setup
 ```
 
 ```md

@@ -85,17 +85,30 @@ void cvk_scissor_command_set ( // clang-format off
 // @section Pipeline: Layout
 //____________________________
 
+/// @description
+/// Configuration options for `cvk_pipeline_layout_create_args`.
 typedef struct cvk_pipeline_layout_create_args {
-  cvk_device_Logical const* const           device_logical;
-  char                                      priv_pad[4];
-  cvk_Nullable uint32_t                     sets_len;
-  cvk_Nullable VkDescriptorSetLayout const* sets_ptr;
-  cvk_Allocator* const                      allocator;
+  cvk_device_Logical const* const                 device_logical;
+  cvk_Allocator* const                            allocator;
+  cvk_Nullable VkDescriptorSetLayout const* const sets_ptr;
+  cvk_Nullable uint32_t const                     sets_len;
+  cvk_Nullable VkPipelineLayoutCreateFlags const  flags;  ///< Only for the INDEPENDENT_SETS extension
+  cvk_Nullable VkPushConstantRange const* const   pushConstants_ptr;
+  cvk_Nullable uint32_t const                     pushConstants_len;
+  char                                            priv_pad[4];
 } cvk_pipeline_layout_create_args;
+
+/// @description
+/// Creates a valid `Pipeline.Layout` object using the given `arg` configuration options.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_pipeline_layout_create` using the same `allocator`.
 cvk_Pure cvk_pipeline_Layout cvk_pipeline_layout_create (  // clang-format off
   cvk_pipeline_layout_create_args const* const arg
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_pipeline_layout_create` using the same `allocator`.
 void cvk_pipeline_layout_destroy ( // clang-format off
   cvk_pipeline_Layout* const      layout,
   cvk_device_Logical const* const device_logical,
