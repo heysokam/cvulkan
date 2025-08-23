@@ -48,6 +48,13 @@
   - [ ] Test shader stage validation
   - [ ] Ensure proper stage management
 ```
+```md
+## Images
+- [ ] **Image operations**
+  - [ ] Copy: Image-to-Buffer
+  - [ ] Blit
+```
+
 
 
 ```md

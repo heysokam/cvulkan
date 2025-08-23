@@ -23,22 +23,14 @@
   - [x] Test image memory binding
   - [x] Ensure proper image cleanup
 
-- [ ] **Review image views and samplers**
+- [ ] **Review image views**
   - [ ] Verify image view creation for different formats
-  - [ ] Check sampler creation with various parameters
-  - [ ] Test image view and sampler binding
+  - [x] Test image view binding
   - [ ] Ensure proper resource cleanup
 
-- [ ] **Review image transitions and layouts**
-  - [ ] Verify image layout transitions
-  - [ ] Check image layout optimization
-  - [ ] Test image layout synchronization
-  - [ ] Ensure proper transition handling
-
-- [ ] **Review image operations**
-  - [ ] Verify buffer-to-image copy operations
-  - [ ] Check image-to-buffer copy operations
-  - [ ] Test image blitting operations
-  - [ ] Ensure proper operation synchronization
+- [ ] **Review image samplers**
+  - [ ] Check sampler creation with various parameters
+  - [x] Test image sampler binding
+  - [ ] Ensure proper resource cleanup
 ```
 

@@ -134,21 +134,21 @@ cvk_Pure cvk_image_View cvk_image_view_create (
     .cfg                = (VkImageViewCreateInfo){
       .sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
       .pNext            = NULL,
-      .flags            = (VkImageViewCreateFlags)0, // TODO: Configurable
+      .flags            = (VkImageViewCreateFlags)0, // TODO: Configurable. Only for extensions.
       .image            = arg->image_data->ct,
       .viewType         = VK_IMAGE_VIEW_TYPE_2D,     // TODO: Configurable
       .format           = arg->image_data->cfg.format,
       .components       = (VkComponentMapping){ .r = 0, .g = 0, .b = 0, .a = 0 }, // 0 == Swizzle.Identity
       .subresourceRange = (VkImageSubresourceRange){
-        .aspectMask     = (!arg->aspect) ? VK_IMAGE_ASPECT_COLOR_BIT : arg->aspect,
+        .aspectMask     = (arg->aspect) ? arg->aspect : VK_IMAGE_ASPECT_COLOR_BIT,
         .baseMipLevel   = 0,                         // TODO: Configurable
         .levelCount     = 1,                         // TODO: Configurable
         .baseArrayLayer = 0,                         // TODO: Configurable
         .layerCount     = 1,                         // TODO: Configurable
-      }, //:: subresourceRange
+      }, //:: cfg.subresourceRange
     }, //:: cfg
   };
-  cvk_result_check(vkCreateImageView(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+  cvk_result_check(/* clang-format off */vkCreateImageView(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create an Image.View for an Image.Data handle.");  // clang-format on
   return result;
 }  //:: cvk_image_view_create

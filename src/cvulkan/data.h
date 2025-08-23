@@ -269,10 +269,17 @@ typedef struct cvk_image_view_create_args {
   char                                  priv_pad[4];
 } cvk_image_view_create_args;
 
+/// @description
+/// Creates a valid `Image.View` object using the given `arg` configuration options.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_image_view_destroy` using the same `allocator`.
 cvk_Pure cvk_image_View cvk_image_view_create (  // clang-format off
   cvk_image_view_create_args const* const arg
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_image_view_create` using the same `allocator`.
 void cvk_image_view_destroy (  // clang-format off
   cvk_image_View* const           image_view,
   cvk_device_Logical const* const device_logical,
