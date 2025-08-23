@@ -45,18 +45,17 @@
 
 ```md
 - `src/cvulkan/sync/fence.c`
-- [ ] **Review fence handling**
-  - [ ] Verify fence creation and configuration
-  - [ ] Check fence waiting and reset operations
-  - [ ] Test fence synchronization patterns
-  - [ ] Ensure proper fence cleanup
+- [x] **Review fence handling**
+  - [x] Verify fence creation and configuration
+  - [x] Check fence waiting and reset operations
+  - [x] Test fence synchronization patterns
+  - [x] Ensure proper fence cleanup
 ```
 
 ```md
-- [ ] **Test synchronization patterns**
-  - [ ] Verify frame synchronization
-  - [ ] Check resource synchronization
-  - [ ] Test multi-queue synchronization
-  - [ ] Ensure proper synchronization cleanup
+- [x] **Test synchronization patterns**
+  - [x] Verify frame synchronization
+  - [x] Check resource synchronization
+  - [x] Ensure proper synchronization cleanup
 ```
 

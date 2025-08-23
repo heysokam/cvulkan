@@ -157,6 +157,9 @@ void cvk_semaphore_destroy ( // clang-format off
 // @section Fence
 //____________________________
 
+/// @description
+/// Creates a valid `Fence` object using the given `allocator`.
+/// @note Thin wrapper for `vkCreateFence` using the cvulkan API.
 cvk_Pure cvk_Fence cvk_fence_create (  // clang-format off
   cvk_device_Logical const* const device_logical,
   cvk_bool const                  signaled,
@@ -171,11 +174,17 @@ void cvk_fence_destroy ( // clang-format off
   cvk_Allocator* const            allocator
 ); // clang-format on
 
+/// @description
+/// Orders the CPU to synchronously wait (indefinitely) until the given `fence` is signaled by the GPU.
+/// @note Thin inline wrapper for `vkWaitForFences` using the cvulkan API.
 void cvk_fence_wait ( // clang-format off
   cvk_Fence const* const          fence,
   cvk_device_Logical const* const device_logical
 ); // clang-format on
 
+/// @description
+/// Orders Vulkan to set the state of the given `fence` to its initial state.
+/// @note Thin inline wrapper for `vkResetFences` using the cvulkan API.
 void cvk_fence_reset ( // clang-format off
   cvk_Fence const* const          fence,
   cvk_device_Logical const* const device_logical
