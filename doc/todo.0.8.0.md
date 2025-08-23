@@ -23,11 +23,9 @@
 
 ```md
 - `src/cvulkan/sync/command/pool.c`
-- [ ] **Review command pool management**
-  - [ ] Verify command pool creation and configuration
-  - [ ] Check command pool reset operations
-  - [ ] Test command pool cleanup
-  - [ ] Ensure proper pool lifecycle management
+- [x] **Review command pool management**
+  - [x] Verify command pool creation and configuration
+  - [x] Test command pool cleanup
 ```
 
 ```md
@@ -63,17 +61,5 @@
   - [ ] Check resource synchronization
   - [ ] Test multi-queue synchronization
   - [ ] Ensure proper synchronization cleanup
-```
-
-```md
-- [ ] **Documentation updates**
-  - [ ] Update sync.h documentation
-  - [ ] Add synchronization examples
-  - [ ] Document command recording patterns
-  - [ ] **Synchronization Example**
-    - [ ] Basic Command recording
-    - [ ] Frame Synchronization
-    - [ ] Resource Synchronization
-    - [ ] Multi-Queue operations
 ```
 

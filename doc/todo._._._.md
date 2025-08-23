@@ -133,7 +133,18 @@
     - [ ] Example with multiple render targets
     - [ ] Example with render pass dependencies
 ```
-
+```md
+## Documentation for 0.8.0 - Synchronization Structures
+- [ ] **Documentation updates**
+  - [ ] Update sync.h documentation
+  - [ ] Add synchronization examples
+  - [ ] Document command recording patterns
+  - [ ] **Synchronization Example**
+    - [ ] Basic Command recording
+    - [ ] Frame Synchronization
+    - [ ] Resource Synchronization
+    - [ ] Multi-Queue operations
+```
 
 
 

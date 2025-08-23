@@ -7,23 +7,23 @@
 
 cvk_Pure cvk_command_Pool cvk_command_pool_create (
   cvk_command_pool_create_args const* const arg
-) {  // clang-format off
-  cvk_command_Pool result = (cvk_command_Pool){
+) {
+  cvk_command_Pool result = (cvk_command_Pool) /* clang-format off */{
     .ct                  = NULL,
     .cfg                 = (VkCommandPoolCreateInfo){
     .sType               = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
     .pNext               = NULL,
     .flags               = (VkCommandPoolCreateFlags)arg->flags,
     .queueFamilyIndex    = arg->queueID,
-  }};
-  cvk_result_check(vkCreateCommandPool(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+  }};                                                           // clang-format on
+  cvk_result_check(/* clang-format off */vkCreateCommandPool(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a CommandPool context");  // clang-format on
   return result;
 }
 
 
 void cvk_command_pool_destroy (
-  cvk_command_Pool* const          pool,
+  cvk_command_Pool* const         pool,
   cvk_device_Logical const* const device_logical,
   cvk_Allocator* const            allocator
 ) {
