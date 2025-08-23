@@ -7,8 +7,8 @@
 
 cvk_Pure cvk_command_Buffer cvk_command_buffer_allocate (
   cvk_command_buffer_allocate_args const* const arg
-) {  // clang-format off
-  cvk_command_Buffer result = (cvk_command_Buffer){
+) {
+  cvk_command_Buffer result = (cvk_command_Buffer) /* clang-format off */ {
     .ct                   = NULL,
     .cfg                  = (VkCommandBufferAllocateInfo){
       .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -33,11 +33,11 @@ void cvk_command_buffer_free (
 }
 
 
-void cvk_command_buffer_begin2 (
+inline void cvk_command_buffer_begin2 (
   cvk_command_Buffer const* const            command_buffer,
   cvk_command_buffer_begin_args const* const arg
-) {  // clang-format off
-  cvk_result_check(vkBeginCommandBuffer(command_buffer->ct, &(VkCommandBufferBeginInfo){
+) {
+  cvk_result_check(/* clang-format off */vkBeginCommandBuffer(command_buffer->ct, &(VkCommandBufferBeginInfo){
     .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
     .pNext            = NULL,
     .flags            = (VkCommandBufferUsageFlags)arg->flags,
@@ -48,15 +48,15 @@ void cvk_command_buffer_begin2 (
 
 inline void cvk_command_buffer_begin (
   cvk_command_Buffer const* const command_buffer
-) {  // clang-format off
-  cvk_command_buffer_begin2(command_buffer, &(cvk_command_buffer_begin_args){0});
+) {
+  cvk_command_buffer_begin2(command_buffer, &(cvk_command_buffer_begin_args){ 0 });
 }
 
 
 inline void cvk_command_buffer_end (
   cvk_command_Buffer const* const command_buffer
-) {  // clang-format off
-  cvk_result_check(vkEndCommandBuffer(command_buffer->ct),
+) {
+  cvk_result_check(/* clang-format off */vkEndCommandBuffer(command_buffer->ct),
     "Failed to finish recording a Command Buffer");  // clang-format on
 }
 
@@ -64,8 +64,8 @@ inline void cvk_command_buffer_end (
 inline void cvk_command_buffer_reset (
   cvk_command_Buffer const* const command_buffer,
   cvk_bool const                  releaseResources
-) {  // clang-format off
-  cvk_result_check(vkResetCommandBuffer(command_buffer->ct, (VkCommandBufferResetFlags)releaseResources),
+) {
+  cvk_result_check(/* clang-format off */vkResetCommandBuffer(command_buffer->ct, (VkCommandBufferResetFlags)releaseResources),
     "Failed to reset a Command Buffer.");
 }
 

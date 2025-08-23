@@ -63,7 +63,7 @@ typedef struct cvk_renderpass_command_begin_args {
 /// @description
 /// Orders Vulkan to start recording draw commands using the given `renderpass`.
 /// The caller is responsible for calling `cvk_renderpass_command_end` when the recording process is done.
-/// @note Thin wrapper for `vkCmdBeginRenderPass` using cvulkan's API.
+/// @note Thin wrapper for `vkCmdBeginRenderPass` using the cvulkan API.
 void cvk_renderpass_command_begin ( // clang-format off
   cvk_Renderpass const* const                    renderpass,
   cvk_renderpass_command_begin_args const* const arg
@@ -71,7 +71,7 @@ void cvk_renderpass_command_begin ( // clang-format off
 
 /// @description
 /// Stops the command recording process started by `cvk_renderpass_command_begin` using the same `renderpass`.
-/// @note Thin inline wrapper for `vkCmdEndRenderPass` using cvulkan's API.
+/// @note Thin inline wrapper for `vkCmdEndRenderPass` using the cvulkan API.
 void cvk_renderpass_command_end ( // clang-format off
   cvk_Renderpass const* const     renderpass,
   cvk_command_Buffer const* const command_buffer

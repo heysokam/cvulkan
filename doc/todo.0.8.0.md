@@ -30,11 +30,9 @@
 
 ```md
 - `src/cvulkan/sync/command/buffer.c`
-- [ ] **Review command buffer operations**
-  - [ ] Verify command buffer allocation
-  - [ ] Check command buffer recording
-  - [ ] Test command buffer submission
-  - [ ] Ensure proper buffer lifecycle management
+- [x] **Review command buffer operations**
+  - [x] Verify command buffer allocation
+  - [x] Check command buffer recording
 ```
 
 ```md
