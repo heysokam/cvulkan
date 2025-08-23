@@ -149,12 +149,12 @@ int main () {
     [1] = VK_DYNAMIC_STATE_SCISSOR,
   };
   VkPipelineDynamicStateCreateInfo       state_dynamic               = cvk_pipeline_state_dynamic_setup(2, dynamicStates);
-  VkPipelineVertexInputStateCreateInfo   state_vertexInput           = cvk_pipeline_state_vertexInput_setup();
-  VkPipelineInputAssemblyStateCreateInfo state_inputAssembly         = cvk_pipeline_state_inputAssembly_setup();
-  VkPipelineViewportStateCreateInfo      state_viewport              = cvk_pipeline_state_viewport_setup();
-  VkPipelineRasterizationStateCreateInfo state_rasterization         = cvk_pipeline_state_rasterization_setup();
-  VkPipelineMultisampleStateCreateInfo   state_multisample           = cvk_pipeline_state_multisample_setup();
-  VkPipelineColorBlendAttachmentState    state_colorBlend_attachment = cvk_pipeline_state_colorBlend_attachment_setup();
+  VkPipelineVertexInputStateCreateInfo   state_vertexInput           = cvk_pipeline_state_vertexInput_defaults();
+  VkPipelineInputAssemblyStateCreateInfo state_inputAssembly         = cvk_pipeline_state_inputAssembly_defaults();
+  VkPipelineViewportStateCreateInfo      state_viewport              = cvk_pipeline_state_viewport_defaults();
+  VkPipelineRasterizationStateCreateInfo state_rasterization         = cvk_pipeline_state_rasterization_defaults();
+  VkPipelineMultisampleStateCreateInfo   state_multisample           = cvk_pipeline_state_multisample_defaults();
+  VkPipelineColorBlendAttachmentState    state_colorBlend_attachment = cvk_pipeline_state_colorBlend_attachment_defaults();
   // clang-format off
   VkPipelineColorBlendStateCreateInfo    state_colorBlend            = cvk_pipeline_state_colorBlend_setup(&(cvk_pipeline_state_colorBlend_setup_args) /* clang-format off */ {
     .attachments_ptr = &state_colorBlend_attachment,

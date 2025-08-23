@@ -16,7 +16,6 @@ cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
       .device_logical   = arg->device_logical,
       .allocator        = arg->allocator,
     }),
-    .renderpass         = (arg->renderpass) ? *arg->renderpass : (cvk_Renderpass){ .ct = NULL },
   };
   result.cfg = (VkGraphicsPipelineCreateInfo){
     .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -34,8 +33,8 @@ cvk_Pure cvk_pipeline_Graphics cvk_pipeline_graphics_create (
     .pDynamicState       = arg->state_dynamic,
     .pTessellationState  = arg->state_tessellation,
     .layout              = result.layout.ct,
-    .renderPass          = result.renderpass.ct,
-    .subpass             = 0,  // TODO: Only needed for Tile-Based GPUs
+    .renderPass          = (arg->renderpass) ? arg->renderpass->ct : NULL,
+    .subpass             = arg->subpass,
     .basePipelineHandle  = NULL,
     .basePipelineIndex   = -1,
   };

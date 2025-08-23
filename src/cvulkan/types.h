@@ -448,7 +448,6 @@ typedef struct cvk_pipeline_Graphics {
   VkPipeline                   ct;
   VkGraphicsPipelineCreateInfo cfg;
   cvk_pipeline_Layout          layout;
-  cvk_Renderpass               renderpass;
 } cvk_pipeline_Graphics;
 
 

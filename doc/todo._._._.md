@@ -145,6 +145,24 @@
     - [ ] Resource Synchronization
     - [ ] Multi-Queue operations
 ```
+```md
+## Documentation for 0.9.0 - Graphics Pipeline
+- [ ] **Documentation updates**
+  - [ ] Update pipeline.h documentation
+  - [ ] Document pipeline state patterns
+  - [ ] Add rendering pipeline examples
+  - [ ] **Triangle Rendering example**
+    - [ ] Basic colored triangle
+    - [ ] Textured triangle
+    - [ ] Multiple triangle rendering
+    - [ ] Dynamic triangle updates
+  - [ ] **Model Loading+Rendering example**
+    - [ ] GLTF model loading
+    - [ ] Model transformation
+    - [ ] Multiple model rendering
+    - [ ] Model animation support
+```
+
 
 
 
