@@ -173,7 +173,18 @@
     - [ ] Example with staging buffer operations
     - [ ] Example with buffer data transfer
 ```
-
+```md
+## Documentation for 0.11.0 - Images & Textures
+- [ ] **Documentation updates**
+  - [ ] Update data.h documentation
+  - [ ] Add image management examples
+  - [ ] Document texture loading patterns
+  - [ ] **Image Example**
+    - [ ] Texture loading
+    - [ ] Image transitions
+    - [ ] Image copying
+    - [ ] Texture sampling
+```
 
 
 

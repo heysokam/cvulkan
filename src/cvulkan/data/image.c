@@ -8,10 +8,10 @@
 
 cvk_Pure cvk_image_Data cvk_image_data_create (
   cvk_image_data_create_args const* const arg
-) {  // clang-format off
-  cvk_image_Data result = (cvk_image_Data){
-    .ct  = NULL,
-    .cfg = (VkImageCreateInfo){
+) {
+  cvk_image_Data result = (cvk_image_Data) /* clang-format off */ {
+    .ct                      = NULL,
+    .cfg                     = (VkImageCreateInfo){
       .sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
       .pNext                 = NULL,
       .flags                 = (VkImageCreateFlags)arg->flags,
@@ -28,18 +28,16 @@ cvk_Pure cvk_image_Data cvk_image_data_create (
       .tiling                = arg->tiling,
       .usage                 = arg->usage,
       .sharingMode           = arg->sharing,
-      .queueFamilyIndexCount = 0,    // TODO: How to use?
-      .pQueueFamilyIndices   = NULL, // TODO: How to use?
+      .queueFamilyIndexCount = (arg->queueFamilies_ptr && !arg->queueFamilies_len) ? 1 : (uint32_t)arg->queueFamilies_len,
+      .pQueueFamilyIndices   = arg->queueFamilies_ptr,
       .initialLayout         = arg->layout,
-    }};
-  cvk_result_check(vkCreateImage(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
-    "Failed to create an Image.Data context.");
-  // clang-format on
+  }};                                                            // clang-format on
+  cvk_result_check(/* clang-format off */vkCreateImage(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+    "Failed to create an Image.Data context.");  // clang-format on
   vkGetImageMemoryRequirements(arg->device_logical->ct, result.ct, &result.memory.requirements);
   result.memory.kind = cvk_memory_properties_type(&result.memory, arg->device_physical, arg->memory_flags);
-
   return result;
-}
+}  //:: cvk_image_data_create
 
 
 void cvk_image_data_destroy (
@@ -51,16 +49,16 @@ void cvk_image_data_destroy (
   image_data->memory.requirements = (VkMemoryRequirements){ 0 };
   image_data->memory.kind         = cvk_Optional_u32_none;
   if (image_data->ct) vkDestroyImage(device_logical->ct, image_data->ct, allocator->gpu);
-}
+}  //:: cvk_image_data_destroy
 
 
 void cvk_image_data_bind (
   cvk_image_Data const* const           image_data,
   cvk_image_data_bind_args const* const arg
-) {  // clang-format off
-  cvk_result_check(vkBindImageMemory(arg->device_logical->ct, image_data->ct, arg->memory->ct, arg->offset),
+) {
+  cvk_result_check(/* clang-format off */vkBindImageMemory(arg->device_logical->ct, image_data->ct, arg->memory->ct, arg->offset),
     "Failed to bind a block of Device.Memory to an Image.Data.Memory context.");  // clang-format on
-}
+}  //:: cvk_image_data_bind
 
 
 void cvk_image_data_command_transition (
@@ -97,7 +95,8 @@ void cvk_image_data_command_transition (
       }, //:: subresourceRange
     } //:: pImageMemoryBarriers
   );  // clang-format on
-}
+}  //:: cvk_image_data_command_transition
+
 
 void cvk_image_data_command_copy_fromBuffer (
   cvk_image_Data const* const           image_data,
@@ -124,7 +123,7 @@ void cvk_image_data_command_copy_fromBuffer (
       .imageExtent       = image_data->cfg.extent,
     } //:: pRegions
   );  // clang-format on
-}
+}  //:: cvk_image_data_command_copy_fromBuffer
 
 
 cvk_Pure cvk_image_View cvk_image_view_create (
@@ -152,7 +151,7 @@ cvk_Pure cvk_image_View cvk_image_view_create (
   cvk_result_check(vkCreateImageView(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create an Image.View for an Image.Data handle.");  // clang-format on
   return result;
-}
+}  //:: cvk_image_view_create
 
 
 void cvk_image_view_destroy (
@@ -162,7 +161,7 @@ void cvk_image_view_destroy (
 ) {
   image_view->cfg = (VkImageViewCreateInfo){ 0 };
   if (image_view->ct) vkDestroyImageView(device_logical->ct, image_view->ct, allocator->gpu);
-}
+}  //:: cvk_image_view_destroy
 
 
 cvk_Pure cvk_image_Sampler cvk_image_sampler_create (
@@ -196,7 +195,7 @@ cvk_Pure cvk_image_Sampler cvk_image_sampler_create (
   cvk_result_check(vkCreateSampler(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create an Image.Sampler context.");  // clang-format on
   return result;
-}
+}  //:: cvk_image_sampler_create
 
 
 void cvk_image_sampler_destroy (
@@ -206,6 +205,5 @@ void cvk_image_sampler_destroy (
 ) {
   image_sampler->cfg = (VkSamplerCreateInfo){ 0 };
   if (image_sampler->ct) vkDestroySampler(device_logical->ct, image_sampler->ct, allocator->gpu);
-}
-
+}  //:: cvk_image_sampler_destroy
 

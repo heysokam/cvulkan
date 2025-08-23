@@ -158,19 +158,6 @@ void cvk_buffer_index_command_bind ( // clang-format off
 //____________________________
 
 /// @description
-/// Configuration options for `cvk_image_data_bind`.
-typedef struct cvk_image_data_bind_args {
-  cvk_device_Logical const* const device_logical;
-  cvk_Memory const* const         memory;
-  cvk_Nullable VkDeviceSize const offset;
-} cvk_image_data_bind_args;
-
-void cvk_image_data_bind ( // clang-format off
-  cvk_image_Data const* const      image,
-  cvk_image_data_bind_args const* const arg
-); // clang-format on
-
-/// @description
 /// Configuration options for `cvk_image_data_create`.
 typedef struct cvk_image_data_create_args {
   cvk_device_Physical const* const      device_physical;
@@ -180,26 +167,51 @@ typedef struct cvk_image_data_create_args {
   VkImageUsageFlags const               usage;
   cvk_memory_Flags const                memory_flags;
   cvk_Nullable VkImageCreateFlags const flags;
-  cvk_Nullable VkImageType const        dimensions;  ///< Creates a 1D image when omitted or 0
-  cvk_Nullable uint32_t                 width;       ///< Will use 1 when omitted or 0
-  cvk_Nullable uint32_t                 height;      ///< Will use 1 when omitted or 0
-  cvk_Nullable uint32_t                 depth;       ///< Will use 1 when omitted or 0
-  cvk_Nullable VkSampleCountFlags const samples;     ///< Will use 1 when omitted or 0
-  cvk_Nullable VkImageTiling const      tiling;      ///< Optimal is the default (aka 0)
-  cvk_Nullable VkSharingMode const      sharing;     ///< Exclusive is the default (aka 0)
-  cvk_Nullable VkImageLayout const      layout;      ///< Undefined is the default (aka 0)
-  cvk_Nullable uint32_t const           mip_len;     ///< MipMap levels count. Will use 1 when omitted or 0
-  cvk_Nullable uint32_t const           layers_len;  ///< ArrayLayers count. Will use 1 when omitted or 0
+  cvk_Nullable VkImageType const        dimensions;         ///< Creates a 1D image when omitted or 0
+  cvk_Nullable uint32_t                 width;              ///< Will use 1 when omitted or 0
+  cvk_Nullable uint32_t                 height;             ///< Will use 1 when omitted or 0
+  cvk_Nullable uint32_t                 depth;              ///< Will use 1 when omitted or 0
+  cvk_Nullable VkSampleCountFlags const samples;            ///< Will use 1 when omitted or 0
+  cvk_Nullable VkImageTiling const      tiling;             ///< Default: Optimal (aka. 0)
+  cvk_Nullable VkSharingMode const      sharing;            ///< Default: Exclusive (aka. 0)
+  cvk_Nullable VkImageLayout const      layout;             ///< Undefined is the default (aka 0)
+  cvk_Nullable uint32_t const           mip_len;            ///< MipMap levels count. Will use 1 when omitted or 0
+  cvk_Nullable uint32_t const           layers_len;         ///< ArrayLayers count. Will use 1 when omitted or 0
+  cvk_Nullable uint32_t const* const    queueFamilies_ptr;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
+  cvk_Nullable cvk_size                 queueFamilies_len;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
 } cvk_image_data_create_args;
 
+/// @description
+/// Creates a valid `Image.Data` object using the given `arg` configuration options.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_image_data_destroy` using the same `allocator`.
 cvk_Pure cvk_image_Data cvk_image_data_create (  // clang-format off
   cvk_image_data_create_args const* const arg
-);                                                   // clang-format on
+);  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_image_data_create` using the same `allocator`.
 void cvk_image_data_destroy ( // clang-format off
   cvk_image_Data* const           image_data,
   cvk_device_Logical const* const device_logical,
   cvk_Allocator const* const      allocator
+); // clang-format on
+
+/// @description
+/// Configuration options for `cvk_image_data_bind`.
+typedef struct cvk_image_data_bind_args {
+  cvk_device_Logical const* const device_logical;
+  cvk_Memory const* const         memory;
+  cvk_Nullable VkDeviceSize const offset;
+} cvk_image_data_bind_args;
+
+/// @description
+/// Orders Vulkan to record a command to connect the given `image` to the given `arg.memory`, so that it can be used for other operations.
+/// @note Thin inline wrapper for `vkBindImageMemory` using the cvulkan API.
+void cvk_image_data_bind ( // clang-format off
+  cvk_image_Data const* const      image,
+  cvk_image_data_bind_args const* const arg
 ); // clang-format on
 
 /// @description
@@ -216,6 +228,9 @@ typedef struct cvk_image_data_transition_args {
   char                                  priv_pad[4];
 } cvk_image_data_transition_args;
 
+/// @description
+/// Orders Vulkan to record a command to transition the layout of the given `image_data` from `arg.layout_old` into `arg.layout_new`, so that it can be used for other operations.
+/// @note Thin wrapper for `vkCmdPipelineBarrier` using the cvulkan API.
 void cvk_image_data_command_transition ( // clang-format off
   cvk_image_Data* const                       image_data,
   cvk_image_data_transition_args const* const arg
@@ -230,6 +245,9 @@ typedef struct cvk_image_data_copy_args {
   char                            priv_pad[4];
 } cvk_image_data_copy_args;
 
+/// @description
+/// Orders Vulkan to record a command to copy all the data from `buffer` into `image_data`.
+/// @note Thin wrapper for `vkCmdCopyBufferToImage` using the cvulkan API.
 void cvk_image_data_command_copy_fromBuffer (  // clang-format off
   cvk_image_Data const* const           image_data,
   cvk_Buffer const* const               buffer,
