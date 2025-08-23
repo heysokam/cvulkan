@@ -27,6 +27,8 @@ typedef enum cvk_memory_Kind {
 } cvk_memory_Kind;
 typedef VkMemoryPropertyFlags cvk_memory_Flags;
 
+/// @description
+/// Configuration options for `cvk_memory_create`.
 typedef struct cvk_memory_create_args {
   cvk_device_Logical const* const   device_logical;
   cvk_Nullable cvk_pointer const    data;        ///< {@link cvk_memory_create} Will automatically map+copy the memory to the GPU when not `NULL`
@@ -58,71 +60,105 @@ cvk_Pure cvk_Optional_u32 cvk_memory_properties_type ( // clang-format off
 // @section Buffer
 //____________________________
 
+/// @description
+/// Configuration options for `cvk_buffer_create`.
 typedef struct cvk_buffer_create_args {
   cvk_device_Physical const* const       device_physical;
   cvk_device_Logical const* const        device_logical;
-  cvk_Nullable VkBufferCreateFlags const flags;
-  char                                   priv_pad1[4];
+  cvk_Allocator* const                   allocator;
   VkDeviceSize const                     size;
   VkBufferUsageFlags const               usage;
-  cvk_Nullable VkSharingMode const       sharing;
   cvk_memory_Flags const                 memory_flags;
-  char                                   priv_pad2[4];
-  cvk_Allocator* const                   allocator;
+  cvk_Nullable VkBufferCreateFlags const flags;
+  cvk_Nullable VkSharingMode const       sharing;
+  cvk_Nullable uint32_t                  queueFamilies_len;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
+  cvk_Nullable uint32_t const* const     queueFamilies_ptr;  ///< Ignored by spec, unless `VK_SHARING_MODE_CONCURRENT`.
 } cvk_buffer_create_args;
+
+/// @description
+/// Creates a valid `Buffer` object using the given `arg` configuration options.
+///
+/// The caller owns the memory allocated by this function,
+/// and is responsible for calling `cvk_buffer_destroy` using the same `allocator`.
 cvk_Pure cvk_Buffer cvk_buffer_create (  // clang-format off
   cvk_buffer_create_args const* const arg
 );  // clang-format on
 
+/// @description
+/// Releases any memory and handles created by `cvk_buffer_create` using the same `allocator`.
 void cvk_buffer_destroy ( // clang-format off
   cvk_Buffer* const               buffer,
   cvk_device_Logical const* const device_logical,
   cvk_Allocator const* const      allocator
 ); // clang-format on
 
-typedef struct cvk_buffer_bind_args {
-  cvk_device_Logical const* const device_logical;
-  cvk_Memory const* const         memory;
-  cvk_Nullable VkDeviceSize const offset;
-} cvk_buffer_bind_args;
-void cvk_buffer_bind (  // clang-format off
-  cvk_Buffer const*const            buffer,
-  cvk_buffer_bind_args const* const arg
-);  // clang-format on
-
-void cvk_buffer_vertex_command_bind ( // clang-format off
-  cvk_Buffer const* const         buffer,
-  cvk_command_Buffer const* const command_buffer
-); // clang-format on
-
-void cvk_buffer_index_command_bind ( // clang-format off
-  cvk_Buffer const* const         buffer,
-  cvk_command_Buffer const* const command_buffer
-); // clang-format on
-
+/// @description
+/// Configuration options for `cvk_buffer_copy`.
 typedef struct cvk_buffer_copy_args {
   cvk_command_Buffer const* const command_buffer;
 } cvk_buffer_copy_args;
+
+/// @description
+/// Orders Vulkan to record a command to copy all the data from Buffer `A` into Buffer `B`.
+/// @note Thin inline wrapper for `vkCmdCopyBuffer` using the cvulkan API.
 void cvk_buffer_command_copy ( // clang-format off
   cvk_Buffer const* const A,
   cvk_Buffer const* const B,
   cvk_buffer_copy_args const*const arg
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_buffer_bind`.
+typedef struct cvk_buffer_bind_args {
+  cvk_device_Logical const* const device_logical;
+  cvk_Memory const* const         memory;
+  cvk_Nullable VkDeviceSize const offset;  ///< Will bind from the start when omitted (aka. offset == 0)
+} cvk_buffer_bind_args;
+
+/// @description
+/// Orders Vulkan to record a command to connect the given `buffer` to the given `arg.memory`, so that it can be used for other operations.
+/// @note Thin inline wrapper for `vkBindBufferMemory` using the cvulkan API.
+void cvk_buffer_bind (  // clang-format off
+  cvk_Buffer const* const           buffer,
+  cvk_buffer_bind_args const* const arg
+);  // clang-format on
+
+/// @description
+/// Orders Vulkan to record a command to connect the given vertex `buffer` object so that it can be used for other operations.
+/// @note Thin inline wrapper for `vkCmdBindVertexBuffers` using the cvulkan API.
+void cvk_buffer_vertex_command_bind ( // clang-format off
+  cvk_Buffer const* const         buffer,
+  cvk_command_Buffer const* const command_buffer
+); // clang-format on
+
+/// @description
+/// Orders Vulkan to record a command to connect the given index `buffer` object so that it can be used for other operations.
+/// @note Thin inline wrapper for `vkCmdBindIndexBuffer` using the cvulkan API.
+void cvk_buffer_index_command_bind ( // clang-format off
+  cvk_Buffer const* const         buffer,
+  cvk_command_Buffer const* const command_buffer
+); // clang-format on
+
 
 //______________________________________
 // @section Image.Data
 //____________________________
+
+/// @description
+/// Configuration options for `cvk_image_data_bind`.
 typedef struct cvk_image_data_bind_args {
   cvk_device_Logical const* const device_logical;
   cvk_Memory const* const         memory;
   cvk_Nullable VkDeviceSize const offset;
 } cvk_image_data_bind_args;
+
 void cvk_image_data_bind ( // clang-format off
   cvk_image_Data const* const      image,
   cvk_image_data_bind_args const* const arg
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_image_data_create`.
 typedef struct cvk_image_data_create_args {
   cvk_device_Physical const* const      device_physical;
   cvk_device_Logical const* const       device_logical;
@@ -142,6 +178,7 @@ typedef struct cvk_image_data_create_args {
   cvk_Nullable uint32_t const           mip_len;     ///< MipMap levels count. Will use 1 when omitted or 0
   cvk_Nullable uint32_t const           layers_len;  ///< ArrayLayers count. Will use 1 when omitted or 0
 } cvk_image_data_create_args;
+
 cvk_Pure cvk_image_Data cvk_image_data_create (  // clang-format off
   cvk_image_data_create_args const* const arg
 );                                                   // clang-format on
@@ -152,6 +189,8 @@ void cvk_image_data_destroy ( // clang-format off
   cvk_Allocator const* const      allocator
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_image_data_transition`.
 typedef struct cvk_image_data_transition_args {
   cvk_command_Buffer const* const       command_buffer;
   VkAccessFlags const                   access_src;
@@ -169,6 +208,8 @@ void cvk_image_data_command_transition ( // clang-format off
   cvk_image_data_transition_args const* const arg
 ); // clang-format on
 
+/// @description
+/// Configuration options for `cvk_image_data_copy`.
 typedef struct cvk_image_data_copy_args {
   cvk_command_Buffer const* const command_buffer;
   cvk_Nullable VkDeviceSize const offset_buffer;
@@ -187,6 +228,8 @@ void cvk_image_data_command_copy_fromBuffer (  // clang-format off
 // @section Image.View
 //____________________________
 
+/// @description
+/// Configuration options for `cvk_image_view_create`.
 typedef struct cvk_image_view_create_args {
   cvk_image_Data const* const           image_data;
   cvk_device_Logical const* const       device_logical;
@@ -210,32 +253,33 @@ void cvk_image_view_destroy (  // clang-format off
 // @section Image.Sampler
 //____________________________
 
-typedef struct cvk_image_sampler_create_args {
+/// @description
+/// Configuration options for `cvk_image_sampler_create`.
+typedef struct cvk_image_sampler_create_args /* clang-format off */ {
   cvk_device_Physical const* const        device_physical;
   cvk_device_Logical const* const         device_logical;
   cvk_Allocator* const                    allocator;
   cvk_Nullable VkSamplerCreateFlags const flags;
-  cvk_Nullable VkFilter const             filter_min;  ///< Default (aka. 0) is Nearest
-  cvk_Nullable VkFilter const             filter_mag;  ///< Default (aka. 0) is Nearest
-  cvk_Nullable VkSamplerMipmapMode const  mip_mode;    ///< Default (aka. 0) is Nearest
-  cvk_Nullable float const                mip_lodBias;
-  cvk_Nullable VkSamplerAddressMode const address_U;   ///< Default (aka. 0) is Repeat
-  cvk_Nullable VkSamplerAddressMode const address_V;   ///< Default (aka. 0) is Repeat
-  cvk_Nullable VkSamplerAddressMode const address_W;   ///< Default (aka. 0) is Repeat
-  cvk_Nullable cvk_bool const             anisotropy_enabled;
-  cvk_Nullable float const
-    anisotropy_max;  ///< Default `.device_physical->properties.limits.maxSamplerAnisotropy` when omitted (aka. 0.0f) and `anisotropy_enabled`. Clamped to range `[1.0 .. .device_physical->properties.limits.maxSamplerAnisotropy]`
-  cvk_Nullable cvk_bool const      compare_enabled;
-  cvk_Nullable VkCompareOp const   compare_op;    ///< Default (aka. 0) is Never
-  cvk_Nullable float const         lod_min;
-  cvk_Nullable float const         lod_max;
-  cvk_Nullable VkBorderColor const border_color;  ///< Default (aka. 0) is Float.Transparent.Black
-  cvk_Nullable cvk_bool const      unnormalized;  ///< Default (aka. 0) is normalized (aka. 0..1 sampling range)
-} cvk_image_sampler_create_args;
+  cvk_Nullable VkFilter const             filter_min;          ///< Default: Nearest (aka. 0)
+  cvk_Nullable VkFilter const             filter_mag;          ///< Default: Nearest (aka. 0)
+  cvk_Nullable VkSamplerMipmapMode const  mip_mode;            ///< Default: Nearest (aka. 0)
+  cvk_Nullable float const                mip_lodBias;         ///< Default: 0.0f
+  cvk_Nullable VkSamplerAddressMode const address_U;           ///< Default: Repeat  (aka. 0)
+  cvk_Nullable VkSamplerAddressMode const address_V;           ///< Default: Repeat  (aka. 0)
+  cvk_Nullable VkSamplerAddressMode const address_W;           ///< Default: Repeat  (aka. 0)
+  cvk_Nullable cvk_bool const             anisotropy_enabled;  ///< Default: Disabled
+  cvk_Nullable float const                anisotropy_max;      ///< Default: `.device_physical->properties.limits.maxSamplerAnisotropy` when omitted (aka. 0.0f) and `anisotropy_enabled`. Clamped to range `[1.0 .. .device_physical->properties.limits.maxSamplerAnisotropy]`
+  cvk_Nullable cvk_bool const             compare_enabled;     ///< Default: Disabled
+  cvk_Nullable VkCompareOp const          compare_op;          ///< Default: Never   (aka. 0)
+  cvk_Nullable float const                lod_min;             ///< Default: 0.0f
+  cvk_Nullable float const                lod_max;             ///< Default: 0.0f
+  cvk_Nullable VkBorderColor const        border_color;        ///< Default: Float.Transparent.Black (aka. 0)
+  cvk_Nullable cvk_bool const             unnormalized;        ///< Default: Normalized (aka. 0..1 sampling range)
+} cvk_image_sampler_create_args;  // clang-format on
 
 cvk_Pure cvk_image_Sampler cvk_image_sampler_create (  // clang-format off
   cvk_image_sampler_create_args const* const arg
-);                                                // clang-format on
+);                               // clang-format on
 
 void cvk_image_sampler_destroy ( // clang-format off
   cvk_image_Sampler* const        image_sampler,

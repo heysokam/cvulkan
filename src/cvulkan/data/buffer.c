@@ -2,15 +2,13 @@
 //  cvulkan  |  Copyright (C) Ivan Mar (sOkam!)  |  MPL-2.0  :
 //:___________________________________________________________
 #include "../result.h"
-#include "../sync.h"
-#include "../device.h"
 #include "../data.h"
 
 
 cvk_Pure cvk_Buffer cvk_buffer_create (
   cvk_buffer_create_args const* const arg
-) {  // clang-format off
-  cvk_Buffer result = (cvk_Buffer){
+) {
+  cvk_Buffer result = (cvk_Buffer) /* clang-format off */{
     .ct                      = NULL,
     .cfg                     = (VkBufferCreateInfo){
       .sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -19,11 +17,10 @@ cvk_Pure cvk_Buffer cvk_buffer_create (
       .size                  = arg->size,
       .usage                 = arg->usage,
       .sharingMode           = arg->sharing,
-      .queueFamilyIndexCount = 0,     // TODO: Configurable
-      .pQueueFamilyIndices   = NULL,  // TODO: Configurable
-    },
-  };
-  cvk_result_check(vkCreateBuffer(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
+      .queueFamilyIndexCount = (arg->queueFamilies_ptr && !arg->queueFamilies_len) ? 1 : arg->queueFamilies_len,
+      .pQueueFamilyIndices   = arg->queueFamilies_ptr,
+  }};                                                        // clang-format on
+  cvk_result_check(/* clang-format off */vkCreateBuffer(arg->device_logical->ct, &result.cfg, arg->allocator->gpu, &result.ct),
     "Failed to create a GPU data Buffer.");  // clang-format on
   vkGetBufferMemoryRequirements(arg->device_logical->ct, result.ct, &result.memory.requirements);
   result.memory.kind = cvk_memory_properties_type(&result.memory, arg->device_physical, arg->memory_flags);
@@ -39,11 +36,11 @@ void cvk_buffer_destroy (
   buffer->cfg                 = (VkBufferCreateInfo){ 0 };
   buffer->memory.requirements = (VkMemoryRequirements){ 0 };
   buffer->memory.kind         = cvk_Optional_u32_none;
-  vkDestroyBuffer(device_logical->ct, buffer->ct, allocator->gpu);
+  if (buffer->ct) vkDestroyBuffer(device_logical->ct, buffer->ct, allocator->gpu);
 }
 
 
-void cvk_buffer_command_copy (
+inline void cvk_buffer_command_copy (
   cvk_Buffer const* const           A,
   cvk_Buffer const* const           B,
   cvk_buffer_copy_args const* const arg
@@ -55,16 +52,16 @@ void cvk_buffer_command_copy (
 }
 
 
-void cvk_buffer_bind (
+inline void cvk_buffer_bind (
   cvk_Buffer const* const           buffer,
   cvk_buffer_bind_args const* const arg
-) {  // clang-format off
-  cvk_result_check(vkBindBufferMemory(arg->device_logical->ct, buffer->ct, arg->memory->ct, arg->offset),
+) {
+  cvk_result_check(/* clang-format off */vkBindBufferMemory(arg->device_logical->ct, buffer->ct, arg->memory->ct, arg->offset),
     "Failed to bind a block of Device.Memory to a Buffer.Memory context.");  // clang-format on
 }
 
 
-void cvk_buffer_vertex_command_bind (
+inline void cvk_buffer_vertex_command_bind (
   cvk_Buffer const* const         buffer,
   cvk_command_Buffer const* const command_buffer
 ) {
@@ -73,7 +70,7 @@ void cvk_buffer_vertex_command_bind (
 }
 
 
-void cvk_buffer_index_command_bind (
+inline void cvk_buffer_index_command_bind (
   cvk_Buffer const* const         buffer,
   cvk_command_Buffer const* const command_buffer
 ) {

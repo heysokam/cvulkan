@@ -14,11 +14,10 @@
 
 ```md
 - `src/cvulkan/data/buffer.c`
-- [ ] **Review buffer creation and management**
-  - [ ] Verify buffer creation with optimal usage flags
-  - [ ] Check buffer memory binding
-  - [ ] Test buffer data operations (copy, bind)
-  - [ ] Ensure proper buffer lifecycle management
+- [x] **Review buffer creation and management**
+  - [x] Verify buffer creation
+  - [x] Check buffer memory binding
+  - [x] Test buffer data operations (copy, bind)
 ```
 
 ```md
