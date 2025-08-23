@@ -12,7 +12,7 @@ end-to-end rendering examples and validate the complete graphics pipeline.
 - [x] Sane Defaults
 ## Layout
 - [x] Minimal Creation
-- [ ] Customizable Options
+- [x] Customizable Options
 ## Context: Graphics
 - [x] Minimal Creation: Single Pipeline
 - [x] Customizable Options

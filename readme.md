@@ -56,7 +56,7 @@ Up-to-date list of features pending and done:
 |  0.6.0  | Shaders                           | ✅ Done   | [doc/done.0.6.0.md](doc/done.0.6.0.md)       |
 |  0.7.0  | Static Rendering Elements         | ✅ Done   | [doc/done.0.7.0.md](doc/done.0.7.0.md)       |
 |  0.8.0  | Synchronization Structures        | ✅ Done   | [doc/done.0.8.0.md](doc/done.0.8.0.md)       |
-|  0.9.0  | Graphics Pipeline                 | 🔄 Review | [doc/todo.0.9.0.md](doc/todo.0.9.0.md)       |
+|  0.9.0  | Graphics Pipeline                 | ✅ Done   | [doc/done.0.9.0.md](doc/done.0.9.0.md)       |
 | 0.10.0  | Buffers                           | 🔄 Review | [doc/todo.0.10.0.md](doc/todo.0.10.0.md)     |
 | 0.11.0  | Images & Textures                 | 🔄 Review | [doc/todo.0.11.0.md](doc/todo.0.11.0.md)     |
 | 0.12.0  | Compute Pipeline                  | 📋 TODO   | [doc/todo.0.12.0.md](doc/todo.0.12.0.md)     |
